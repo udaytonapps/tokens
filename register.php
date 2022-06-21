@@ -17,6 +17,6 @@ $REGISTER_LTI2 = array(
     // "video" => "",
     // "source_url" => "",
     // "screen_shots" => array(
-    //     "",
+    //     ""
     // )
 );
