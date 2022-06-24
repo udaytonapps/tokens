@@ -24,7 +24,6 @@ $TOKENS_CONFIGURATION = "CREATE TABLE {$TOKENS_CONFIG_TABLE_NAME} (
     /* TOKEN COLS */
     initial_tokens          INTEGER NOT NULL,
     use_by_date             DATETIME NOT NULL, /* Tokens cannot be used AFTER this date */
-    request_type_id         INTEGER NOT NULL, /* Refers to request defined by instructor */
 
     PRIMARY KEY(configuration_id),
 
