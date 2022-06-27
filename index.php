@@ -25,7 +25,7 @@ $OUTPUT->get_theme();
 </script>
 <?php
 
-require './demonstration.php';
+require './demo/demonstration.php';
 
 /**
  * Index file that references the dynamic React build files

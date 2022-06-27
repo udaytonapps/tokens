@@ -8,9 +8,9 @@
 </style>
 <?php
 
-require_once __DIR__ . '/api/index.php';
+require_once __DIR__ . '/../api/index.php';
 
-use Api\CommonCtr;
+use TokenApi\CommonCtr;
 use Tsugi\UI\Theme;
 
 $user = CommonCtr::me();
@@ -31,3 +31,4 @@ echo 'Theme color: ' . Theme::$theme_base;
 ?>
 </br>
 <?php
+echo 'Session ID: ' . $_GET["PHPSESSID"];
