@@ -6,7 +6,7 @@ interface DevPanelProps {
   environment: CraEnvironment;
 }
 
-/** Shows the balances of all available students */
+/** Show development information during pre-build */
 function DevPanel(props: DevPanelProps) {
   const { environment } = props;
   // TODO get config token balance and use to calculate balance in table

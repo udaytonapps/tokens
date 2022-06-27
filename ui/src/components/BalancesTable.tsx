@@ -7,14 +7,14 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { BalanceTableRow } from "../utils/types";
+import { BalancesTableRow } from "../utils/types";
 
-interface BalanceTableProps {
-  rows: BalanceTableRow[];
+interface BalancesTableProps {
+  rows: BalancesTableRow[];
 }
 
 /** Shows the balances of all available students */
-function BalanceTable(props: BalanceTableProps) {
+function BalancesTable(props: BalancesTableProps) {
   const { rows } = props;
   // TODO get config token balance and use to calculate balance in table
 
@@ -23,7 +23,7 @@ function BalanceTable(props: BalanceTableProps) {
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>Student</TableCell>
+            <TableCell>Student Name</TableCell>
             <TableCell align="center">Token Balance</TableCell>
             <TableCell align="center">Tokens Used</TableCell>
           </TableRow>
@@ -47,4 +47,4 @@ function BalanceTable(props: BalanceTableProps) {
   );
 }
 
-export default BalanceTable;
+export default BalancesTable;

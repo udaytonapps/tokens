@@ -18,3 +18,10 @@ export const getAppConfig = (): CraEnvironmentConfig => {
 
   return config;
 };
+
+export function a11yProps(index: number) {
+  return {
+    id: `tab-${index}`,
+    "aria-controls": `tabpanel-${index}`,
+  };
+}

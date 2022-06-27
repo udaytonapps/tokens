@@ -28,7 +28,13 @@ function App() {
         {/* Only show dev panel for local development */}
         {environment === "pre_build" && <DevPanel environment={environment} />}
         <Box display={"flex"} className="App-header">
-          <Box height={"100vh"} display={"flex"} flexDirection={"column"}>
+          <Box
+            width={"100%"}
+            p={4}
+            height={"100vh"}
+            display={"flex"}
+            flexDirection={"column"}
+          >
             <Header />
             <Box>
               <InstructorView />

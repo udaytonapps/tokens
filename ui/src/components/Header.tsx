@@ -1,9 +1,8 @@
-import { Box, Card, Typography } from "@mui/material";
-import { getAppConfig } from "../utils/helpers";
+import { Box, Typography } from "@mui/material";
 
 interface HeaderProps {}
 
-/** Shows the balances of all available students */
+/** Show basic header info */
 function Header(props: HeaderProps) {
   return (
     <Box mt={6}>
