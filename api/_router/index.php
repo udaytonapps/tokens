@@ -13,7 +13,7 @@ class Route extends Steampixel\Route
     {
         // Response from this API should always be in JSON format
         header('Content-Type: application/json');
-        if (gettype($res) === 'string' && Route::isHTML($res)) {
+        if (gettype($res) === 'string' && Route::isHTML($res) || isset($res['error'])) {
             // TODO: Check about handling/catching errors, seems xdebug is intercepting...?
             return json_encode(array('status' => "error", "message" => $res));
         } else {
@@ -56,7 +56,7 @@ class Route extends Steampixel\Route
         // Check the required properties for any missing data
         foreach ($requiredData as $requiredProp) {
             if (!isset($body[$requiredProp])) {
-                $data = null;
+                return null;
             } else {
                 $data[$requiredProp] = $body[$requiredProp];
             }
