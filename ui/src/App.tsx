@@ -1,15 +1,7 @@
-import {
-  Box,
-  Card,
-  ThemeProvider,
-  Typography,
-  Button,
-  createTheme,
-  CssBaseline,
-} from "@mui/material";
-import { useEffect } from "react";
+import { Box, ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import "./App.scss";
 import DevPanel from "./components/DevPanel";
+import Header from "./components/Header";
 import { DEFAULT_BASE_COLOR } from "./utils/contants";
 import { getAppConfig } from "./utils/helpers";
 import { CraEnvironment } from "./utils/types";
@@ -37,6 +29,7 @@ function App() {
         {environment === "pre_build" && <DevPanel environment={environment} />}
         <Box display={"flex"} className="App-header">
           <Box height={"100vh"} display={"flex"} flexDirection={"column"}>
+            <Header />
             <Box>
               <InstructorView />
             </Box>
