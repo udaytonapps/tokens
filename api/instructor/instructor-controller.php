@@ -83,7 +83,7 @@ class InstructorCtr
 
         // Check for roster
         $hasRoster = \Tsugi\Core\LTIX::populateRoster(false);
-        if (!$hasRoster) {
+        if ($hasRoster) {
             // If there is a roster, learner list will be populated from it (such as when launched from LMS)
             $rosterLearners = $GLOBALS['ROSTER']->data;
 
