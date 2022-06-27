@@ -13,7 +13,7 @@ function DevPanel(props: DevPanelProps) {
 
   return (
     <Box position={"absolute"} bottom={0} p={2}>
-      <Card>
+      <Card sx={{ border: "2px solid red" }}>
         <Box p={2} textAlign="center">
           <Typography>React App status is: {environment}</Typography>
           <Typography>Session ID is: {getAppConfig().sessionId}</Typography>
