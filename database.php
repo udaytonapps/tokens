@@ -24,6 +24,7 @@ $TOKENS_CONFIGURATION = "CREATE TABLE {$TOKENS_CONFIG_TABLE_NAME} (
     /* TOKEN COLS */
     initial_tokens          INTEGER NOT NULL,
     use_by_date             DATETIME NOT NULL, /* Tokens cannot be used AFTER this date */
+    notifications_pref      BOOLEAN,
 
     PRIMARY KEY(configuration_id),
 
@@ -68,8 +69,8 @@ $TOKENS_REQUEST = "CREATE TABLE {$TOKENS_REQUEST_TABLE_NAME} (
     configuration_id        INTEGER NOT NULL, /* FK reference to the configuration */
     category_id             INTEGER NOT NULL, /* FK reference to category */
     learner_comment         TEXT NOT NULL,
-    instructor_comment      TEXT NOT NULL,
-    instructor_id           INTEGER NOT NULL,
+    instructor_comment      TEXT,
+    instructor_id           INTEGER,
     status_name             VARCHAR(255) NOT NULL,
     status_updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP, /* Will be submitted at first */
 
