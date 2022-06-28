@@ -10,15 +10,27 @@
 
 require_once __DIR__ . '/../api/index.php';
 
-use TokenApi\CommonCtr;
+use TokenApi\CommonService;
 use Tsugi\UI\Theme;
 
-$user = CommonCtr::me();
+$info = CommonService::info();
 echo "Application has been generated.";
 ?>
 </br>
 <?php
-echo 'Logged in as user: ' . $user['username'];
+echo 'Logged in as user: ' . $info['username'];
+?>
+</br>
+<?php
+echo 'Is instructor: ' . ($info['isInstructor'] ? 'Yes' : 'No');
+?>
+</br>
+<?php
+echo 'Context ID: ' . $info['contextId'];
+?>
+</br>
+<?php
+echo 'Link ID: ' . $info['linkId'];
 ?>
 </br>
 <?php
@@ -31,4 +43,4 @@ echo 'Theme color: ' . Theme::$theme_base;
 ?>
 </br>
 <?php
-echo 'Session ID: ' . $_GET["PHPSESSID"];
+echo 'Session ID: ' . $info['sessionId'];
