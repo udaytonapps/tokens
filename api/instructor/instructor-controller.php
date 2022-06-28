@@ -38,7 +38,20 @@ class InstructorCtr
     {
         $config = self::$DAO->getConfiguration(self::$contextId);
         $config['categories'] = self::$DAO->getConfigCategories($config['configuration_id']);
-        return $config;
+        // Cast data that is used for calculations, strip what isn't needed
+        foreach ($config['categories'] as &$category) {
+            $category = array(
+                'category_id' => $category['category_id'],
+                'category_name' => $category['category_name'],
+                'token_cost' => intval($category['token_cost']),
+            );
+        }
+        return array(
+            'configuration_id' => $config['configuration_id'],
+            'initial_tokens' => intval($config['initial_tokens']),
+            'notifications_pref' => $config['notifications_pref'] ? true : false,
+            'categories' => $config['categories'],
+        );
     }
 
     static function updateCategory($data)
