@@ -1,17 +1,17 @@
 export type CraEnvironment = "pre_build" | "local_build" | "deployed_build";
 export interface CraEnvironmentConfig {
   apiUrl: string;
+  contextId: string;
+  isInstructor: boolean;
+  username: string;
   sessionId: string;
   baseColor?: string;
   darkMode?: boolean;
+  linkId?: string;
 }
 
 export interface DecoratedWindow extends Window {
-  appConfig?: {
-    sessionId: string;
-    baseColor?: string;
-    darkMode?: boolean;
-  };
+  appConfig?: CraEnvironmentConfig;
 }
 
 export interface BalancesTableRow {

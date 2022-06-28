@@ -13,12 +13,12 @@ Route::add('', function () {
 
 /** Common Requests */
 Route::add('/me', function () {
-    $res = CommonCtr::me();
+    $res = CommonService::me();
     return Route::sendJson($res);
 }, 'get');
 
 Route::add('/info', function() {
-    $res = CommonCtr::info();
+    $res = CommonService::info();
     return Route::sendJson($res);
 }, 'get');
 
