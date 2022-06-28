@@ -3,17 +3,20 @@ import { getAppConfig } from "./helpers";
 import {
   BalancesTableRow,
   GetAllBalancesResponse,
+  GetSettingsResponse,
   GetSubmittedRequestsResponse,
   RequestsTableRow,
+  TokensSettings,
 } from "./types";
 
 const config = getAppConfig();
 
-export const getConfiguration = async (): Promise<any> => {
+export const getConfiguration = async (): Promise<TokensSettings | null> => {
   try {
-    const res = await axios.get<any>(
+    const res = await axios.get<GetSettingsResponse>(
       `${config.apiUrl}/instructor/settings?PHPSESSID=${config.sessionId}`
     );
+    console.log(res.data.data);
     return res.data.data;
   } catch (e) {
     console.error(e);

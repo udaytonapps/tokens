@@ -14,6 +14,19 @@ export interface DecoratedWindow extends Window {
   appConfig?: CraEnvironmentConfig;
 }
 
+export interface TokensSettings {
+  configuration_id: string;
+  initial_tokens: number;
+  notifications_pref: boolean;
+  categories: TokensCategory[];
+}
+
+export interface TokensCategory {
+  category_id: string;
+  category_name: string;
+  token_cost: number;
+}
+
 export interface BalancesTableRow {
   user_id: string;
   learner_name: number;
@@ -47,6 +60,10 @@ type ApiStatus = "success" | "error";
 export interface ApiResponse {
   status: ApiStatus;
   data: unknown;
+}
+
+export interface GetSettingsResponse extends ApiResponse {
+  data: TokensSettings;
 }
 
 export interface GetAllBalancesResponse extends ApiResponse {
