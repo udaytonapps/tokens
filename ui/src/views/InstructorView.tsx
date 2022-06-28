@@ -5,7 +5,11 @@ import BalancesTable from "../components/BalancesTable";
 import HistoryTable from "../components/HistoryTable";
 import RequestsTable from "../components/RequestsTable";
 import TabPanel from "../components/TabPanel";
-import { getAllBalances, getSubmittedRequests } from "../utils/api-connector";
+import {
+  getAllBalances,
+  getConfiguration,
+  getSubmittedRequests,
+} from "../utils/api-connector";
 import { a11yProps } from "../utils/helpers";
 import {
   BalancesTableRow,
@@ -15,20 +19,25 @@ import {
 
 function InstructorView() {
   useEffect(() => {
+    getConfiguration().then((res) => {
+      setSettings(res);
+    });
     getAllBalances().then((res) => {
       setBalanceRows(res);
     });
     getSubmittedRequests().then((res) => {
-      console.log(res);
+      // Filter 'SUBMITTED' rows for requests table
       const requests = res.filter((row) => {
         return row.status_name === "SUBMITTED";
       });
       setRequestRows(requests);
+      // All will show on history table
       setHistoryRows(res);
     });
   }, []);
 
   const [tabPosition, setTabPosition] = useState(0);
+  const [settings, setSettings] = useState<any>([]);
   const [balanceRows, setBalanceRows] = useState<BalancesTableRow[]>([]);
   const [requestRows, setRequestRows] = useState<RequestsTableRow[]>([]);
   const [historyRows, setHistoryRows] = useState<HistoryTableRow[]>([]);
@@ -59,7 +68,12 @@ function InstructorView() {
         </Tabs>
       </Box>
       <TabPanel value={tabPosition} index={0}>
-        <BalancesTable rows={balanceRows} />
+        <BalancesTable
+          rows={balanceRows}
+          requests={requestRows}
+          initialTokens={settings.initial_tokens}
+          setTabPosition={setTabPosition}
+        />
       </TabPanel>
       <TabPanel value={tabPosition} index={1}>
         <RequestsTable rows={requestRows} />

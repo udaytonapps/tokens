@@ -33,7 +33,7 @@ export interface RequestsTableRow {
   status_name: RequestStatus;
   status_updated_at: string; // "2022-06-27 11:26:33";
   updated_at: string; // "2022-06-27 11:26:33";
-  // user_id: "4";
+  user_id: string;
 }
 
 export interface HistoryTableRow extends RequestsTableRow {}

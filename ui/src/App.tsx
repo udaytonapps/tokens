@@ -37,6 +37,7 @@ function App() {
           >
             <Header />
             <Box>
+              {/* Condition for views? */}
               <InstructorView />
             </Box>
           </Box>

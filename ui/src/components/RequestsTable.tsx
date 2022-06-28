@@ -39,7 +39,16 @@ function RequestsTable(props: RequestsTableProps) {
                 {row.learner_name}
               </TableCell>
               <TableCell>{row.category_name}</TableCell>
-              <TableCell>{row.learner_comment}</TableCell>
+              <TableCell
+                sx={{
+                  maxWidth: 200,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {row.learner_comment}
+              </TableCell>
               <TableCell align="center">
                 <Button variant="contained">Review</Button>
               </TableCell>
