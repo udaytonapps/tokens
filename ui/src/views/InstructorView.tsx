@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import BalancesTable from "../components/BalancesTable";
 import HistoryTable from "../components/HistoryTable";
 import RequestsTable from "../components/RequestsTable";
+import SettingsDialog from "../components/SettingsDialog";
 import TabPanel from "../components/TabPanel";
 import {
   getAllBalances,
@@ -15,35 +16,52 @@ import {
   BalancesTableRow,
   HistoryTableRow,
   RequestsTableRow,
+  TokensSettings,
 } from "../utils/types";
 
 function InstructorView() {
-  useEffect(() => {
-    getConfiguration().then((res) => {
-      setSettings(res);
-    });
-    getAllBalances().then((res) => {
-      setBalanceRows(res);
-    });
-    getSubmittedRequests().then((res) => {
-      // Filter 'SUBMITTED' rows for requests table
-      const requests = res.filter((row) => {
-        return row.status_name === "SUBMITTED";
-      });
-      setRequestRows(requests);
-      // All will show on history table
-      setHistoryRows(res);
-    });
-  }, []);
-
   const [tabPosition, setTabPosition] = useState(0);
-  const [settings, setSettings] = useState<any>([]);
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  const [settings, setSettings] = useState<TokensSettings | null>(null);
   const [balanceRows, setBalanceRows] = useState<BalancesTableRow[]>([]);
   const [requestRows, setRequestRows] = useState<RequestsTableRow[]>([]);
   const [historyRows, setHistoryRows] = useState<HistoryTableRow[]>([]);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  useEffect(() => {
+    fetchAndAssembleData();
+  }, []);
+
+  /** Retrieve data for the instructor tables */
+  const fetchAndAssembleData = async () => {
+    // Retrieve and set Tokens Settings
+    const fetchedSettings = await getConfiguration();
+    setSettings(fetchedSettings);
+
+    // Retrieve and set rows for the Balances Table
+    const fetchedBalanceRows = await getAllBalances();
+    setBalanceRows(fetchedBalanceRows);
+
+    // Retrieve and set rows for the Requests Table
+    const fetchedRequestRows = await getSubmittedRequests();
+    // Filter 'SUBMITTED' rows for requests table
+    const newlySubmittedRequests = fetchedRequestRows.filter((row) => {
+      return row.status_name === "SUBMITTED";
+    });
+    setRequestRows(newlySubmittedRequests);
+    // All will show on history table
+    setHistoryRows(fetchedRequestRows);
+  };
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabPosition(newValue);
+  };
+
+  const handleOpenSettingsDialog = () => {
+    setSettingsDialogOpen(true);
+  };
+
+  const handleCloseSettingsDialog = () => {
+    setSettingsDialogOpen(false);
   };
 
   return (
@@ -52,14 +70,14 @@ function InstructorView() {
         <IconButton>
           <NotificationImportant />
         </IconButton>
-        <IconButton>
+        <IconButton onClick={handleOpenSettingsDialog}>
           <Settings />
         </IconButton>
       </Box>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs
           value={tabPosition}
-          onChange={handleChange}
+          onChange={handleTabChange}
           aria-label="basic tabs example"
         >
           <Tab label="Balances" {...a11yProps(0)} />
@@ -71,7 +89,7 @@ function InstructorView() {
         <BalancesTable
           rows={balanceRows}
           requests={requestRows}
-          initialTokens={settings.initial_tokens}
+          initialTokens={settings?.initial_tokens || 0}
           setTabPosition={setTabPosition}
         />
       </TabPanel>
@@ -81,6 +99,12 @@ function InstructorView() {
       <TabPanel value={tabPosition} index={2}>
         <HistoryTable rows={historyRows} />
       </TabPanel>
+      {/* DIALOG */}
+      <SettingsDialog
+        handleClose={handleCloseSettingsDialog}
+        open={settingsDialogOpen}
+        settings={settings}
+      />
     </Box>
   );
 }
