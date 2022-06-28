@@ -13,9 +13,13 @@ class Route extends Steampixel\Route
     {
         // Response from this API should always be in JSON format
         header('Content-Type: application/json');
-        if (gettype($res) === 'string' && Route::isHTML($res) || isset($res['error'])) {
-            // TODO: Check about handling/catching errors, seems xdebug is intercepting...?
+        if (gettype($res) === 'string' && Route::isHTML($res)) {
             return json_encode(array('status' => "error", "message" => $res));
+        } else if (isset($res['error']) || isset($res['Error'])) {
+            if (!isset($res['error'])) {
+                $res['error'] = $res['Error'];
+            }
+            return json_encode(array('status' => "error", "message" => $res['error']));
         } else {
             return json_encode(array('status' => "success", "data" => $res));
         }
@@ -24,6 +28,12 @@ class Route extends Steampixel\Route
     static private function isHTML($res)
     {
         return ($res != strip_tags($res));
+    }
+
+    static function handleDefaultRequest()
+    {
+        $res = array("error" => "Invalid route");
+        return Route::sendJson($res);
     }
 
     static function initializeAppRouting()

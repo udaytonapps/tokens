@@ -16,4 +16,8 @@ require_once __DIR__ . '/instructor/index.php';
 
 use TokenApi\Route;
 
+Route::pathNotFound(function ($info) {
+    echo Route::handleDefaultRequest();
+});
+
 Route::initializeAppRouting();
