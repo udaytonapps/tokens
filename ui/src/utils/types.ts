@@ -15,16 +15,17 @@ export interface DecoratedWindow extends Window {
 }
 
 export interface TokensSettings {
-  configuration_id: string;
   initial_tokens: number;
   notifications_pref: boolean;
   categories: TokensCategory[];
+  configuration_id?: string;
 }
 
 export interface TokensCategory {
-  category_id: string;
   category_name: string;
   token_cost: number;
+  category_id?: string;
+  dbAction?: "ADD" | "UPDATE" | "DELETE";
 }
 
 export interface BalancesTableRow {
