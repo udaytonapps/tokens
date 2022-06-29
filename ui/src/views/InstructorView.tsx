@@ -64,6 +64,11 @@ function InstructorView() {
     setSettingsDialogOpen(false);
   };
 
+  const handleSaveSettingsDialog = (newSettings: TokensSettings) => {
+    // Need to take the new data, send the update, and fetch the new settings
+    console.log(newSettings);
+  };
+
   return (
     <Box>
       <Box display={"flex"} justifyContent={"end"} mr={1} mb={2}>
@@ -102,6 +107,7 @@ function InstructorView() {
       {/* DIALOG */}
       <SettingsDialog
         handleClose={handleCloseSettingsDialog}
+        handleSave={handleSaveSettingsDialog}
         open={settingsDialogOpen}
         settings={settings}
       />

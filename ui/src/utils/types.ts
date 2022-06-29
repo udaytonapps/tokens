@@ -23,7 +23,7 @@ export interface TokensSettings {
 
 export interface TokensCategory {
   category_name: string;
-  token_cost: number;
+  token_cost: number | string;
   category_id?: string;
   dbAction?: "ADD" | "UPDATE" | "DELETE";
 }
