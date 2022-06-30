@@ -18,6 +18,15 @@ const theme = createTheme({
     },
     mode: getAppConfig().darkMode ? "dark" : "light",
   },
+  components: {
+    MuiTableCell: {
+      styleOverrides: {
+        head: {
+          fontWeight: "bold",
+        },
+      },
+    },
+  },
 });
 
 function App() {
