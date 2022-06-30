@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import BalancesTable from "../components/BalancesTable";
 import HistoryTable from "../components/HistoryTable";
 import RequestsTable from "../components/RequestsTable";
+import ReviewDialog from "../components/ReviewDialog";
 import SettingsDialog from "../components/SettingsDialog";
 import TabPanel from "../components/TabPanel";
 import {
@@ -11,6 +12,7 @@ import {
   getAllBalances,
   getSettings,
   getSubmittedRequests,
+  updateRequest,
   updateSettings,
 } from "../utils/api-connector";
 import { a11yProps } from "../utils/helpers";
@@ -18,16 +20,19 @@ import {
   BalancesTableRow,
   HistoryTableRow,
   RequestsTableRow,
+  RequestUpdateData,
   TokensSettings,
 } from "../utils/types";
 
 function InstructorView() {
   const [tabPosition, setTabPosition] = useState(0);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [settings, setSettings] = useState<TokensSettings | null>();
   const [balanceRows, setBalanceRows] = useState<BalancesTableRow[]>([]);
   const [requestRows, setRequestRows] = useState<RequestsTableRow[]>([]);
   const [historyRows, setHistoryRows] = useState<HistoryTableRow[]>([]);
+  const [requestInReview, setRequestInReview] = useState<RequestsTableRow>();
 
   useEffect(() => {
     fetchAndAssembleData();
@@ -70,12 +75,34 @@ function InstructorView() {
     setSettingsDialogOpen(true);
   };
 
+  const handleOpenReviewDialogFromRequests = (requestId: string) => {
+    setRequestInReview(
+      requestRows.find((request) => request.request_id === requestId)
+    );
+    setReviewDialogOpen(true);
+  };
+
+  const handleOpenReviewDialogFromHistory = (requestId: string) => {
+    setRequestInReview(
+      historyRows.find((request) => request.request_id === requestId)
+    );
+    setReviewDialogOpen(true);
+  };
+
   const handleCloseSettingsDialog = (event?: object, reason?: string) => {
     const reasonsToStayOpen = ["backdropClick", "escapeKeyDown"];
     if (reason && reasonsToStayOpen.includes(reason)) {
       return;
     }
     setSettingsDialogOpen(false);
+  };
+
+  const handleCloseReviewDialog = (event?: object, reason?: string) => {
+    const reasonsToStayOpen = ["backdropClick", "escapeKeyDown"];
+    if (reason && reasonsToStayOpen.includes(reason)) {
+      return;
+    }
+    setReviewDialogOpen(false);
   };
 
   const handleSaveSettingsDialog = async (newSettings: TokensSettings) => {
@@ -90,6 +117,15 @@ function InstructorView() {
     // Fetch the new/updated settings to refresh the UI
     const retrievedSettings = await getSettings();
     setSettings(retrievedSettings);
+  };
+
+  const handleSaveReviewDialog = async (reviewData: RequestUpdateData) => {
+    // Close the dialog
+    setReviewDialogOpen(false);
+    // Send the update
+    await updateRequest(reviewData);
+    // Refresh the data in the UI
+    await fetchAndAssembleData();
   };
 
   return (
@@ -124,19 +160,31 @@ function InstructorView() {
             />
           </TabPanel>
           <TabPanel value={tabPosition} index={1}>
-            <RequestsTable rows={requestRows} />
+            <RequestsTable
+              rows={requestRows}
+              openReviewDialog={handleOpenReviewDialogFromRequests}
+            />
           </TabPanel>
           <TabPanel value={tabPosition} index={2}>
-            <HistoryTable rows={historyRows} />
+            <HistoryTable
+              rows={historyRows}
+              openReviewDialog={handleOpenReviewDialogFromHistory}
+            />
           </TabPanel>
-          {/* DIALOG */}
         </Box>
       )}
+      {/* DIALOGS */}
       <SettingsDialog
         handleClose={handleCloseSettingsDialog}
         handleSave={handleSaveSettingsDialog}
         open={settingsDialogOpen}
         settings={settings || null}
+      />
+      <ReviewDialog
+        handleClose={handleCloseReviewDialog}
+        handleSave={handleSaveReviewDialog}
+        open={reviewDialogOpen}
+        requestRow={requestInReview || null}
       />
     </>
   );

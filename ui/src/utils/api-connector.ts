@@ -7,6 +7,7 @@ import {
   GetSettingsResponse,
   GetSubmittedRequestsResponse,
   RequestsTableRow,
+  RequestUpdateData,
   TokensSettings,
 } from "./types";
 
@@ -44,7 +45,6 @@ export const getSettings = async (): Promise<TokensSettings | null> => {
 };
 
 export const addSettings = async (settings: TokensSettings): Promise<void> => {
-  console.log("ADDING settings");
   try {
     const body = settings;
     await axios.post<ApiResponse>(
@@ -61,7 +61,6 @@ export const addSettings = async (settings: TokensSettings): Promise<void> => {
 export const updateSettings = async (
   settings: TokensSettings
 ): Promise<void> => {
-  console.log("UPDATING settings");
   try {
     const body = settings;
     await axios.put<ApiResponse>(
@@ -96,5 +95,20 @@ export const getSubmittedRequests = async (): Promise<RequestsTableRow[]> => {
   } catch (e) {
     console.error(e);
     return [];
+  }
+};
+
+export const updateRequest = async (updateData: RequestUpdateData) => {
+  console.log("UPDATING request");
+  try {
+    const body = updateData;
+    await axios.put<ApiResponse>(
+      `${config.apiUrl}/instructor/requests?PHPSESSID=${config.sessionId}`,
+      body
+    );
+    return;
+  } catch (e) {
+    console.error(e);
+    return;
   }
 };

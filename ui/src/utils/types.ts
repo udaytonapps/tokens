@@ -51,9 +51,15 @@ export interface RequestsTableRow {
   user_id: string;
 }
 
+export interface RequestUpdateData {
+  request_id: string;
+  status_name: RequestStatus;
+  instructor_comment?: string;
+}
+
 export interface HistoryTableRow extends RequestsTableRow {}
 
-type RequestStatus = "SUBMITTED" | "PENDING" | "ACCEPTED" | "REJECTED";
+export type RequestStatus = "SUBMITTED" | "PENDING" | "ACCEPTED" | "REJECTED";
 
 // API Interfaces
 
