@@ -1,4 +1,4 @@
-import { Add, Cancel } from "@mui/icons-material";
+import { Add, Cancel, InfoOutlined } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -11,14 +11,17 @@ import {
   IconButton,
   InputLabel,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import _ from "lodash";
-import { ChangeEvent, useEffect, useState } from "react";
-import { TokensCategory, TokensSettings } from "../utils/types";
+import { DateTime } from "luxon";
+import { useEffect } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { DB_DATE_TIME_FORMAT } from "../utils/contants";
+import { TokensSettings } from "../utils/types";
 
 interface SettingsDialogProps {
-  handleClose: () => void;
+  handleClose: (event?: object, reason?: string) => void;
   handleSave: (newSettings: TokensSettings) => void;
   open: boolean;
   settings: TokensSettings | null;
@@ -28,257 +31,321 @@ interface SettingsDialogProps {
 function SettingsDialog(props: SettingsDialogProps) {
   const { handleClose, handleSave, open, settings } = props;
 
-  const [initialTokens, setInitialTokens] = useState<number | string>("");
-  const [emailPref, setEmailPref] = useState<boolean>(false);
-  const [categories, setCategories] = useState<TokensCategory[]>([
-    { category_name: "Missed Class", token_cost: 1, dbAction: "ADD" },
-    { category_name: "Late Assignment", token_cost: 1, dbAction: "ADD" },
-  ]);
+  // Form management
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<TokensSettings>({
+    defaultValues: {
+      categories: [
+        {
+          category_name: "Missed Class",
+          token_cost: 1,
+        },
+        {
+          category_name: "Late Assignment",
+          token_cost: 1,
+        },
+      ],
+    },
+  });
+  const { fields, append, update, remove } = useFieldArray({
+    control, // control props comes from useForm (optional: if you are using FormContext)
+    name: "categories", // unique name for your Field Array
+  });
 
   useEffect(() => {
     if (settings && open) {
-      setInitialTokens(settings.initial_tokens);
-      setEmailPref(settings.notifications_pref);
-      setCategories(_.cloneDeep(settings.categories));
+      // Convert use_by_date for input
+      const formattedDate = DateTime.fromFormat(
+        settings.use_by_date,
+        DB_DATE_TIME_FORMAT
+      ).toISODate();
+      setValue("configuration_id", settings.configuration_id);
+      setValue("initial_tokens", settings.initial_tokens);
+      setValue("notifications_pref", settings.notifications_pref);
+      setValue("use_by_date", formattedDate);
+      setValue("categories", settings.categories);
     }
-  }, [settings, open]);
+  }, [settings, open, setValue]);
 
-  useEffect(() => {
-    console.log(categories);
-  }, [categories]);
-
-  const handleTokenCountChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const count = e.target.value ? parseInt(e.target.value) : "";
-    setInitialTokens(count);
-  };
-
-  const handleEmailPrefChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setEmailPref(!emailPref);
-  };
-
-  const handleCategoryNameChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    index: number
-  ) => {
-    const newCategories = [...categories];
-    newCategories[index].category_name = e.target.value;
-    newCategories[index].dbAction = getAddOrUpdateAction(newCategories[index]);
-    setCategories(newCategories);
-  };
-
-  const handleCategoryTokenCountChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    index: number
-  ) => {
-    const newCategories = [...categories];
-    newCategories[index].token_cost = e.target.value
-      ? parseInt(e.target.value)
-      : "";
-    newCategories[index].dbAction = getAddOrUpdateAction(newCategories[index]);
-    setCategories(newCategories);
-  };
-
-  const getAddOrUpdateAction = (category: TokensCategory) => {
-    if (category.category_id) {
-      return "UPDATE";
-    } else {
-      return "ADD";
-    }
-  };
-
+  /** Append a new empty category to the form */
   const handleAddCategory = () => {
-    const newCategories: TokensCategory[] = [
-      ...categories,
-      {
-        category_name: "",
-        token_cost: "",
-        dbAction: "ADD",
-      },
-    ];
-    setCategories(newCategories);
+    append({});
   };
 
-  /** Categories are marked for deletion */
-  const handleDeleteCategory = (index: number) => {
-    const categoryToDelete = categories[index];
-    if (categoryToDelete.category_id) {
-      // If it has an id, it exists in the db must be marked for deletion
-      categoryToDelete.dbAction = "DELETE";
-    } else {
-      // Otherwise, it can simple be spliced from the array
-      categories.splice(index, 1);
-    }
-    const newCategories = [...categories];
-    setCategories(newCategories);
-  };
-
-  const handleClickSave = () => {
-    const newSettings: TokensSettings = {
-      initial_tokens: Number(initialTokens),
-      notifications_pref: emailPref,
-      categories,
-    };
-    handleSave(newSettings);
-  };
-
-  const renderCategoryInputs = () => {
-    // Headers for inputs - tooltip for cost explanation
-    return categories.map((category, i) => {
-      return (
-        <Box key={`category-container-${i}`}>
-          {/* Categories are only shown if not marked for deletion */}
-          {category.dbAction !== "DELETE" && (
-            <Box display={"flex"} justifyContent={"space-between"}>
-              <Box minWidth={300} width={"70%"}>
-                <TextField
-                  margin="dense"
-                  size="small"
-                  id={`category-name-input-${i}`}
-                  type="text"
-                  placeholder="Enter category name..."
-                  InputLabelProps={{ shrink: false }}
-                  InputProps={{ inputProps: { style: { minWidth: 250 } } }}
-                  value={category.category_name}
-                  onChange={(e) => handleCategoryNameChange(e, i)}
-                  //   error
-                />
-              </Box>
-              <Box
-                display={"flex"}
-                alignItems={"center"}
-                minWidth={150}
-                width={"30%"}
-              >
-                <Box width={75} minWidth={75}>
-                  <TextField
-                    margin="dense"
-                    size="small"
-                    id={`category-token-input-${i}`}
-                    type="number"
-                    InputLabelProps={{ shrink: false }}
-                    InputProps={{
-                      inputProps: { style: { textAlign: "center" } },
-                    }}
-                    value={category.token_cost}
-                    onChange={(e) => handleCategoryTokenCountChange(e, i)}
-                    //   error
-                  />
-                </Box>
-                <Box ml={1}>
-                  <IconButton onClick={() => handleDeleteCategory(i)}>
-                    <Cancel />
-                  </IconButton>
-                </Box>
-              </Box>
-            </Box>
-          )}
-        </Box>
-      );
+  /** Indicates whether less than the minimum number of categories exists */
+  const disableCategoryDeletion = () => {
+    const validCategories = fields.filter((category) => {
+      return category.dbAction !== "DELETE";
     });
+    return validCategories.length <= 1;
+  };
+
+  /** Marks a category for deletion */
+  const handleDeleteCategory = (index: number) => {
+    if (fields[index].category_id) {
+      fields[index].dbAction = "DELETE";
+      update(index, {
+        ...fields[index],
+        dbAction: "DELETE",
+      });
+    } else {
+      remove(index);
+    }
+  };
+
+  /** Handles submission of the form data */
+  const onSubmit = (data: TokensSettings) => {
+    // Assemble main data
+    const settingsToSubmit: TokensSettings = {
+      configuration_id: settings?.configuration_id,
+      initial_tokens:
+        typeof data.initial_tokens === "number"
+          ? data.initial_tokens
+          : parseInt(data.initial_tokens),
+      use_by_date: data.use_by_date,
+      notifications_pref: data.notifications_pref,
+      categories: data.categories,
+    };
+    // Update any category dbActions
+    settingsToSubmit.categories.forEach((category) => {
+      if (category.category_id && !category.dbAction) {
+        category.dbAction = "UPDATE";
+      } else if (!category.category_id && !category.dbAction) {
+        category.dbAction = "ADD";
+      }
+    });
+    handleSave(settingsToSubmit);
   };
 
   return (
     <Dialog open={open} onClose={handleClose}>
       <Box p={2}>
-        <DialogTitle>Settings</DialogTitle>
-        <DialogContent>
-          {settings && (
-            <Box mb={3}>
-              <DialogContentText>
-                View or update the settings for your token economy.
-              </DialogContentText>
-            </Box>
-          )}
-          {/* INITIAL TOKEN COUNT */}
-          <Box
-            display={"flex"}
-            justifyContent={"space-between"}
-            alignItems={"center"}
-          >
-            <Box mr={3}>
-              <InputLabel htmlFor="token-count-input">
-                <Typography fontWeight={"bold"}>
-                  Amount of tokens to be available for each student:
-                </Typography>
-              </InputLabel>
-            </Box>
-            <Box width={75} minWidth={75}>
-              <TextField
-                autoFocus
-                margin="dense"
-                size="small"
-                id="token-count-input"
-                type="number"
-                InputLabelProps={{ shrink: false }}
-                InputProps={{ inputProps: { style: { textAlign: "center" } } }}
-                value={initialTokens}
-                onChange={handleTokenCountChange}
-                //   error
-              />
-            </Box>
-          </Box>
-          {/* EMAIL NOTIFICATIONS */}
-          <Box display={"flex"} justifyContent={"start"} alignItems={"center"}>
-            <Box mr={3}>
-              <InputLabel htmlFor="email-pref-checkbox">
-                <Typography fontWeight={"bold"}>
-                  Email notifications:
-                </Typography>
-              </InputLabel>
-            </Box>
-            <Checkbox
-              checked={emailPref}
-              onChange={handleEmailPrefChange}
-              inputProps={{
-                "aria-label": "Email notifications preference checkbox",
-              }}
-            />
-          </Box>
-          <Box mb={3}>
-            <Typography variant="body2">
-              Receive emails when students use tokens.
-            </Typography>
-          </Box>
-          {/* CATEGORY SELECTION */}
-          <Box display={"flex"} flexDirection={"column"}>
-            <Box display={"flex"}>
-              <Box pr={3} minWidth={300} width={"70%"}>
-                <InputLabel htmlFor="category-name-input-0">
-                  <Typography fontWeight={"bold"}>Categories:</Typography>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <DialogTitle>Instructor Settings</DialogTitle>
+          <DialogContent>
+            {settings && (
+              <Box mb={3}>
+                <DialogContentText>
+                  View or update the settings for your token economy.
+                </DialogContentText>
+              </Box>
+            )}
+            {/* INITIAL TOKEN COUNT */}
+            <Box display={"flex"} mt={1} mb={2}>
+              <Box minWidth={300} width={300} mr={2} mt={1}>
+                <InputLabel htmlFor="token-count" sx={{ whiteSpace: "normal" }}>
+                  <Typography fontWeight={"bold"}>
+                    Amount of tokens to be available for each student:
+                  </Typography>
                 </InputLabel>
               </Box>
-              <Box minWidth={150} width={"30%"}>
-                <InputLabel htmlFor="category-token-input-0">
-                  <Typography fontWeight={"bold"}>Token Cost:</Typography>
-                </InputLabel>
+              <Box minWidth={150} width={150}>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  size="small"
+                  id="token-count"
+                  type="number"
+                  error={!!errors.initial_tokens}
+                  InputLabelProps={{ shrink: false }}
+                  InputProps={{
+                    inputProps: {
+                      style: { textAlign: "center" },
+                    },
+                  }}
+                  {...register("initial_tokens", {
+                    required: true,
+                    pattern: /^[0-9]+$/,
+                    min: 1,
+                  })}
+                  helperText={
+                    errors.initial_tokens && "Must be a positive whole number"
+                  }
+                />
               </Box>
             </Box>
-            <Box display={"flex"} flexDirection={"column"}>
-              {renderCategoryInputs()}
+            {/* EXPIRATION / USE BY DATE */}
+            <Box display={"flex"} mb={2}>
+              <Box minWidth={300} mr={2} mt={2}>
+                <InputLabel htmlFor="use-by-date">
+                  <Typography fontWeight={"bold"}>
+                    Date that tokens must be used by:
+                  </Typography>
+                </InputLabel>
+              </Box>
+              <Box>
+                <TextField
+                  margin="dense"
+                  size="small"
+                  id="use-by-date"
+                  type="date"
+                  error={!!errors.use_by_date}
+                  InputLabelProps={{ shrink: false }}
+                  {...register("use_by_date", {
+                    required: true,
+                  })}
+                  helperText={errors.use_by_date && "Must be a valid date"}
+                />
+              </Box>
             </Box>
-            <Box pt={1}>
-              <Button
-                variant="contained"
-                startIcon={<Add />}
-                onClick={handleAddCategory}
+            {/* EMAIL NOTIFICATIONS */}
+            <Box mb={2}>
+              <Box
+                display={"flex"}
+                justifyContent={"start"}
+                alignItems={"center"}
               >
-                New Category
-              </Button>
+                <Box mr={3}>
+                  <InputLabel htmlFor="email-pref">
+                    <Typography fontWeight={"bold"}>
+                      Email notifications:
+                    </Typography>
+                  </InputLabel>
+                </Box>
+                <Checkbox
+                  defaultChecked={true}
+                  inputProps={{
+                    "aria-label": "Email notifications preference checkbox",
+                  }}
+                  {...register("notifications_pref")}
+                />
+              </Box>
+              <Box mb={3}>
+                <Typography variant="body2">
+                  Receive emails when students use tokens.
+                </Typography>
+              </Box>
             </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} variant="outlined">
-            Cancel
-          </Button>
-          <Button onClick={handleClickSave} variant="contained">
-            Save
-          </Button>
-        </DialogActions>
+            {/* CATEGORY SELECTION */}
+            <Box display={"flex"} flexDirection={"column"}>
+              <Box display={"flex"}>
+                <Box minWidth={300} mr={2}>
+                  <InputLabel htmlFor="category-name-input-0">
+                    <Typography fontWeight={"bold"}>Categories:</Typography>
+                  </InputLabel>
+                </Box>
+                <Box
+                  minWidth={150}
+                  width={150}
+                  display={"flex"}
+                  alignItems={"center"}
+                >
+                  <Tooltip
+                    title="The amount of tokens a student would need to spend."
+                    placement="top"
+                  >
+                    <InfoOutlined
+                      sx={{ mr: 1 }}
+                      color="primary"
+                      fontSize="small"
+                    />
+                  </Tooltip>
+                  <InputLabel htmlFor="category-token-input-0">
+                    <Typography fontWeight={"bold"}>Token Cost:</Typography>
+                  </InputLabel>
+                </Box>
+              </Box>
+              <Box display={"flex"} flexDirection={"column"}>
+                {fields.map((category, i) => {
+                  return (
+                    <Box key={category.id}>
+                      {/* Categories are only shown if not marked for deletion */}
+                      {category.dbAction !== "DELETE" && (
+                        <Box display={"flex"}>
+                          <Box minWidth={300} mr={2}>
+                            <TextField
+                              margin="dense"
+                              size="small"
+                              id={`category-name-${i}`}
+                              type="text"
+                              placeholder="Enter category name..."
+                              InputLabelProps={{ shrink: false }}
+                              InputProps={{
+                                inputProps: { style: { minWidth: 250 } },
+                              }}
+                              helperText={
+                                errors.categories?.[i]?.category_name &&
+                                "A category name is required"
+                              }
+                              //   error
+                              error={!!errors.categories?.[i]?.category_name}
+                              {...register(`categories.${i}.category_name`, {
+                                required: true,
+                              })}
+                            />
+                          </Box>
+                          <Box
+                            display={"flex"}
+                            alignItems={"start"}
+                            minWidth={200}
+                          >
+                            <Box minWidth={150} width={150}>
+                              <TextField
+                                margin="dense"
+                                size="small"
+                                id={`category-token-${i}`}
+                                type="number"
+                                InputLabelProps={{ shrink: false }}
+                                InputProps={{
+                                  inputProps: {
+                                    style: { textAlign: "center" },
+                                  },
+                                }}
+                                error={!!errors.categories?.[i]?.token_cost}
+                                helperText={
+                                  errors.categories?.[i]?.token_cost &&
+                                  "Must be a positive whole number"
+                                }
+                                {...register(`categories.${i}.token_cost`, {
+                                  required: true,
+                                  pattern: /^[0-9]+$/,
+                                  min: 1,
+                                })}
+                              />
+                            </Box>
+                            <Box ml={1} mt={1}>
+                              <IconButton
+                                disabled={disableCategoryDeletion()}
+                                color="primary"
+                                onClick={() => handleDeleteCategory(i)}
+                              >
+                                <Cancel />
+                              </IconButton>
+                            </Box>
+                          </Box>
+                        </Box>
+                      )}
+                    </Box>
+                  );
+                })}
+              </Box>
+              <Box mt={2}>
+                <Button
+                  variant="contained"
+                  startIcon={<Add />}
+                  onClick={handleAddCategory}
+                >
+                  New Category
+                </Button>
+              </Box>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            {settings?.configuration_id && (
+              <Button onClick={handleClose} variant="outlined">
+                Cancel
+              </Button>
+            )}
+            <Button variant="contained" type="submit">
+              Save
+            </Button>
+          </DialogActions>
+        </form>
       </Box>
     </Dialog>
   );

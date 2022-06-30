@@ -1,6 +1,6 @@
 import { CraEnvironment, CraEnvironmentConfig, DecoratedWindow } from "./types";
 
-const DEV_SESSION_ID = "67695e8fb559ee2239ade9c039510cca";
+const DEV_SESSION_ID = "397e599274b27184c9c5c9b96cd18d58";
 
 const appConfig = (window as DecoratedWindow).appConfig || null;
 
@@ -40,3 +40,5 @@ export const EnvConfig: Record<CraEnvironment, CraEnvironmentConfig> = {
     ...DEFAULT_CONFIG_PROPS,
   },
 };
+
+export const DB_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";

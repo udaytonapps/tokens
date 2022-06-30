@@ -18,6 +18,7 @@ export interface TokensSettings {
   initial_tokens: number;
   notifications_pref: boolean;
   categories: TokensCategory[];
+  use_by_date: string;
   configuration_id?: string;
 }
 

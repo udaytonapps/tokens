@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { HistoryTableRow } from "../utils/types";
 import { DateTime } from "luxon";
+import { DB_DATE_TIME_FORMAT } from "../utils/contants";
 
 interface HistoryTableProps {
   rows: HistoryTableRow[];
@@ -40,7 +41,7 @@ function HistoryTable(props: HistoryTableProps) {
               <TableCell align="center">
                 {DateTime.fromFormat(
                   row.updated_at,
-                  "yyyy-MM-dd HH:mm:ss"
+                  DB_DATE_TIME_FORMAT
                 ).toLocaleString(DateTime.DATETIME_MED)}
               </TableCell>
               <TableCell component="th" scope="row">
