@@ -24,7 +24,12 @@ Route::add($resource . '/settings', restrict(function () {
     $optionalData = array();
     // Assemble from JSON to PHP associative array
     $data = Route::assembleRouteData($requiredData, $optionalData);
-    if (!isset($data)) {
+    if (
+        !isset($data) ||
+        gettype($data['initial_tokens']) !== 'integer' ||
+        !(bool)strtotime($data['use_by_date']) ||
+        count($data['categories']) === 0
+    ) {
         // Reject if required data is missing
         return Route::sendJson(array('error' => 'Missing parameters'));
     } else {
@@ -53,7 +58,7 @@ Route::add($resource . '/settings', restrict(function () {
 // }), 'put');
 
 /** Update a configuration for the context */
-Route::add($resource . '/configurations', restrict(function () {
+Route::add($resource . '/settings', restrict(function () {
     // Define the expected data
     $requiredData = array('configuration_id', 'initial_tokens', 'categories', 'notifications_pref', 'use_by_date');
     $optionalData = array();
@@ -78,8 +83,8 @@ Route::add($resource . '/requests', restrict(function () {
 Route::add($resource . '/requests', restrict(function () {
     $data = array();
     // Define the expected data
-    $requiredData = array('request_id', 'status_name', 'instructor_comment');
-    $optionalData = array();
+    $requiredData = array('request_id', 'status_name');
+    $optionalData = array('instructor_comment');
     // Assemble from JSON to PHP associative array
     $data = Route::assembleRouteData($requiredData, $optionalData);
     if (!isset($data)) {
