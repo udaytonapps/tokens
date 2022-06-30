@@ -7,16 +7,18 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { RequestsTableRow } from "../utils/types";
 
 interface RequestsTableProps {
   rows: RequestsTableRow[];
+  openReviewDialog: (requestId: string) => void;
 }
 
 /** Shows the requests of all available students */
 function RequestsTable(props: RequestsTableProps) {
-  const { rows } = props;
+  const { rows, openReviewDialog } = props;
 
   return (
     <TableContainer component={Paper}>
@@ -30,30 +32,43 @@ function RequestsTable(props: RequestsTableProps) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row, index) => (
-            <TableRow
-              key={`${index}-${row.request_id}`}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {row.learner_name}
-              </TableCell>
-              <TableCell>{row.category_name}</TableCell>
-              <TableCell
-                sx={{
-                  maxWidth: 200,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {row.learner_comment}
-              </TableCell>
-              <TableCell align="center">
-                <Button variant="contained">Review</Button>
+          {!rows.length ? (
+            <TableRow>
+              <TableCell colSpan={4} sx={{ textAlign: "center" }}>
+                <Typography>No pending requests!</Typography>
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            rows.map((row, index) => (
+              <TableRow
+                key={`${index}-${row.request_id}`}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {row.learner_name}
+                </TableCell>
+                <TableCell>{row.category_name}</TableCell>
+                <TableCell
+                  sx={{
+                    maxWidth: 200,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {row.learner_comment}
+                </TableCell>
+                <TableCell align="center">
+                  <Button
+                    variant="contained"
+                    onClick={() => openReviewDialog(row.request_id)}
+                  >
+                    Review
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </TableContainer>

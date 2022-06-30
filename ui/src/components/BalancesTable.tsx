@@ -9,6 +9,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { BalancesTableRow, RequestsTableRow } from "../utils/types";
@@ -65,21 +66,29 @@ function BalancesTable(props: BalancesTableProps) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row, index) => (
-            <TableRow
-              key={`${index}-${row.user_id}`}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
-              <TableCell align="center" sx={{ maxWidth: 40 }}>
-                {getAlert(row.user_id)}
+          {!rows.length ? (
+            <TableRow>
+              <TableCell colSpan={4} sx={{ textAlign: "center" }}>
+                <Typography>No balances yet!</Typography>
               </TableCell>
-              <TableCell>{row.learner_name}</TableCell>
-              <TableCell align="center">
-                {initialTokens - row.tokens_used || 0}
-              </TableCell>
-              <TableCell align="center">{row.tokens_used}</TableCell>
             </TableRow>
-          ))}
+          ) : (
+            rows.map((row, index) => (
+              <TableRow
+                key={`${index}-${row.user_id}`}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell align="center" sx={{ maxWidth: 40 }}>
+                  {getAlert(row.user_id)}
+                </TableCell>
+                <TableCell>{row.learner_name}</TableCell>
+                <TableCell align="center">
+                  {initialTokens - row.tokens_used || 0}
+                </TableCell>
+                <TableCell align="center">{row.tokens_used}</TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </TableContainer>
