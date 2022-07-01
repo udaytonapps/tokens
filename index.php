@@ -1,13 +1,12 @@
 <?php
 require_once "../config.php";
 
-use Tsugi\Core\LTIX;
-use Tsugi\UI\Theme;
+// Use the common service to retrieve the core app info
+require_once __DIR__ . '/api/common/common-service.php';
 
-$LAUNCH = LTIX::requireData();
+use TokenApi\CommonService;
 
-/** Ensure the theme is generated to set the dark_mode and theme_base properties */
-$OUTPUT->get_theme();
+$info = CommonService::info();
 
 /**
  * Configuration including the session ID so the frontend can interact with api.php
@@ -17,15 +16,11 @@ $OUTPUT->get_theme();
  */
 ?>
 <script>
-    var appConfig = {
-        sessionId: "<?php echo ($_GET["PHPSESSID"]); ?>",
-        darkMode: "<?php echo Theme::$dark_mode ?>",
-        baseColor: "<?php echo Theme::$theme_base ?>" || "#6B5B95"
-    };
+    var appConfig = <?= json_encode($info) ?>;
 </script>
 <?php
 
-require './demonstration.php';
+// require './demo/demonstration.php';
 
 /**
  * Index file that references the dynamic React build files
@@ -33,5 +28,4 @@ require './demonstration.php';
  * as the script/css files are generated dynamically and renamed with each build
  * to ensure that the files to not remain unnecessarily cached by the end user's browser.
  */
-// require './ui/build/index.html';
-
+require './ui/build/index.html';
