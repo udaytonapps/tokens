@@ -1,34 +1,30 @@
 import axios from "axios";
-import { getAppConfig } from "./helpers";
+import { EnvConfig } from "./contants";
+import { getEnvironment } from "./helpers";
 import {
   ApiResponse,
   BalancesTableRow,
   GetAllBalancesResponse,
+  GetInfoResponse,
   GetSettingsResponse,
   GetSubmittedRequestsResponse,
   RequestsTableRow,
   RequestUpdateData,
+  LtiAppInfo,
   TokensSettings,
 } from "./types";
 
-const config = getAppConfig();
+const config = EnvConfig[getEnvironment()];
 
-export const getDevInfo = async (): Promise<any> => {
+export const getInfo = async (): Promise<LtiAppInfo | null> => {
   try {
-    const res = await axios.get<GetSettingsResponse>(
+    const res = await axios.get<GetInfoResponse>(
       `${config.apiUrl}/info?PHPSESSID=${config.sessionId}`
     );
-    // 'username' => self::$user->displayname,
-    // 'isInstructor' => self::$user->instructor,
-    // 'contextId' => self::$contextId,
-    // 'linkId' => self::$linkId,
-    // 'sessionId' => $_GET["PHPSESSID"],
-    // 'darkMode' => Theme::$dark_mode,
-    // 'baseColor' => Theme::$theme_base ? Theme::$theme_base : "#6B5B95"
-    return res.data;
+    return res.data.data;
   } catch (e) {
     console.error(e);
-    return false;
+    return null;
   }
 };
 

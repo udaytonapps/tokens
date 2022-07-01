@@ -1,17 +1,24 @@
 export type CraEnvironment = "pre_build" | "local_build" | "deployed_build";
-export interface CraEnvironmentConfig {
+export interface LtiSessionConfig {
   apiUrl: string;
-  contextId: string;
-  isInstructor: boolean;
-  username: string;
   sessionId: string;
-  baseColor?: string;
-  darkMode?: boolean;
-  linkId?: string;
 }
 
 export interface DecoratedWindow extends Window {
-  appConfig?: CraEnvironmentConfig;
+  appConfig?: {
+    sessionId: string;
+  };
+}
+
+export interface LtiAppInfo {
+  apiUrl: string;
+  contextId: string;
+  isInstructor: boolean;
+  linkId: string;
+  sessionId: string;
+  username: string;
+  darkMode?: boolean;
+  baseColor?: string;
 }
 
 export interface TokensSettings {
@@ -68,6 +75,10 @@ type ApiStatus = "success" | "error";
 export interface ApiResponse {
   status: ApiStatus;
   data: unknown;
+}
+
+export interface GetInfoResponse extends ApiResponse {
+  data: LtiAppInfo;
 }
 
 export interface GetSettingsResponse extends ApiResponse {

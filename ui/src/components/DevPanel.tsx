@@ -1,30 +1,34 @@
 import { Box, Card, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { getDevInfo } from "../utils/api-connector";
-import { getAppConfig } from "../utils/helpers";
-import { CraEnvironment } from "../utils/types";
+import { getInfo } from "../utils/api-connector";
+import { getEnvironment } from "../utils/helpers";
+import { LtiAppInfo } from "../utils/types";
 
-interface DevPanelProps {
-  environment: CraEnvironment;
-}
+interface DevPanelProps {}
 
-/** Show development information during pre-build */
+/**
+ * Show development information during pre-build.
+ * Dev panel does not rely on appInfo context.
+ * This is because the dev panel should show whether
+ * or not the appInfo was successfully retrieved.
+ */
 function DevPanel(props: DevPanelProps) {
-  const { environment } = props;
-
   // const [info, setInfo] = useState<any>(null);
   const [expired, setExpired] = useState<boolean>(false);
+  const [appInfo, setAppInfo] = useState<LtiAppInfo>();
 
   useEffect(() => {
-    getDevInfo().then((info) => {
+    getInfo().then((info) => {
       if (
-        typeof info === "string" &&
-        (info as string).includes("Session expired")
+        !info ||
+        (typeof info === "string" &&
+          (info as string).includes("Session expired"))
       ) {
         console.error("SESSION EXPIRED");
         setExpired(true);
       } else {
-        // setInfo(info);
+        setAppInfo(info);
+        setExpired(false);
       }
     });
   }, []);
@@ -33,8 +37,8 @@ function DevPanel(props: DevPanelProps) {
     <Box position={"absolute"} bottom={0} p={2}>
       <Card sx={{ border: "2px solid red" }}>
         <Box p={2} textAlign="center">
-          <Typography>React App status is: {environment}</Typography>
-          <Typography>Session ID is: {getAppConfig().sessionId}</Typography>
+          <Typography>React App status is: {getEnvironment()}</Typography>
+          <Typography>Session ID is: {appInfo?.sessionId}</Typography>
           Session is: {expired ? "EXPIRED" : "VALID"}
         </Box>
       </Card>
