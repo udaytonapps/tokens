@@ -1,8 +1,11 @@
 import { Theme } from "@mui/material";
 import { APP_INFO_OVERRIDES, EnvConfig } from "./contants";
 import {
+  BalancesTableRow,
   CraEnvironment,
   DecoratedWindow,
+  GeneralTableRow,
+  HistoryTableRow,
   LtiAppInfo,
   RequestStatus,
 } from "./types";
@@ -25,7 +28,6 @@ export const getAppConfig = (appInfo: LtiAppInfo): LtiAppInfo => {
 export const getEnvironment = (): CraEnvironment => {
   const environment =
     (process?.env.REACT_APP_ENV as CraEnvironment) || "production";
-  console.info("Running in cra environment: ", environment);
   return environment;
 };
 
@@ -41,6 +43,46 @@ export const getStatusColors = (theme: Theme) => {
     REJECTED: theme.palette.error.main,
   };
   return statusColors;
+};
+
+const compareStrings = (a: string, b: string) => {
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
+};
+
+export const compareLastNames = (a: GeneralTableRow, b: GeneralTableRow) => {
+  const splitA = a.learner_name.split(" ");
+  const splitB = b.learner_name.split(" ");
+  const lastA = splitA[splitA.length - 1];
+  const lastB = splitB[splitB.length - 1];
+  return lastA === lastB
+    ? compareStrings(splitA[0], splitB[0])
+    : compareStrings(lastA, lastB);
+};
+
+export const compareDateTime = (a: HistoryTableRow, b: HistoryTableRow) => {
+  return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+};
+
+export const sortBalancesByPriority = (
+  rows: BalancesTableRow[],
+  requestMap: Map<string, boolean>
+) => {
+  rows.sort(compareLastNames);
+  // Now that rows are sorted, divide them by 'SUBMITTED' status
+  const pending: BalancesTableRow[] = [];
+  const resolved: BalancesTableRow[] = [];
+  rows.forEach((row) => {
+    if (requestMap.get(row.user_id)) {
+      // User has a pending request and should be prioritized
+      pending.push(row);
+    } else {
+      // User does not have a pending request
+      resolved.push(row);
+    }
+  });
+  return [...pending, ...resolved];
 };
 
 export function a11yProps(index: number) {

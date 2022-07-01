@@ -1,5 +1,5 @@
 import { NotificationImportant, Settings } from "@mui/icons-material";
-import { Box, IconButton, Tab, Tabs } from "@mui/material";
+import { Badge, Box, IconButton, Tab, Tabs, Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
 import BalancesTable from "../components/BalancesTable";
 import HistoryTable from "../components/HistoryTable";
@@ -15,7 +15,12 @@ import {
   updateRequest,
   updateSettings,
 } from "../utils/api-connector";
-import { a11yProps } from "../utils/helpers";
+import {
+  a11yProps,
+  compareDateTime,
+  compareLastNames,
+  sortBalancesByPriority,
+} from "../utils/helpers";
 import {
   BalancesTableRow,
   HistoryTableRow,
@@ -29,6 +34,7 @@ function InstructorView() {
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [settings, setSettings] = useState<TokensSettings | null>();
+  const [requestMap, setRequestMap] = useState<Map<string, boolean>>(new Map());
   const [balanceRows, setBalanceRows] = useState<BalancesTableRow[]>([]);
   const [requestRows, setRequestRows] = useState<RequestsTableRow[]>([]);
   const [historyRows, setHistoryRows] = useState<HistoryTableRow[]>([]);
@@ -39,38 +45,59 @@ function InstructorView() {
   }, []);
 
   useEffect(() => {
-    // If undefined, may still be loading...
-    // If null, response was received and config doesn't exist, so open the dialog
+    // When request data loads, assemble a mapping of who has pending requests
+    const newRequestMap = new Map();
+    requestRows.forEach((request) => {
+      newRequestMap.set(request.user_id, true);
+    });
+    setRequestMap(newRequestMap);
+  }, [requestRows]);
+
+  useEffect(() => {
+    // When the mapping of pending requests is set, retrieve and sort the balance table rows
+    if (requestMap.size) {
+      getAllBalances().then((balances) => {
+        const sortedBalances = sortBalancesByPriority(balances, requestMap);
+        setBalanceRows(sortedBalances);
+      });
+    }
+  }, [requestMap]);
+
+  useEffect(() => {
+    // If undefined, setting data may still be loading, but if null, response was received and config doesn't exist, so open the dialog
     if (settings === null) {
       setSettingsDialogOpen(true);
     }
   }, [settings]);
 
-  /** Retrieve data for the instructor tables */
+  /** Retrieve and sort data for the requests and history tables
+   *  Balances table rows are set after loading the request data
+   *  since the balances table needs to know about pending requests
+   */
   const fetchAndAssembleData = async () => {
     // Retrieve and set Tokens Settings
     const fetchedSettings = await getSettings();
     setSettings(fetchedSettings);
 
-    // Retrieve and set rows for the Balances Table
-    const fetchedBalanceRows = await getAllBalances();
-    setBalanceRows(fetchedBalanceRows);
-
     // Retrieve and set rows for the Requests Table
     const fetchedRequestRows = await getSubmittedRequests();
-    // Filter 'SUBMITTED' rows for requests table
     const newlySubmittedRequests = fetchedRequestRows.filter((row) => {
       return row.status_name === "SUBMITTED";
     });
+    newlySubmittedRequests.sort(compareLastNames);
     setRequestRows(newlySubmittedRequests);
-    // All will show on history table
+
+    // All will show on history table - sort by timestamp
+    fetchedRequestRows.sort(compareDateTime);
     setHistoryRows(fetchedRequestRows);
   };
 
+  // Tab management
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabPosition(newValue);
   };
 
+  // Dialog management
   const handleOpenSettingsDialog = () => {
     setSettingsDialogOpen(true);
   };
@@ -133,12 +160,18 @@ function InstructorView() {
       {settings && (
         <Box>
           <Box display={"flex"} justifyContent={"end"} mr={1} mb={2}>
-            <IconButton>
-              <NotificationImportant />
-            </IconButton>
-            <IconButton onClick={handleOpenSettingsDialog}>
-              <Settings />
-            </IconButton>
+            <Tooltip title="There are pending requests requiring review">
+              <IconButton onClick={() => setTabPosition(1)}>
+                <Badge badgeContent={requestRows.length} color="primary">
+                  <NotificationImportant />
+                </Badge>
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Review or update Tokens settings">
+              <IconButton onClick={handleOpenSettingsDialog}>
+                <Settings />
+              </IconButton>
+            </Tooltip>
           </Box>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
@@ -154,7 +187,7 @@ function InstructorView() {
           <TabPanel value={tabPosition} index={0}>
             <BalancesTable
               rows={balanceRows}
-              requests={requestRows}
+              requestMap={requestMap}
               initialTokens={settings?.initial_tokens || 0}
               setTabPosition={setTabPosition}
             />

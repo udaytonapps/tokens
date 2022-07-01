@@ -1,4 +1,3 @@
-import { Error } from "@mui/icons-material";
 import {
   Box,
   IconButton,
@@ -11,31 +10,20 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { BalancesTableRow, RequestsTableRow } from "../utils/types";
+import { Dispatch, SetStateAction } from "react";
+import { BalancesTableRow } from "../utils/types";
 import StatusName from "./StatusName";
 
 interface BalancesTableProps {
   initialTokens: number;
-  requests: RequestsTableRow[];
+  requestMap: Map<string, boolean>;
   rows: BalancesTableRow[];
   setTabPosition: Dispatch<SetStateAction<number>>;
 }
 
 /** Shows the balances of all available students */
 function BalancesTable(props: BalancesTableProps) {
-  const { initialTokens, requests, rows, setTabPosition } = props;
-
-  const [requestMap, setRequestMap] = useState<Map<string, boolean>>(new Map());
-
-  useEffect(() => {
-    // Set map of requests for notification purposes
-    const newRequestMap = new Map();
-    requests.forEach((request) => {
-      newRequestMap.set(request.user_id, true);
-    });
-    setRequestMap(newRequestMap);
-  }, [requests]);
+  const { initialTokens, requestMap, rows, setTabPosition } = props;
 
   const getAlert = (learnerId: string) => {
     return (

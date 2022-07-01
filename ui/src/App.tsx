@@ -3,7 +3,7 @@ import {
   ThemeProvider,
   createTheme,
   CssBaseline,
-  useMediaQuery,
+  // useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -17,12 +17,13 @@ import { LtiAppInfo } from "./utils/types";
 import InstructorView from "./views/InstructorView";
 
 function App() {
-  const environment = getEnvironment();
   const [appConfig, setAppconfig] = useState<LtiAppInfo>();
 
   useEffect(() => {
+    console.info(`Running in cra environment: ${getEnvironment()}`);
     getInfo().then((info) => {
       if (info && typeof info !== "string") {
+        console.info(`Application configuration information retrieved`);
         /** Information about the environment used to create the react app */
         const config = getAppConfig(info);
         setAppconfig(config);
@@ -33,7 +34,7 @@ function App() {
   }, []);
 
   /** An indication that the user has set (on a compatible browser) that they prefer dark mode */
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  // const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   /** The default primary color (used if no other primary color is specified) */
   const defaultPrimary = useTheme().palette.primary.main;
   /** Theme customizations */
@@ -80,7 +81,7 @@ function App() {
         )}
       </div>
       {/* Only show dev panel for local development */}
-      {environment === "pre_build" && <DevPanel />}
+      {getEnvironment() === "pre_build" && <DevPanel />}
     </ThemeProvider>
   );
 }

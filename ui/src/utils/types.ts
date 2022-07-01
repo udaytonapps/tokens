@@ -38,7 +38,7 @@ export interface TokensCategory {
 
 export interface BalancesTableRow {
   user_id: string;
-  learner_name: number;
+  learner_name: string;
   tokens_used: number;
 }
 
@@ -65,6 +65,11 @@ export interface RequestUpdateData {
 }
 
 export interface HistoryTableRow extends RequestsTableRow {}
+
+export type GeneralTableRow =
+  | BalancesTableRow
+  | RequestsTableRow
+  | HistoryTableRow;
 
 export type RequestStatus = "SUBMITTED" | "ACCEPTED" | "REJECTED";
 

@@ -1,6 +1,5 @@
 import {
   Button,
-  PaletteColor,
   Paper,
   Table,
   TableBody,
@@ -11,7 +10,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { HistoryTableRow, RequestStatus } from "../utils/types";
+import { HistoryTableRow } from "../utils/types";
 import { DateTime } from "luxon";
 import { DB_DATE_TIME_FORMAT } from "../utils/contants";
 import StatusName from "./StatusName";
