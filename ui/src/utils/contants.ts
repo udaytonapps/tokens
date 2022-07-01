@@ -31,7 +31,7 @@ export const EnvConfig: Record<CraEnvironment, LtiSessionConfig> = {
     sessionId,
   },
   deployed_build: {
-    apiUrl: "/tsugi/mod/mod-tokens/api/index.php",
+    apiUrl: "/mod/tokens/api/index.php",
     sessionId,
   },
 };
