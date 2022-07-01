@@ -37,7 +37,7 @@ class InstructorCtr
     static function getConfiguration()
     {
         $config = self::$DAO->getConfiguration(self::$contextId);
-        if ($config['configuration_id']) {
+        if (isset($config['configuration_id'])) {
             $config['categories'] = self::$DAO->getConfigCategories($config['configuration_id']);
             // Cast data that is used for calculations, strip what isn't needed
             foreach ($config['categories'] as &$category) {
