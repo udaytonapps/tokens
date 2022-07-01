@@ -1,5 +1,6 @@
 import {
   Button,
+  PaletteColor,
   Paper,
   Table,
   TableBody,
@@ -8,11 +9,13 @@ import {
   TableHead,
   TableRow,
   Typography,
+  useTheme,
 } from "@mui/material";
-import { HistoryTableRow } from "../utils/types";
+import { HistoryTableRow, RequestStatus } from "../utils/types";
 import { DateTime } from "luxon";
 import { DB_DATE_TIME_FORMAT } from "../utils/contants";
 import StatusName from "./StatusName";
+import { getStatusColors } from "../utils/helpers";
 
 interface HistoryTableProps {
   rows: HistoryTableRow[];
@@ -22,6 +25,8 @@ interface HistoryTableProps {
 /** Shows the history of requests of all available students */
 function HistoryTable(props: HistoryTableProps) {
   const { rows, openReviewDialog } = props;
+
+  const statusColors = getStatusColors(useTheme());
 
   return (
     <TableContainer component={Paper}>
@@ -48,7 +53,13 @@ function HistoryTable(props: HistoryTableProps) {
                 key={`${index}-${row.request_id}`}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell>
+                <TableCell
+                  sx={{
+                    borderLeft: `5px solid ${
+                      statusColors[row.status_name]
+                    } !important`,
+                  }}
+                >
                   {DateTime.fromFormat(
                     row.updated_at,
                     DB_DATE_TIME_FORMAT

@@ -66,7 +66,7 @@ export interface RequestUpdateData {
 
 export interface HistoryTableRow extends RequestsTableRow {}
 
-export type RequestStatus = "SUBMITTED" | "PENDING" | "ACCEPTED" | "REJECTED";
+export type RequestStatus = "SUBMITTED" | "ACCEPTED" | "REJECTED";
 
 // API Interfaces
 

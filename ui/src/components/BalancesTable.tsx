@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { BalancesTableRow, RequestsTableRow } from "../utils/types";
+import StatusName from "./StatusName";
 
 interface BalancesTableProps {
   initialTokens: number;
@@ -47,7 +48,7 @@ function BalancesTable(props: BalancesTableProps) {
         {/* Show the icon button only if there is a reference to the learner */}
         {requestMap.get(learnerId) && (
           <IconButton onClick={() => setTabPosition(1)}>
-            <Error color="primary" />
+            <StatusName status="SUBMITTED" iconOnly={true} />
           </IconButton>
         )}
       </Box>

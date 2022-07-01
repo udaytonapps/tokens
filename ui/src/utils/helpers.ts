@@ -1,5 +1,11 @@
+import { Theme } from "@mui/material";
 import { APP_INFO_OVERRIDES, EnvConfig } from "./contants";
-import { CraEnvironment, DecoratedWindow, LtiAppInfo } from "./types";
+import {
+  CraEnvironment,
+  DecoratedWindow,
+  LtiAppInfo,
+  RequestStatus,
+} from "./types";
 
 export const getAppConfig = (appInfo: LtiAppInfo): LtiAppInfo => {
   const environment = getEnvironment();
@@ -26,6 +32,15 @@ export const getEnvironment = (): CraEnvironment => {
 export const getSessionId = (): string => {
   const appConfig = (window as DecoratedWindow).appConfig || null;
   return appConfig?.sessionId || "";
+};
+
+export const getStatusColors = (theme: Theme) => {
+  const statusColors: Record<RequestStatus, string> = {
+    SUBMITTED: theme.palette.warning.main,
+    ACCEPTED: theme.palette.success.main,
+    REJECTED: theme.palette.error.main,
+  };
+  return statusColors;
 };
 
 export function a11yProps(index: number) {
