@@ -83,7 +83,6 @@ $TOKENS_REQUEST = "CREATE TABLE {$TOKENS_REQUEST_TABLE_NAME} (
     CONSTRAINT `fk_request_category`
         FOREIGN KEY (`category_id`)
         REFERENCES `{$TOKENS_CATEGORY_TABLE_NAME}` (`category_id`)
-        ON DELETE CASCADE
 
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8";
 

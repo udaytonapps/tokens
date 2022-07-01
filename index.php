@@ -20,7 +20,7 @@ $info = CommonService::info();
 </script>
 <?php
 
-require './demo/demonstration.php';
+// require './demo/demonstration.php';
 
 /**
  * Index file that references the dynamic React build files
@@ -28,4 +28,4 @@ require './demo/demonstration.php';
  * as the script/css files are generated dynamically and renamed with each build
  * to ensure that the files to not remain unnecessarily cached by the end user's browser.
  */
-// require './ui/build/index.html';
+require './ui/build/index.html';
