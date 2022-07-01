@@ -1,10 +1,18 @@
-import { EnvConfig } from "./contants";
+import { APP_INFO_OVERRIDES, EnvConfig } from "./contants";
 import { CraEnvironment, DecoratedWindow, LtiAppInfo } from "./types";
 
 export const getAppConfig = (appInfo: LtiAppInfo): LtiAppInfo => {
   const environment = getEnvironment();
+  let overrides = {};
   // The client-side configuration will override the server properties, if set
-  const config: LtiAppInfo = { ...appInfo, ...EnvConfig[environment] };
+  if (environment === "pre_build") {
+    overrides = APP_INFO_OVERRIDES;
+  }
+  const config: LtiAppInfo = {
+    ...appInfo,
+    ...EnvConfig[environment],
+    ...overrides,
+  };
   return config;
 };
 

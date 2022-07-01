@@ -1,27 +1,38 @@
 import { getSessionId } from "./helpers";
-import { CraEnvironment, LtiSessionConfig } from "./types";
+import { CraEnvironment, LtiAppInfo, LtiSessionConfig } from "./types";
 
-/** For use during local development (since you cannot retrieve the sessionId from the react server) */
-const LOCAL_SESSION_ID = "397e599274b27184c9c5c9b96cd18d58";
-
-/** The minimum confuration data required to interact with the LTI Session */
-export const CONFIG_PROPS = {
-  sessionId: getSessionId(),
+/** For use during local development for two reasons.
+ * 1. Since you cannot retrieve the sessionId from the react server
+ * 2. So you don't have to rely on updating the server to check different scenarios tied to the appInfo
+ */
+export const APP_INFO_OVERRIDES: Partial<LtiAppInfo> = {
+  // apiUrl: "",
+  // contextId: "",
+  // isInstructor: true,
+  // linkId: "",
+  sessionId: "397e599274b27184c9c5c9b96cd18d58",
+  // username: "",
+  // darkMode: true,
+  baseColor: "#6B5B95", // DRK PRPL
+  // baseColor: "#0E4466", // DRK TEAL
+  // baseColor: "#FFADAD", // LIGHT SALMON
+  // baseColor: "#B3ADFF", // LIGHT BLUE
 };
+
+const sessionId = getSessionId();
 
 export const EnvConfig: Record<CraEnvironment, LtiSessionConfig> = {
   pre_build: {
     apiUrl: "/learning-apps/mod/mod-tokens/api/index.php",
-    ...CONFIG_PROPS,
-    sessionId: LOCAL_SESSION_ID,
+    sessionId: APP_INFO_OVERRIDES.sessionId || "",
   },
   local_build: {
     apiUrl: "/learning-apps/mod/mod-tokens/api/index.php",
-    ...CONFIG_PROPS,
+    sessionId,
   },
   deployed_build: {
     apiUrl: "/tsugi/mod/mod-tokens/api/index.php",
-    ...CONFIG_PROPS,
+    sessionId,
   },
 };
 
