@@ -11,17 +11,17 @@ const nameConfig: Record<RequestStatus, any> = {
   SUBMITTED: {
     icon: <Info color="warning" />,
     text: "Pending",
-    tooltip: "The request has not yet been accepted or rejected",
+    tooltip: "Request has not yet been accepted or rejected",
   },
   ACCEPTED: {
     icon: <CheckCircle color="success" />,
     text: "Accepted",
-    tooltip: "The request has been accepted",
+    tooltip: "Request has been accepted",
   },
   REJECTED: {
     icon: <Cancel color="error" />,
     text: "Rejected",
-    tooltip: "The request has been rejected",
+    tooltip: "Request has been rejected",
   },
 };
 
