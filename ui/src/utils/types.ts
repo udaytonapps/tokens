@@ -55,6 +55,7 @@ export interface RequestsTableRow {
   request_id: string;
   status_name: RequestStatus;
   status_updated_at: string; // "2022-06-27 11:26:33";
+  token_cost: number;
   updated_at: string; // "2022-06-27 11:26:33";
   user_id: string;
 }

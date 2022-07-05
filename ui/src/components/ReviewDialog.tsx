@@ -110,7 +110,10 @@ function ReviewDialog(props: ReviewDialogProps) {
                     <Typography fontWeight={"bold"}>Type:</Typography>
                   </FormLabel>
                 </Box>
-                <Typography>{requestRow.category_name}</Typography>
+                <Typography>
+                  {requestRow.category_name} ({requestRow.token_cost} token
+                  {requestRow.token_cost > 1 && "s"})
+                </Typography>
               </Box>
               {/* REQUESTER COMMENT */}
               <Box display={"flex"} flexDirection={"column"} mt={1} mb={2}>
