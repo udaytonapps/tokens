@@ -102,7 +102,7 @@ function SettingsDialog(props: SettingsDialogProps) {
   };
 
   /** Indicates whether less than the minimum number of categories exists */
-  const disableCategoryDeletion = () => {
+  const onlyOneCategoryExists = () => {
     const validCategories = fields.filter((category) => {
       return category.dbAction !== "DELETE";
     });
@@ -352,13 +352,26 @@ function SettingsDialog(props: SettingsDialogProps) {
                               />
                             </Box>
                             <Box ml={1} mt={1}>
-                              <IconButton
-                                disabled={disableCategoryDeletion()}
-                                color="primary"
-                                onClick={() => handleDeleteCategory(i)}
+                              <Tooltip
+                                title={
+                                  category.is_used
+                                    ? "Category is associated with a request and cannot be deleted"
+                                    : ""
+                                }
                               >
-                                <Cancel />
-                              </IconButton>
+                                <div>
+                                  <IconButton
+                                    disabled={
+                                      category.is_used ||
+                                      onlyOneCategoryExists()
+                                    }
+                                    color="primary"
+                                    onClick={() => handleDeleteCategory(i)}
+                                  >
+                                    <Cancel />
+                                  </IconButton>
+                                </div>
+                              </Tooltip>
                             </Box>
                           </Box>
                         </Box>

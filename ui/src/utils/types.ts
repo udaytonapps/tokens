@@ -31,6 +31,7 @@ export interface TokensSettings {
 
 export interface TokensCategory {
   category_name: string;
+  is_used: boolean;
   token_cost: number | string;
   sort_order: number;
   category_id?: string;
