@@ -81,7 +81,7 @@ class InstructorDAO
     /** Retrieves the data from the request table, along with the associated category name and learner name */
     public function getCourseRequests($contextId)
     {
-        $query = "SELECT r.*, cat.category_name, u.displayname as learner_name FROM {$this->p}tokens_request r
+        $query = "SELECT r.*, cat.category_name, cat.token_cost, u.displayname as learner_name FROM {$this->p}tokens_request r
         INNER JOIN {$this->p}tokens_configuration c
             ON c.configuration_id = r.configuration_id
         INNER JOIN {$this->p}tokens_category cat
