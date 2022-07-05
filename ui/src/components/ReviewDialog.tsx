@@ -14,7 +14,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
+import { AppContext } from "../utils/context";
 import { formatDbDate } from "../utils/helpers";
 import {
   RequestsTableRow,
@@ -33,9 +34,11 @@ interface ReviewDialogProps {
 /** Show settings form */
 function ReviewDialog(props: ReviewDialogProps) {
   const { handleClose, handleSave, open, requestRow } = props;
+  const appInfo = useContext(AppContext);
 
   const [actionStatus, setActionStatus] = useState<RequestStatus>();
   const [comment, setComment] = useState<string>();
+  const [readonly, setReadonly] = useState<boolean>(true);
 
   useEffect(() => {
     if (open) {
@@ -43,6 +46,12 @@ function ReviewDialog(props: ReviewDialogProps) {
       setComment(undefined);
     }
   }, [open]);
+
+  useEffect(() => {
+    setReadonly(
+      !appInfo.isInstructor || requestRow?.category_name !== "SUBMITTED"
+    );
+  }, [appInfo, requestRow]);
 
   /** Handles submission of the form data */
   const onSubmit = (e: any) => {
@@ -126,18 +135,80 @@ function ReviewDialog(props: ReviewDialogProps) {
                 </Box>
                 <Box pl={2}>
                   <TextField
-                    disabled
                     fullWidth
                     aria-label="Description of request as made by the requester"
                     value={requestRow.learner_comment || ""}
                     multiline
                     minRows={1}
                     maxRows={6}
+                    InputProps={{
+                      readOnly: true,
+                    }}
                   />
                 </Box>
               </Box>
               {/* INSTRUCTOR ACTION CHOICE */}
-              {requestRow.status_name === "SUBMITTED" ? (
+              {readonly ? (
+                <Box>
+                  {/* DISPLAY ACTION TAKEN */}
+                  <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
+                    <Box mr={2}>
+                      <FormLabel>
+                        <Typography fontWeight={"bold"}>
+                          Instructor Action:
+                        </Typography>
+                      </FormLabel>
+                    </Box>
+                    <StatusName status={requestRow.status_name} />
+                  </Box>
+                  {/* DISPLAY ACTION TAKEN */}
+                  {requestRow.status_name === "ACCEPTED" ||
+                    (requestRow.status_name === "REJECTED" && (
+                      <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
+                        <Box mr={2}>
+                          <FormLabel>
+                            <Typography fontWeight={"bold"}>
+                              Action Date:
+                            </Typography>
+                          </FormLabel>
+                        </Box>
+                        <Typography>
+                          {formatDbDate(requestRow.status_updated_at)}
+                        </Typography>
+                      </Box>
+                    ))}
+                  {requestRow.status_name === "REJECTED" && (
+                    <Box
+                      display={"flex"}
+                      flexDirection={"column"}
+                      mt={1}
+                      mb={2}
+                    >
+                      {/* INSTRUCTOR COMMENT */}
+                      <Box mb={2}>
+                        <FormLabel>
+                          <Typography fontWeight={"bold"}>
+                            Instructor Comment:
+                          </Typography>
+                        </FormLabel>
+                      </Box>
+                      <Box pl={2}>
+                        <TextField
+                          fullWidth
+                          aria-label="A comment on the request made by the instructor"
+                          value={requestRow.instructor_comment || ""}
+                          multiline
+                          minRows={1}
+                          maxRows={6}
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  )}
+                </Box>
+              ) : (
                 <Box>
                   <FormControl>
                     <FormLabel>
@@ -193,55 +264,13 @@ function ReviewDialog(props: ReviewDialogProps) {
                     </Box>
                   )}
                 </Box>
-              ) : (
-                <Box>
-                  {/* DISPLAY ACTION TAKEN */}
-                  <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
-                    <Box mr={2}>
-                      <FormLabel>
-                        <Typography fontWeight={"bold"}>
-                          Instructor Action:
-                        </Typography>
-                      </FormLabel>
-                    </Box>
-                    <StatusName status={requestRow.status_name} />
-                  </Box>
-                  {requestRow.status_name === "REJECTED" && (
-                    <Box
-                      display={"flex"}
-                      flexDirection={"column"}
-                      mt={1}
-                      mb={2}
-                    >
-                      {/* INSTRUCTOR COMMENT */}
-                      <Box mb={2}>
-                        <FormLabel>
-                          <Typography fontWeight={"bold"}>
-                            Instructor Comment:
-                          </Typography>
-                        </FormLabel>
-                      </Box>
-                      <Box pl={2}>
-                        <TextField
-                          disabled
-                          fullWidth
-                          aria-label="A comment on the request made by the instructor"
-                          value={requestRow.instructor_comment || ""}
-                          multiline
-                          minRows={1}
-                          maxRows={6}
-                        />
-                      </Box>
-                    </Box>
-                  )}
-                </Box>
               )}
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClose} variant="outlined">
-                {requestRow.status_name === "SUBMITTED" ? "Cancel" : "Close"}
+                {readonly ? "Close" : "Cancel"}
               </Button>
-              {requestRow.status_name === "SUBMITTED" && (
+              {!readonly && (
                 <Button variant="contained" type="submit">
                   Save
                 </Button>

@@ -233,6 +233,7 @@ function SettingsDialog(props: SettingsDialogProps) {
                   </InputLabel>
                 </Box>
                 <Checkbox
+                  color="default"
                   defaultChecked={true}
                   inputProps={{
                     "aria-label": "Email notifications preference checkbox",
@@ -264,11 +265,7 @@ function SettingsDialog(props: SettingsDialogProps) {
                     title="The amount of tokens a student would need to spend."
                     placement="top"
                   >
-                    <InfoOutlined
-                      sx={{ mr: 1 }}
-                      color="primary"
-                      fontSize="small"
-                    />
+                    <InfoOutlined sx={{ mr: 1 }} fontSize="small" />
                   </Tooltip>
                   <InputLabel htmlFor="category-token-input-0">
                     <Typography fontWeight={"bold"}>Token Cost:</Typography>
@@ -365,7 +362,6 @@ function SettingsDialog(props: SettingsDialogProps) {
                                       category.is_used ||
                                       onlyOneCategoryExists()
                                     }
-                                    color="primary"
                                     onClick={() => handleDeleteCategory(i)}
                                   >
                                     <Cancel />
