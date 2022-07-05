@@ -11,10 +11,8 @@ import {
   useTheme,
 } from "@mui/material";
 import { HistoryTableRow } from "../utils/types";
-import { DateTime } from "luxon";
-import { DB_DATE_TIME_FORMAT } from "../utils/contants";
 import StatusName from "./StatusName";
-import { getStatusColors } from "../utils/helpers";
+import { formatDbDate, getStatusColors } from "../utils/helpers";
 
 interface HistoryTableProps {
   rows: HistoryTableRow[];
@@ -59,10 +57,7 @@ function HistoryTable(props: HistoryTableProps) {
                     } !important`,
                   }}
                 >
-                  {DateTime.fromFormat(
-                    row.updated_at,
-                    DB_DATE_TIME_FORMAT
-                  ).toLocaleString(DateTime.DATETIME_MED)}
+                  {formatDbDate(row.updated_at)}
                 </TableCell>
                 <TableCell component="th" scope="row">
                   {row.learner_name}
