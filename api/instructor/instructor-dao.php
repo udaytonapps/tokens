@@ -78,7 +78,7 @@ class InstructorDAO
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
-    /** Retrveves the data from the request table, along with the associated category name and learner name */
+    /** Retrieves the data from the request table, along with the associated category name and learner name */
     public function getCourseRequests($contextId)
     {
         $query = "SELECT r.*, cat.category_name, u.displayname as learner_name FROM {$this->p}tokens_request r
@@ -102,7 +102,7 @@ class InstructorDAO
             ON cat.category_id = r.category_id
         INNER JOIN {$this->p}lti_user u
             ON u.user_id = r.user_id
-        WHERE c.context_id = :contextId
+        WHERE c.context_id = :contextId AND r.status_name != 'REJECTED'
         GROUP BY u.user_id;";
         $arr = array(':contextId' => $contextId);
         return $this->PDOX->allRowsDie($query, $arr);
