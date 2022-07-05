@@ -70,6 +70,14 @@ class InstructorDAO
         return $this->PDOX->queryDie($query, $arr);
     }
 
+    public function categoryUsage($categoryId)
+    {
+        $query = "SELECT * FROM {$this->p}tokens_request
+        WHERE category_id = :categoryId";
+        $arr = array(':categoryId' => $categoryId);
+        return $this->PDOX->allRowsDie($query, $arr);
+    }
+
     public function getConfigCategories($configId)
     {
         $query = "SELECT * FROM {$this->p}tokens_category
