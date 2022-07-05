@@ -41,10 +41,13 @@ class InstructorCtr
             $config['categories'] = self::$DAO->getConfigCategories($config['configuration_id']);
             // Cast data that is used for calculations, strip what isn't needed
             foreach ($config['categories'] as &$category) {
+                $categoryUsage = self::$DAO->categoryUsage($category['category_id']);
                 $category = array(
                     'category_id' => $category['category_id'],
                     'category_name' => $category['category_name'],
                     'token_cost' => intval($category['token_cost']),
+                    'sort_order' => intval($category['sort_order']),
+                    'is_used' => count($categoryUsage) > 0,
                 );
             }
             return array(
@@ -61,7 +64,7 @@ class InstructorCtr
 
     static function updateCategory($data)
     {
-        self::$DAO->updateCategory($data['category_id'], $data['category_name'], $data['token_cost']);
+        self::$DAO->updateCategory($data['category_id'], $data['category_name'], $data['token_cost'], $data['sort_order']);
     }
 
     /** Update the configuration and its associated categories */
@@ -80,9 +83,13 @@ class InstructorCtr
                 if ($dbAction === 'ADD') {
                     self::$DAO->addCategory($data['configuration_id'], $category);
                 } else if ($dbAction === 'UPDATE') {
-                    self::$DAO->updateCategory($category['category_id'], $category['category_name'], $category['token_cost']);
+                    self::$DAO->updateCategory($category['category_id'], $category['category_name'], $category['token_cost'], $category['sort_order']);
                 } else if ($dbAction === 'DELETE') {
-                    self::$DAO->deleteCategory($category['category_id']);
+                    // Only delete a category if no learners have used it
+                    $categoryUsage = self::$DAO->categoryUsage($category['category_id']);
+                    if (count($categoryUsage) === 0) {
+                        self::$DAO->deleteCategory($category['category_id']);
+                    }
                 }
             }
         }

@@ -31,7 +31,9 @@ export interface TokensSettings {
 
 export interface TokensCategory {
   category_name: string;
+  is_used: boolean;
   token_cost: number | string;
+  sort_order: number;
   category_id?: string;
   dbAction?: "ADD" | "UPDATE" | "DELETE";
 }
@@ -54,6 +56,7 @@ export interface RequestsTableRow {
   request_id: string;
   status_name: RequestStatus;
   status_updated_at: string; // "2022-06-27 11:26:33";
+  token_cost: number;
   updated_at: string; // "2022-06-27 11:26:33";
   user_id: string;
 }

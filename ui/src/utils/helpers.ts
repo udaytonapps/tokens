@@ -1,5 +1,6 @@
 import { Theme } from "@mui/material";
-import { APP_INFO_OVERRIDES, EnvConfig } from "./contants";
+import { DateTime } from "luxon";
+import { APP_INFO_OVERRIDES, DB_DATE_TIME_FORMAT, EnvConfig } from "./contants";
 import {
   BalancesTableRow,
   CraEnvironment,
@@ -90,4 +91,10 @@ export function a11yProps(index: number) {
     id: `tab-${index}`,
     "aria-controls": `tabpanel-${index}`,
   };
+}
+
+export function formatDbDate(dateString: string, format?: string) {
+  return DateTime.fromFormat(dateString, DB_DATE_TIME_FORMAT).toLocaleString(
+    DateTime.DATETIME_MED || format
+  );
 }

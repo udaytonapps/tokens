@@ -15,6 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
+import { formatDbDate } from "../utils/helpers";
 import {
   RequestsTableRow,
   RequestStatus,
@@ -83,6 +84,16 @@ function ReviewDialog(props: ReviewDialogProps) {
                   Review or take action on a token request.
                 </DialogContentText>
               </Box>
+
+              {/* REQUEST DATE */}
+              <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
+                <Box mr={2}>
+                  <FormLabel>
+                    <Typography fontWeight={"bold"}>Date:</Typography>
+                  </FormLabel>
+                </Box>
+                <Typography>{formatDbDate(requestRow.created_at)}</Typography>
+              </Box>
               {/* LEARNER NAME */}
               <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
                 <Box mr={2}>
@@ -96,17 +107,20 @@ function ReviewDialog(props: ReviewDialogProps) {
               <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
                 <Box mr={2}>
                   <FormLabel>
-                    <Typography fontWeight={"bold"}>Request Type:</Typography>
+                    <Typography fontWeight={"bold"}>Type:</Typography>
                   </FormLabel>
                 </Box>
-                <Typography>{requestRow.category_name}</Typography>
+                <Typography>
+                  {requestRow.category_name} ({requestRow.token_cost} token
+                  {requestRow.token_cost > 1 && "s"})
+                </Typography>
               </Box>
               {/* REQUESTER COMMENT */}
               <Box display={"flex"} flexDirection={"column"} mt={1} mb={2}>
                 <Box mb={2}>
                   <FormLabel>
                     <Typography fontWeight={"bold"}>
-                      Requester Comment:
+                      Requester Description:
                     </Typography>
                   </FormLabel>
                 </Box>

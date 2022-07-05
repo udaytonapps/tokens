@@ -1,4 +1,10 @@
-import { Add, Cancel, InfoOutlined } from "@mui/icons-material";
+import {
+  Add,
+  Cancel,
+  InfoOutlined,
+  KeyboardArrowDown,
+  KeyboardArrowUp,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -15,7 +21,7 @@ import {
   Typography,
 } from "@mui/material";
 import { DateTime } from "luxon";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { DB_DATE_TIME_FORMAT } from "../utils/contants";
 import { TokensSettings } from "../utils/types";
@@ -44,22 +50,25 @@ function SettingsDialog(props: SettingsDialogProps) {
         {
           category_name: "Missed Class",
           token_cost: 1,
+          dbAction: "ADD",
+          sort_order: 0,
         },
         {
           category_name: "Late Assignment",
           token_cost: 1,
+          dbAction: "ADD",
+          sort_order: 1,
         },
       ],
     },
   });
-  const { fields, append, update, remove } = useFieldArray({
+  const { fields, append, move, update, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: "categories", // unique name for your Field Array
   });
 
-  useEffect(() => {
-    if (settings && open) {
-      // Convert use_by_date for input
+  const initValues = useCallback(
+    (settings: TokensSettings) => {
       const formattedDate = DateTime.fromFormat(
         settings.use_by_date,
         DB_DATE_TIME_FORMAT
@@ -69,16 +78,31 @@ function SettingsDialog(props: SettingsDialogProps) {
       setValue("notifications_pref", settings.notifications_pref);
       setValue("use_by_date", formattedDate);
       setValue("categories", settings.categories);
+    },
+    [setValue]
+  );
+
+  useEffect(() => {
+    if (settings && open) {
+      initValues(settings);
     }
-  }, [settings, open, setValue]);
+  }, [settings, open, initValues]);
+
+  const moveCategoryUp = (i: number) => {
+    move(i, i - 1);
+  };
+
+  const moveCategoryDown = (i: number) => {
+    move(i, i + 1);
+  };
 
   /** Append a new empty category to the form */
   const handleAddCategory = () => {
-    append({});
+    append({ sort_order: fields.length });
   };
 
   /** Indicates whether less than the minimum number of categories exists */
-  const disableCategoryDeletion = () => {
+  const onlyOneCategoryExists = () => {
     const validCategories = fields.filter((category) => {
       return category.dbAction !== "DELETE";
     });
@@ -111,8 +135,9 @@ function SettingsDialog(props: SettingsDialogProps) {
       notifications_pref: data.notifications_pref,
       categories: data.categories,
     };
-    // Update any category dbActions
-    settingsToSubmit.categories.forEach((category) => {
+    // Update any category dbActions and sortOrder
+    settingsToSubmit.categories.forEach((category, i) => {
+      category.sort_order = i;
       if (category.category_id && !category.dbAction) {
         category.dbAction = "UPDATE";
       } else if (!category.category_id && !category.dbAction) {
@@ -257,6 +282,24 @@ function SettingsDialog(props: SettingsDialogProps) {
                       {/* Categories are only shown if not marked for deletion */}
                       {category.dbAction !== "DELETE" && (
                         <Box display={"flex"}>
+                          <Box>
+                            <IconButton
+                              size="small"
+                              disabled={i === 0}
+                              disableRipple
+                              onClick={() => moveCategoryUp(i)}
+                            >
+                              <KeyboardArrowUp fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              disabled={i === fields.length - 1}
+                              disableRipple
+                              onClick={() => moveCategoryDown(i)}
+                            >
+                              <KeyboardArrowDown fontSize="small" />
+                            </IconButton>
+                          </Box>
                           <Box minWidth={300} mr={2}>
                             <TextField
                               margin="dense"
@@ -309,13 +352,26 @@ function SettingsDialog(props: SettingsDialogProps) {
                               />
                             </Box>
                             <Box ml={1} mt={1}>
-                              <IconButton
-                                disabled={disableCategoryDeletion()}
-                                color="primary"
-                                onClick={() => handleDeleteCategory(i)}
+                              <Tooltip
+                                title={
+                                  category.is_used
+                                    ? "Category is associated with a request and cannot be deleted"
+                                    : ""
+                                }
                               >
-                                <Cancel />
-                              </IconButton>
+                                <div>
+                                  <IconButton
+                                    disabled={
+                                      category.is_used ||
+                                      onlyOneCategoryExists()
+                                    }
+                                    color="primary"
+                                    onClick={() => handleDeleteCategory(i)}
+                                  >
+                                    <Cancel />
+                                  </IconButton>
+                                </div>
+                              </Tooltip>
                             </Box>
                           </Box>
                         </Box>

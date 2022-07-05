@@ -46,19 +46,19 @@ class InstructorDAO
 
     public function addCategory($configId, $category)
     {
-        $query = "INSERT INTO {$this->p}tokens_category (configuration_id, category_name, token_cost)
-        VALUES (:configId, :categoryName, :tokenCost);";
-        $arr = array(':configId' => $configId, ':categoryName' => $category['category_name'], ':tokenCost' => $category['token_cost']);
+        $query = "INSERT INTO {$this->p}tokens_category (configuration_id, category_name, token_cost, sort_order)
+        VALUES (:configId, :categoryName, :tokenCost, :sortOrder);";
+        $arr = array(':configId' => $configId, ':categoryName' => $category['category_name'], ':tokenCost' => $category['token_cost'], ':sortOrder' => $category['sort_order']);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
     }
 
-    public function updateCategory($categoryId, $newCategoryName, $newTokenCost)
+    public function updateCategory($categoryId, $newCategoryName, $newTokenCost, $newSortOrder)
     {
         $query = "UPDATE {$this->p}tokens_category
-        SET category_name = :newCategoryName, token_cost = :newTokenCost
+        SET category_name = :newCategoryName, token_cost = :newTokenCost, sort_order = :newSortOrder
         WHERE category_id = :categoryId";
-        $arr = array(':categoryId' => $categoryId, ':newCategoryName' => $newCategoryName, ':newTokenCost' => $newTokenCost);
+        $arr = array(':categoryId' => $categoryId, ':newCategoryName' => $newCategoryName, ':newTokenCost' => $newTokenCost, ':newSortOrder' => $newSortOrder);
         return $this->PDOX->queryDie($query, $arr);
     }
 
@@ -70,18 +70,26 @@ class InstructorDAO
         return $this->PDOX->queryDie($query, $arr);
     }
 
+    public function categoryUsage($categoryId)
+    {
+        $query = "SELECT * FROM {$this->p}tokens_request
+        WHERE category_id = :categoryId";
+        $arr = array(':categoryId' => $categoryId);
+        return $this->PDOX->allRowsDie($query, $arr);
+    }
+
     public function getConfigCategories($configId)
     {
         $query = "SELECT * FROM {$this->p}tokens_category
-        WHERE configuration_id = :configId;";
+        WHERE configuration_id = :configId ORDER BY sort_order ASC;";
         $arr = array(':configId' => $configId);
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
-    /** Retrveves the data from the request table, along with the associated category name and learner name */
+    /** Retrieves the data from the request table, along with the associated category name and learner name */
     public function getCourseRequests($contextId)
     {
-        $query = "SELECT r.*, cat.category_name, u.displayname as learner_name FROM {$this->p}tokens_request r
+        $query = "SELECT r.*, cat.category_name, cat.token_cost, u.displayname as learner_name FROM {$this->p}tokens_request r
         INNER JOIN {$this->p}tokens_configuration c
             ON c.configuration_id = r.configuration_id
         INNER JOIN {$this->p}tokens_category cat
@@ -102,7 +110,7 @@ class InstructorDAO
             ON cat.category_id = r.category_id
         INNER JOIN {$this->p}lti_user u
             ON u.user_id = r.user_id
-        WHERE c.context_id = :contextId
+        WHERE c.context_id = :contextId AND r.status_name != 'REJECTED'
         GROUP BY u.user_id;";
         $arr = array(':contextId' => $contextId);
         return $this->PDOX->allRowsDie($query, $arr);

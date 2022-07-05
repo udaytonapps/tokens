@@ -9,6 +9,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import { formatDbDate } from "../utils/helpers";
 import { RequestsTableRow } from "../utils/types";
 
 interface RequestsTableProps {
@@ -25,6 +26,7 @@ function RequestsTable(props: RequestsTableProps) {
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
+            <TableCell>Request Date</TableCell>
             <TableCell>Student Name</TableCell>
             <TableCell>Request</TableCell>
             <TableCell>Description</TableCell>
@@ -44,9 +46,8 @@ function RequestsTable(props: RequestsTableProps) {
                 key={`${index}-${row.request_id}`}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell component="th" scope="row">
-                  {row.learner_name}
-                </TableCell>
+                <TableCell>{formatDbDate(row.created_at)}</TableCell>
+                <TableCell>{row.learner_name}</TableCell>
                 <TableCell>{row.category_name}</TableCell>
                 <TableCell
                   sx={{

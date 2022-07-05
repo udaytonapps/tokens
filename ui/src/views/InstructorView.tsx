@@ -18,7 +18,6 @@ import {
 import {
   a11yProps,
   compareDateTime,
-  compareLastNames,
   sortBalancesByPriority,
 } from "../utils/helpers";
 import {
@@ -81,14 +80,14 @@ function InstructorView() {
 
     // Retrieve and set rows for the Requests Table
     const fetchedRequestRows = await getSubmittedRequests();
+    // Sort all by timestamp (requests and history will show newest first)
+    fetchedRequestRows.sort(compareDateTime);
+
     const newlySubmittedRequests = fetchedRequestRows.filter((row) => {
       return row.status_name === "SUBMITTED";
     });
-    newlySubmittedRequests.sort(compareLastNames);
+    // newlySubmittedRequests.sort(compareLastNames);
     setRequestRows(newlySubmittedRequests);
-
-    // All will show on history table - sort by timestamp
-    fetchedRequestRows.sort(compareDateTime);
     setHistoryRows(fetchedRequestRows);
   };
 

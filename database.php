@@ -44,6 +44,7 @@ $TOKENS_CATEGORY = "CREATE TABLE {$TOKENS_CATEGORY_TABLE_NAME} (
     /* TOKEN COLS */
     configuration_id        INTEGER NOT NULL, /* FK reference to the configuration */
     category_name           VARCHAR(255) NOT NULL,
+    sort_order              INTEGER NOT NULL,
     token_cost              INTEGER NOT NULL,
 
     PRIMARY KEY(category_id),
