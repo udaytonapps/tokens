@@ -250,7 +250,7 @@ function SettingsDialog(props: SettingsDialogProps) {
             {/* CATEGORY SELECTION */}
             <Box display={"flex"} flexDirection={"column"}>
               <Box display={"flex"}>
-                <Box minWidth={300} mr={2}>
+                <Box minWidth={330} mr={2}>
                   <InputLabel htmlFor="category-name-input-0">
                     <Typography fontWeight={"bold"}>Categories:</Typography>
                   </InputLabel>
@@ -326,6 +326,7 @@ function SettingsDialog(props: SettingsDialogProps) {
                           >
                             <Box minWidth={150} width={150}>
                               <TextField
+                                disabled={category.is_used}
                                 margin="dense"
                                 size="small"
                                 id={`category-token-${i}`}

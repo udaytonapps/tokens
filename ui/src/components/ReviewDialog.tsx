@@ -162,21 +162,20 @@ function ReviewDialog(props: ReviewDialogProps) {
                     <StatusName status={requestRow.status_name} />
                   </Box>
                   {/* DISPLAY ACTION TAKEN */}
-                  {requestRow.status_name === "ACCEPTED" ||
-                    (requestRow.status_name === "REJECTED" && (
-                      <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
-                        <Box mr={2}>
-                          <FormLabel>
-                            <Typography fontWeight={"bold"}>
-                              Action Date:
-                            </Typography>
-                          </FormLabel>
-                        </Box>
-                        <Typography>
-                          {formatDbDate(requestRow.status_updated_at)}
-                        </Typography>
+                  {requestRow.status_name !== "SUBMITTED" && (
+                    <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
+                      <Box mr={2}>
+                        <FormLabel>
+                          <Typography fontWeight={"bold"}>
+                            Action Date:
+                          </Typography>
+                        </FormLabel>
                       </Box>
-                    ))}
+                      <Typography>
+                        {formatDbDate(requestRow.status_updated_at)}
+                      </Typography>
+                    </Box>
+                  )}
                   {requestRow.status_name === "REJECTED" && (
                     <Box
                       display={"flex"}
