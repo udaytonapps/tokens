@@ -23,7 +23,7 @@ import {
 import { DateTime } from "luxon";
 import { useCallback, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { DB_DATE_TIME_FORMAT } from "../utils/contants";
+import { DB_DATE_TIME_FORMAT } from "../utils/constants";
 import { TokensSettings } from "../utils/types";
 
 interface SettingsDialogProps {

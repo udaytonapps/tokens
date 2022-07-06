@@ -10,7 +10,8 @@ export const APP_INFO_OVERRIDES: Partial<LtiAppInfo> = {
   // contextId: "",
   // isInstructor: true,
   // linkId: "",
-  sessionId: "397e599274b27184c9c5c9b96cd18d58",
+  // sessionId: "b95dad7823ce628330355299b1d8021a", // Learner session
+  sessionId: "2a402af35871421a612fff6b04f45a76", // Instructor session
   // username: "",
   // darkMode: true,
   baseColor: "#6B5B95", // DRK PRPL

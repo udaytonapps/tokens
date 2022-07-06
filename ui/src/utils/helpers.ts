@@ -1,6 +1,6 @@
 import { Theme } from "@mui/material";
 import { DateTime } from "luxon";
-import { APP_INFO_OVERRIDES, DB_DATE_TIME_FORMAT, EnvConfig } from "./contants";
+import { APP_INFO_OVERRIDES, DB_DATE_TIME_FORMAT, EnvConfig } from "./constants";
 import {
   BalancesTableRow,
   CraEnvironment,
