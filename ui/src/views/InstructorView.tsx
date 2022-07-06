@@ -10,7 +10,7 @@ import TabPanel from "../components/TabPanel";
 import {
   addSettings,
   getAllBalances,
-  getSettings,
+  getInstructorSettings,
   getSubmittedRequests,
   updateRequest,
   updateSettings,
@@ -33,7 +33,7 @@ function InstructorView() {
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [settings, setSettings] = useState<TokensSettings | null>();
-  const [requestMap, setRequestMap] = useState<Map<string, boolean>>(new Map());
+  const [requestMap, setRequestMap] = useState<Map<string, number>>(new Map());
   const [balanceRows, setBalanceRows] = useState<BalancesTableRow[]>([]);
   const [requestRows, setRequestRows] = useState<RequestsTableRow[]>([]);
   const [historyRows, setHistoryRows] = useState<HistoryTableRow[]>([]);
@@ -47,7 +47,11 @@ function InstructorView() {
     // When request data loads, assemble a mapping of who has pending requests
     const newRequestMap = new Map();
     requestRows.forEach((request) => {
-      newRequestMap.set(request.user_id, true);
+      if (newRequestMap.get(request.user_id)) {
+        newRequestMap.set(request.user_id, newRequestMap.get(request.user_id));
+      } else {
+        newRequestMap.set(request.user_id, 1);
+      }
     });
     setRequestMap(newRequestMap);
   }, [requestRows]);
@@ -75,7 +79,7 @@ function InstructorView() {
    */
   const fetchAndAssembleData = async () => {
     // Retrieve and set Tokens Settings
-    const fetchedSettings = await getSettings();
+    const fetchedSettings = await getInstructorSettings();
     setSettings(fetchedSettings);
 
     // Retrieve and set rows for the Requests Table
@@ -141,7 +145,7 @@ function InstructorView() {
     // Close the dialog
     setSettingsDialogOpen(false);
     // Fetch the new/updated settings to refresh the UI
-    const retrievedSettings = await getSettings();
+    const retrievedSettings = await getInstructorSettings();
     setSettings(retrievedSettings);
   };
 
@@ -161,7 +165,7 @@ function InstructorView() {
           <Box display={"flex"} justifyContent={"end"} mr={1} mb={2}>
             <Tooltip title="There are pending requests requiring review">
               <IconButton onClick={() => setTabPosition(1)}>
-                <Badge badgeContent={requestRows.length} color="primary">
+                <Badge badgeContent={requestRows.length} color="warning">
                   <NotificationImportant />
                 </Badge>
               </IconButton>

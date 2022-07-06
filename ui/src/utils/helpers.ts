@@ -68,7 +68,7 @@ export const compareDateTime = (a: HistoryTableRow, b: HistoryTableRow) => {
 
 export const sortBalancesByPriority = (
   rows: BalancesTableRow[],
-  requestMap: Map<string, boolean>
+  requestMap: Map<string, number>
 ) => {
   rows.sort(compareLastNames);
   // Now that rows are sorted, divide them by 'SUBMITTED' status

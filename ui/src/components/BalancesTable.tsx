@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   IconButton,
   Paper,
@@ -12,11 +13,10 @@ import {
 } from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
 import { BalancesTableRow } from "../utils/types";
-import StatusName from "./StatusName";
 
 interface BalancesTableProps {
   initialTokens: number;
-  requestMap: Map<string, boolean>;
+  requestMap: Map<string, number>;
   rows: BalancesTableRow[];
   setTabPosition: Dispatch<SetStateAction<number>>;
 }
@@ -29,14 +29,17 @@ function BalancesTable(props: BalancesTableProps) {
     return (
       <Box
         display={"flex"}
-        minHeight={40}
+        minHeight={35}
         justifyContent={"center"}
         alignContent={"center"}
       >
         {/* Show the icon button only if there is a reference to the learner */}
         {requestMap.get(learnerId) && (
-          <IconButton onClick={() => setTabPosition(1)}>
-            <StatusName status="SUBMITTED" iconOnly={true} />
+          <IconButton onClick={() => setTabPosition(1)} disableRipple={true}>
+            <Badge
+              badgeContent={requestMap.get(learnerId)}
+              color="warning"
+            ></Badge>
           </IconButton>
         )}
       </Box>
@@ -48,10 +51,12 @@ function BalancesTable(props: BalancesTableProps) {
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell></TableCell>
+            <TableCell align="center" width={160}>
+              Pending Requests
+            </TableCell>
             <TableCell>Student Name</TableCell>
-            <TableCell align="center">Balance Remaining</TableCell>
             <TableCell align="center">Tokens Used</TableCell>
+            <TableCell align="center">Balance Remaining</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -67,14 +72,12 @@ function BalancesTable(props: BalancesTableProps) {
                 key={`${index}-${row.user_id}`}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell align="center" sx={{ maxWidth: 40 }}>
-                  {getAlert(row.user_id)}
-                </TableCell>
+                <TableCell align="center">{getAlert(row.user_id)}</TableCell>
                 <TableCell>{row.learner_name}</TableCell>
+                <TableCell align="center">{row.tokens_used}</TableCell>
                 <TableCell align="center">
                   {initialTokens - row.tokens_used || 0}
                 </TableCell>
-                <TableCell align="center">{row.tokens_used}</TableCell>
               </TableRow>
             ))
           )}
