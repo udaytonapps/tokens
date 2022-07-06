@@ -49,7 +49,7 @@ function ReviewDialog(props: ReviewDialogProps) {
 
   useEffect(() => {
     setReadonly(
-      !appInfo.isInstructor || requestRow?.category_name !== "SUBMITTED"
+      !appInfo.isInstructor || requestRow?.status_name !== "SUBMITTED"
     );
   }, [appInfo, requestRow]);
 
