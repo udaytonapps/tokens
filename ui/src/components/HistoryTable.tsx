@@ -13,6 +13,8 @@ import {
 import { HistoryTableRow } from "../utils/types";
 import StatusName from "./StatusName";
 import { formatDbDate, getStatusColors } from "../utils/helpers";
+import { useContext } from "react";
+import { AppContext } from "../utils/context";
 
 interface HistoryTableProps {
   rows: HistoryTableRow[];
@@ -22,6 +24,7 @@ interface HistoryTableProps {
 /** Shows the history of requests of all available students */
 function HistoryTable(props: HistoryTableProps) {
   const { rows, openReviewDialog } = props;
+  const appInfo = useContext(AppContext);
 
   const statusColors = getStatusColors(useTheme());
 
@@ -31,7 +34,7 @@ function HistoryTable(props: HistoryTableProps) {
         <TableHead>
           <TableRow>
             <TableCell>Last Action</TableCell>
-            <TableCell>Student Name</TableCell>
+            {appInfo.isInstructor && <TableCell>Student Name</TableCell>}
             <TableCell>Request</TableCell>
             <TableCell>Status</TableCell>
             <TableCell align="center">Action</TableCell>
@@ -59,9 +62,11 @@ function HistoryTable(props: HistoryTableProps) {
                 >
                   {formatDbDate(row.updated_at)}
                 </TableCell>
-                <TableCell component="th" scope="row">
-                  {row.learner_name}
-                </TableCell>
+                {appInfo.isInstructor && (
+                  <TableCell component="th" scope="row">
+                    {row.learner_name}
+                  </TableCell>
+                )}
                 <TableCell>{row.category_name}</TableCell>
                 <TableCell>
                   <StatusName status={row.status_name} />
