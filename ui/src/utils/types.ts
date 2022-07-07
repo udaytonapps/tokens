@@ -32,7 +32,7 @@ export interface TokensSettings {
 export interface TokensCategory {
   category_name: string;
   is_used: boolean;
-  token_cost: number | string;
+  token_cost: number;
   sort_order: number;
   category_id?: string;
   dbAction?: "ADD" | "UPDATE" | "DELETE";
