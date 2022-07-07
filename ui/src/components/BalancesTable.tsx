@@ -11,8 +11,9 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { BalancesTableRow } from "../utils/types";
+import Filter from "./Filter";
 
 interface BalancesTableProps {
   initialTokens: number;
@@ -21,9 +22,22 @@ interface BalancesTableProps {
   setTabPosition: Dispatch<SetStateAction<number>>;
 }
 
+const balancesFilters = [
+  {
+    column: "learner_name",
+    label: "Learner Name",
+    type: "enum",
+  },
+];
+
 /** Shows the balances of all available students */
 function BalancesTable(props: BalancesTableProps) {
   const { initialTokens, requestMap, rows, setTabPosition } = props;
+  const [filteredRows, setFilteredRows] = useState(rows);
+
+  useEffect(() => {
+    setFilteredRows(rows);
+  }, [rows]);
 
   const getAlert = (learnerId: string) => {
     return (
@@ -47,43 +61,53 @@ function BalancesTable(props: BalancesTableProps) {
   };
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell align="center" width={160}>
-              Pending Requests
-            </TableCell>
-            <TableCell>Student Name</TableCell>
-            <TableCell align="center">Tokens Used</TableCell>
-            <TableCell align="center">Balance Remaining</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {!rows.length ? (
+    <Box>
+      <Box mb={1}>
+        <Filter
+          buttonLabel="Filters"
+          rows={rows}
+          filters={balancesFilters}
+          filterRows={setFilteredRows}
+        />
+      </Box>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
             <TableRow>
-              <TableCell colSpan={4} sx={{ textAlign: "center" }}>
-                <Typography>No balances yet!</Typography>
+              <TableCell align="center" width={160}>
+                Pending Requests
               </TableCell>
+              <TableCell>Student Name</TableCell>
+              <TableCell align="center">Tokens Used</TableCell>
+              <TableCell align="center">Balance Remaining</TableCell>
             </TableRow>
-          ) : (
-            rows.map((row, index) => (
-              <TableRow
-                key={`${index}-${row.user_id}`}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell align="center">{getAlert(row.user_id)}</TableCell>
-                <TableCell>{row.learner_name}</TableCell>
-                <TableCell align="center">{row.tokens_used}</TableCell>
-                <TableCell align="center">
-                  {initialTokens - row.tokens_used || 0}
+          </TableHead>
+          <TableBody>
+            {!filteredRows.length ? (
+              <TableRow>
+                <TableCell colSpan={4} sx={{ textAlign: "center" }}>
+                  <Typography>No balances yet!</Typography>
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+            ) : (
+              filteredRows.map((row, index) => (
+                <TableRow
+                  key={`${index}-${row.user_id}`}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell align="center">{getAlert(row.user_id)}</TableCell>
+                  <TableCell>{row.learner_name}</TableCell>
+                  <TableCell align="center">{row.tokens_used}</TableCell>
+                  <TableCell align="center">
+                    {initialTokens - row.tokens_used || 0}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 }
 

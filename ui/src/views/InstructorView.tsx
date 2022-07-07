@@ -15,6 +15,7 @@ import {
   updateRequest,
   updateSettings,
 } from "../utils/api-connector";
+import { FILTERS } from "../utils/constants";
 import {
   a11yProps,
   compareDateTime,
@@ -204,6 +205,7 @@ function InstructorView() {
           <TabPanel value={tabPosition} index={2}>
             <HistoryTable
               rows={historyRows}
+              filters={FILTERS.INSTRUCTOR.HISTORY}
               openReviewDialog={handleOpenReviewDialogFromHistory}
             />
           </TabPanel>

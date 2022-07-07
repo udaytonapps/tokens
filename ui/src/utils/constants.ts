@@ -1,5 +1,10 @@
 import { getSessionId } from "./helpers";
-import { CraEnvironment, LtiAppInfo, LtiSessionConfig } from "./types";
+import {
+  CraEnvironment,
+  LtiAppInfo,
+  LtiSessionConfig,
+  RequestStatus,
+} from "./types";
 
 /** For use during local development for two reasons.
  * 1. Since you cannot retrieve the sessionId from the react server
@@ -10,8 +15,8 @@ export const APP_INFO_OVERRIDES: Partial<LtiAppInfo> = {
   // contextId: "",
   // isInstructor: true,
   // linkId: "",
-  // sessionId: "b95dad7823ce628330355299b1d8021a", // Learner session
-  sessionId: "2a402af35871421a612fff6b04f45a76", // Instructor session
+  // sessionId: "3dccde8cfddbe7e2983c3b5b24f66533", // Learner session
+  sessionId: "179938e81b1e413c8b9f798ac67317e0", // Instructor session
   // username: "",
   // darkMode: true,
   baseColor: "#6B5B95", // DRK PRPL
@@ -38,3 +43,66 @@ export const EnvConfig: Record<CraEnvironment, LtiSessionConfig> = {
 };
 
 export const DB_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+// Filters
+export const FILTERS = {
+  INSTRUCTOR: {
+    HISTORY: [
+      {
+        column: "category_name",
+        label: "Request Type",
+        type: "enum",
+      },
+      //   {
+      //     column: "created_at",
+      //     label: "Request Date",
+      //     type: "date",
+      //     // default: "",
+      //   },
+      {
+        column: "status_name",
+        label: "Status",
+        type: "enum",
+        valueMapping: (val: RequestStatus) => {
+          if (val === "SUBMITTED") {
+            return "Pending";
+          } else {
+            return val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+          }
+        },
+      },
+      {
+        column: "learner_name",
+        label: "Learner Name",
+        type: "enum",
+      },
+      //   {
+      //     column: "learner_comment",
+      //     label: "Description",
+      //     type: "text",
+      //     default: [],
+      //   },
+    ],
+  },
+  STUDENT: {
+    HISTORY: [
+      {
+        column: "category_name",
+        label: "Request Type",
+        type: "enum",
+      },
+      {
+        column: "status_name",
+        label: "Status",
+        type: "enum",
+        valueMapping: (val: RequestStatus) => {
+          if (val === "SUBMITTED") {
+            return "Pending";
+          } else {
+            return val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+          }
+        },
+      },
+    ],
+  },
+};
