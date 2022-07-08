@@ -42,6 +42,7 @@ export interface BalancesTableRow {
   user_id: string;
   learner_name: string;
   tokens_used: number;
+  pendingRequests?: number;
 }
 
 export interface RequestsTableRow {
@@ -75,6 +76,8 @@ export type GeneralTableRow =
   | HistoryTableRow;
 
 export type RequestStatus = "SUBMITTED" | "ACCEPTED" | "REJECTED";
+
+export type SortOrder = "asc" | "desc";
 
 // API Interfaces
 

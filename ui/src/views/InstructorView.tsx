@@ -62,6 +62,9 @@ function InstructorView() {
     if (requestMap.size) {
       getAllBalances().then((balances) => {
         const sortedBalances = sortBalancesByPriority(balances, requestMap);
+        sortedBalances.forEach((row) => {
+          row.pendingRequests = requestMap.get(row.user_id);
+        });
         setBalanceRows(sortedBalances);
       });
     }
