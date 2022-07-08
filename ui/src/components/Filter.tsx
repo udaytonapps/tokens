@@ -33,7 +33,6 @@ function Filter(props: FilterProps) {
   const [activeReference, setActiveReference] = useState<FilterActiveReference>(
     {}
   );
-  const [selectAllReference, setSelectAllReference] = useState();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const open = Boolean(anchorEl);
   const id = open ? "filter-popover" : undefined;
@@ -90,9 +89,31 @@ function Filter(props: FilterProps) {
   };
 
   const toggleAllCheckbox = (col: string) => {
-    // Need to either select or deselect all
-    // If all are already selected, deselect all
-    // If any are deselected, select all
+    let toggle = true;
+    const allChecked = allOptionsChecked(col);
+    if (allChecked) {
+      // Deselect all
+      toggle = false;
+    } else {
+      // Select all
+      toggle = true;
+    }
+    for (let key in activeReference[col]) {
+      activeReference[col][key] = toggle;
+    }
+    setActiveReference({ ...activeReference });
+    applyFilters();
+    console.log(col, " all ", allChecked);
+  };
+
+  const allOptionsChecked = (col: string) => {
+    const keys = Object.keys(activeReference[col]);
+    return !keys.find((key) => activeReference[col][key] === false);
+  };
+
+  const anyOptionsChecked = (col: string) => {
+    const keys = Object.keys(activeReference[col]);
+    return !!keys.find((key) => activeReference[col][key] === true);
   };
 
   //   const handleClickApply = () => {
@@ -166,7 +187,11 @@ function Filter(props: FilterProps) {
                           <Checkbox
                             size="small"
                             color="default"
-                            checked={true}
+                            checked={allOptionsChecked(filter.column)}
+                            indeterminate={
+                              !allOptionsChecked(filter.column) &&
+                              anyOptionsChecked(filter.column)
+                            }
                             onClick={() => toggleAllCheckbox(filter.column)}
                           />
                         }
