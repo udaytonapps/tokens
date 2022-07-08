@@ -10,30 +10,36 @@ const sizeReference = {
     fontSize: "150px",
     outerRim: {
       size: "300px",
-      color: "#CBB95A",
+      color: "#DDCB6B",
+      border: "4px dotted #CBB95A",
     },
     innerRim: {
-      size: "285px",
+      size: "250px",
       color: "#AA8500",
+      border: "none",
     },
     inner: {
-      size: "280px",
-      color: "#DDCB6B",
+      size: "245px",
+      color: "#CBB95A",
+      border: "none",
     },
   },
   small: {
     fontSize: "18px",
     outerRim: {
       size: "30px",
-      color: "#CBB95A",
+      color: "#DDCB6B",
+      border: "none",
     },
     innerRim: {
-      size: "26px",
+      size: "24px",
       color: "#AA8500",
+      border: "none",
     },
     inner: {
-      size: "24px",
-      color: "#DDCB6B",
+      size: "22px",
+      color: "#CBB95A",
+      border: "none",
     },
   },
 };
@@ -44,6 +50,8 @@ function TokenGraphic(props: TokenGraphicProps) {
 
   const stacked = size === "small" && count > 1;
 
+  // SHADOW
+  // BEVEL NUMBER
   const generateTokenStyles = (
     referenceKey: "outerRim" | "innerRim" | "inner"
   ) => {
@@ -51,6 +59,7 @@ function TokenGraphic(props: TokenGraphicProps) {
       height: sizeReference[size][referenceKey].size,
       width: sizeReference[size][referenceKey].size,
       borderRadius: 50,
+      border: sizeReference[size][referenceKey].border,
       sx: {
         backgroundColor: sizeReference[size][referenceKey].color,
         fontSize: sizeReference[size].fontSize,
@@ -68,13 +77,17 @@ function TokenGraphic(props: TokenGraphicProps) {
         {...generateTokenStyles("outerRim")}
         position={stacked ? "absolute" : "inherit"}
         left={stacked ? 5 : 0}
+        border={sizeReference[size].outerRim.border}
       >
         <Box {...generateTokenStyles("innerRim")}>
           <Box {...generateTokenStyles("inner")}>{count}</Box>
         </Box>
       </Box>
       {stacked && (
-        <Box {...generateTokenStyles("outerRim")}>
+        <Box
+          {...generateTokenStyles("outerRim")}
+          border={sizeReference[size].outerRim.border}
+        >
           <Box {...generateTokenStyles("innerRim")}>
             <Box {...generateTokenStyles("inner")}></Box>
           </Box>
