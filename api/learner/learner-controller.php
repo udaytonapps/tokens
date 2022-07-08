@@ -56,5 +56,11 @@ class LearnerCtr
         }
         return $rows;
     }
+
+    /** Create a new request */
+    static function addRequest($data)
+    {
+        return self::$DAO->addRequest(self::$contextId, self::$user->id, $data['category_id'], $data['learner_comment']);
+    }
 }
 LearnerCtr::init();

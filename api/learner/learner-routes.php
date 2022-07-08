@@ -23,19 +23,19 @@ Route::add($resource . '/requests', function () {
     return Route::sendJson($res);
 }, 'get');
 
-// /** Submit a request */
-// Route::add($resource . '/requests', function () {
-//     $data = array();
-//     // Define the expected data
-//     $requiredData = array('request_id', 'status_name');
-//     $optionalData = array('instructor_comment');
-//     // Assemble from JSON to PHP associative array
-//     $data = Route::assembleRouteData($requiredData, $optionalData);
-//     if (!isset($data)) {
-//         // Reject if required data is missing
-//         return Route::sendJson(array('error' => 'Missing parameters'));
-//     } else {
-//         $res = LearnerCtr::updateRequest($data);
-//         return Route::sendJson($res);
-//     }
-// }, 'post');
+/** Submit a request */
+Route::add($resource . '/requests', function () {
+    $data = array();
+    // Define the expected data
+    $requiredData = array('category_id', 'learner_comment');
+    $optionalData = array();
+    // Assemble from JSON to PHP associative array
+    $data = Route::assembleRouteData($requiredData, $optionalData);
+    if (!isset($data)) {
+        // Reject if required data is missing
+        return Route::sendJson(array('error' => 'Missing parameters'));
+    } else {
+        $res = LearnerCtr::addRequest($data);
+        return Route::sendJson($res);
+    }
+}, 'post');

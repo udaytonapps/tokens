@@ -49,14 +49,38 @@ class LearnerDAO
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
-    // public function addRequest($contextId, $requestId, $newStatus, $instructorId, $instructorComment)
-    // {
-    //     $query = "UPDATE {$this->p}tokens_request r
-    //     JOIN  {$this->p}tokens_configuration c
-    //         ON c.configuration_id = r.configuration_id
-    //     SET r.status_name = :newStatus, r.instructor_id = :instructorId, r.instructor_comment = :instructorComment
-    //     WHERE r.request_id = :requestId AND c.context_id = :contextId";
-    //     $arr = array(':contextId' => $contextId, ':requestId' => $requestId, ':newStatus' => $newStatus, ':instructorId' => $instructorId, ':instructorComment' => $instructorComment);
-    //     return $this->PDOX->queryDie($query, $arr);
-    // }
+    /** Attempts to add a new request, first checking that the request type isn't more expensive than the sum of tokens already used */
+    public function addRequest($contextId, $learnerId, $categoryId, $learnerComment)
+    {
+        /**
+         * SELECT 1 -> Selects from dual (in memory table as a placeholder to allow the WHERE condition below)
+         * SELECT 2 -> Determine the amount of initial tokens
+         * SELECT 3 -> Determine the amount of tokens already in use (request exists that isn't REJECTED)
+         * SELECT 4 -> Determine the token cost of the existing request
+         * WHERE condition hinges on initial_tokens - (used tokens) >= token_cost
+         * If that condition is not met, the insert doesn't happen, and id 0 is returned
+         */
+        $query = "INSERT INTO {$this->p}tokens_request (user_id, configuration_id, category_id, learner_comment, status_name)
+        SELECT
+            :learnerId,
+            (SELECT configuration_id from {$this->p}tokens_configuration WHERE context_id = :contextId LIMIT 1),
+            :categoryId,
+            :learnerComment,
+            'SUBMITTED'
+        FROM dual
+        WHERE
+            (SELECT initial_tokens from {$this->p}tokens_configuration WHERE context_id = :contextId)
+            -
+            (SELECT SUM(c.token_cost) FROM {$this->p}tokens_category c
+                INNER JOIN {$this->p}tokens_request r
+                    ON c.category_id = r.category_id
+                INNER JOIN {$this->p}tokens_configuration con
+                    ON c.configuration_id = con.configuration_id
+                WHERE r.user_id = :learnerId AND con.context_id = :contextId AND r.status_name <> 'REJECTED')
+            >=
+            (SELECT token_cost from {$this->p}tokens_category WHERE category_id = :categoryId LIMIT 1);";
+        $arr = array(':learnerId' => $learnerId, ':contextId' => $contextId, ':categoryId' => $categoryId, ':learnerComment' => $learnerComment);
+        $this->PDOX->queryDie($query, $arr);
+        return $this->PDOX->lastInsertId();
+    }
 }
