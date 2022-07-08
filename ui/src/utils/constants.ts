@@ -1,4 +1,4 @@
-import { getSessionId } from "./helpers";
+import { compareLastNames, getSessionId } from "./helpers";
 import {
   CraEnvironment,
   LtiAppInfo,
@@ -15,12 +15,12 @@ export const APP_INFO_OVERRIDES: Partial<LtiAppInfo> = {
   // contextId: "",
   // isInstructor: true,
   // linkId: "",
-  // sessionId: "3dccde8cfddbe7e2983c3b5b24f66533", // Learner session
-  sessionId: "179938e81b1e413c8b9f798ac67317e0", // Instructor session
+  // sessionId: "13ebcc9442fbd41d056506cbac68ed3a", // Learner session
+  sessionId: "45f1d5f44aac814c7542fc03862e5f99", // Instructor session
   // username: "",
   // darkMode: true,
-  baseColor: "#6B5B95", // DRK PRPL
-  // baseColor: "#0E4466", // DRK TEAL
+  // baseColor: "#6B5B95", // DRK PRPL
+  baseColor: "#0E4466", // DRK TEAL
   // baseColor: "#FFADAD", // LIGHT SALMON
   // baseColor: "#B3ADFF", // LIGHT BLUE
 };
@@ -75,6 +75,7 @@ export const FILTERS = {
         column: "learner_name",
         label: "Learner Name",
         type: "enum",
+        sort: compareLastNames,
       },
       //   {
       //     column: "learner_comment",

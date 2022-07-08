@@ -1,6 +1,10 @@
 import { Theme } from "@mui/material";
 import { DateTime } from "luxon";
-import { APP_INFO_OVERRIDES, DB_DATE_TIME_FORMAT, EnvConfig } from "./constants";
+import {
+  APP_INFO_OVERRIDES,
+  DB_DATE_TIME_FORMAT,
+  EnvConfig,
+} from "./constants";
 import {
   BalancesTableRow,
   CraEnvironment,
@@ -52,9 +56,19 @@ const compareStrings = (a: string, b: string) => {
   return 0;
 };
 
-export const compareLastNames = (a: GeneralTableRow, b: GeneralTableRow) => {
+export const compareRowLastNames = (a: GeneralTableRow, b: GeneralTableRow) => {
   const splitA = a.learner_name.split(" ");
   const splitB = b.learner_name.split(" ");
+  const lastA = splitA[splitA.length - 1];
+  const lastB = splitB[splitB.length - 1];
+  return lastA === lastB
+    ? compareStrings(splitA[0], splitB[0])
+    : compareStrings(lastA, lastB);
+};
+
+export const compareLastNames = (a: string, b: string) => {
+  const splitA = a.split(" ");
+  const splitB = b.split(" ");
   const lastA = splitA[splitA.length - 1];
   const lastB = splitB[splitB.length - 1];
   return lastA === lastB
@@ -70,7 +84,7 @@ export const sortBalancesByPriority = (
   rows: BalancesTableRow[],
   requestMap: Map<string, number>
 ) => {
-  rows.sort(compareLastNames);
+  rows.sort(compareRowLastNames);
   // Now that rows are sorted, divide them by 'SUBMITTED' status
   const pending: BalancesTableRow[] = [];
   const resolved: BalancesTableRow[] = [];

@@ -1,8 +1,5 @@
-import { ExpandMore, FilterList } from "@mui/icons-material";
+import { FilterList } from "@mui/icons-material";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Box,
   Button,
   Checkbox,
@@ -12,6 +9,7 @@ import {
   IconButton,
   Popover,
   TextField,
+  Typography,
 } from "@mui/material";
 import { MouseEvent, useEffect, useState } from "react";
 
@@ -35,6 +33,7 @@ function Filter(props: FilterProps) {
   const [activeReference, setActiveReference] = useState<FilterActiveReference>(
     {}
   );
+  const [selectAllReference, setSelectAllReference] = useState();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const open = Boolean(anchorEl);
   const id = open ? "filter-popover" : undefined;
@@ -90,11 +89,11 @@ function Filter(props: FilterProps) {
     applyFilters();
   };
 
-  //   const toggleAllCheckbox = (col: string) => {
-  //     // Need to either select or deselect all
-  //     // If all are already selected, deselect all
-  //     // If any are deselected, select all
-  //   };
+  const toggleAllCheckbox = (col: string) => {
+    // Need to either select or deselect all
+    // If all are already selected, deselect all
+    // If any are deselected, select all
+  };
 
   //   const handleClickApply = () => {
   //     handleClose();
@@ -115,6 +114,16 @@ function Filter(props: FilterProps) {
       });
     }
     filterRows(filteredRows);
+  };
+
+  const getFilterOptions = (filter: any) => {
+    let options = Object.keys(enumReference[filter.column]);
+    if (filter.sort) {
+      options.sort(filter.sort);
+    } else {
+      options.sort();
+    }
+    return options;
   };
 
   return (
@@ -144,96 +153,64 @@ function Filter(props: FilterProps) {
         }}
       >
         <Box display={"flex"} flexWrap={"wrap"}>
-          {filters.map((filter, i) => {
-            return (
-              <Accordion
-                key={`${filter.column}-${i}`}
-                defaultExpanded={true}
-                disableGutters
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMore />}
-                  aria-controls={`filter-panel-${i}`}
-                  id={`filter-panel-${i}`}
-                >
-                  <FormLabel>{filter.label}</FormLabel>
-                </AccordionSummary>
-                <AccordionDetails>
-                  {/* Need to first check if enumReference[filter.column] exists */}
-                  {/* <Autocomplete
-                    blurOnSelect
-                    size="small"
-                    disablePortal
-                    id={`${filter.column}-autocomplete`}
-                    options={Object.keys(enumReference[filter.column]).map(
-                      (key) => key
-                    )}
-                    sx={{ width: 300 }}
-                    renderInput={(params) => (
-                      <TextField {...params} label="Movie" />
-                    )}
-                  /> */}
-                  {filter.type === "enum" ? (
-                    <Box display={"flex"}>
-                      {enumReference[filter.column] && (
-                        <FormGroup>
-                          {/* All or none option */}
-                          {/* <FormControlLabel
-                            control={
-                              <Checkbox
-                                size="small"
-                                color="default"
-                                checked={true}
-                                onClick={() => toggleAllCheckbox(filter.column)}
-                              />
-                            }
-                            label={
-                              <Typography fontWeight={"bold"}>
-                                Select all
-                              </Typography>
-                            }
-                          /> */}
-                          {Object.keys(enumReference[filter.column]).map(
-                            (key, i) => {
-                              return (
-                                <Box key={`${filter.column}-${i}-${key}`}>
-                                  <FormControlLabel
-                                    control={
-                                      <Checkbox
-                                        size="small"
-                                        color="default"
-                                        checked={
-                                          activeReference[filter.column][
-                                            key
-                                          ] === true
-                                        }
-                                        onClick={() =>
-                                          toggleCheckbox(filter.column, key)
-                                        }
-                                      />
-                                    }
-                                    label={
-                                      filter.valueMapping
-                                        ? filter.valueMapping(key)
-                                        : key
-                                    }
-                                  />
-                                </Box>
-                              );
-                            }
-                          )}
-                        </FormGroup>
-                      )}
-                    </Box>
-                  ) : (
-                    <Box>
-                      <TextField size="small" type={filter.type} />
-                    </Box>
+          {filters.map((filter, i) => (
+            <Box key={`${filter.column}-${i}`} p={2}>
+              <FormLabel>{filter.label}</FormLabel>
+              {filter.type === "enum" ? (
+                <Box display={"flex"}>
+                  {enumReference[filter.column] && (
+                    <FormGroup>
+                      {/* All or none option */}
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            size="small"
+                            color="default"
+                            checked={true}
+                            onClick={() => toggleAllCheckbox(filter.column)}
+                          />
+                        }
+                        label={
+                          <Typography fontWeight={"bold"}>
+                            Select all
+                          </Typography>
+                        }
+                      />
+                      {getFilterOptions(filter).map((key, i) => {
+                        return (
+                          <Box key={`${filter.column}-${i}-${key}`}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  size="small"
+                                  color="default"
+                                  checked={
+                                    activeReference[filter.column][key] === true
+                                  }
+                                  onClick={() =>
+                                    toggleCheckbox(filter.column, key)
+                                  }
+                                />
+                              }
+                              label={
+                                filter.valueMapping
+                                  ? filter.valueMapping(key)
+                                  : key
+                              }
+                            />
+                          </Box>
+                        );
+                      })}
+                    </FormGroup>
                   )}
-                </AccordionDetails>
-              </Accordion>
-            );
-          })}
+                </Box>
+              ) : (
+                <Box>
+                  <TextField size="small" type={filter.type} />
+                </Box>
+              )}
+            </Box>
+          ))}
         </Box>
         {/* <Box display={"flex"} justifyContent={"end"} pr={1} pb={1}>
           <Button sx={{ mr: 1 }} variant="outlined">
