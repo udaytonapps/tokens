@@ -63,16 +63,17 @@ function InstructorView() {
 
   useEffect(() => {
     // When the mapping of pending requests is set, retrieve and sort the balance table rows
-    if (requestMap.size) {
+    if (requestMap.size && settings) {
       getAllBalances().then((balances) => {
         const sortedBalances = sortBalancesByPriority(balances, requestMap);
         sortedBalances.forEach((row) => {
           row.pendingRequests = requestMap.get(row.user_id);
+          row.balance = (settings.initial_tokens || 0) - (row.tokens_used || 0);
         });
         setBalanceRows(sortedBalances);
       });
     }
-  }, [requestMap]);
+  }, [requestMap, settings]);
 
   useEffect(() => {
     // If undefined, setting data may still be loading, but if null, response was received and config doesn't exist, so open the dialog
@@ -196,11 +197,7 @@ function InstructorView() {
             </Tabs>
           </Box>
           <TabPanel value={tabPosition} index={0}>
-            <BalancesTable
-              rows={balanceRows}
-              initialTokens={settings?.initial_tokens || 0}
-              setTabPosition={setTabPosition}
-            />
+            <BalancesTable rows={balanceRows} setTabPosition={setTabPosition} />
           </TabPanel>
           <TabPanel value={tabPosition} index={1}>
             <RequestsTable

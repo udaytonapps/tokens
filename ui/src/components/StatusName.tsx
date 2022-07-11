@@ -8,20 +8,25 @@ interface StatusNameProps {
 }
 
 const nameConfig: Record<RequestStatus, any> = {
-  SUBMITTED: {
-    icon: <Info color="warning" />,
-    text: "Pending",
-    tooltip: "Request has not yet been accepted or rejected",
-  },
   ACCEPTED: {
     icon: <CheckCircle color="success" />,
     text: "Accepted",
     tooltip: "Request has been accepted",
   },
+  PENDING: {
+    icon: <Info color="warning" />,
+    text: "Pending",
+    tooltip: "Request has not yet been accepted or rejected",
+  },
   REJECTED: {
     icon: <Cancel color="error" />,
     text: "Rejected",
     tooltip: "Request has been rejected",
+  },
+  SUBMITTED: {
+    icon: <Info color="warning" />,
+    text: "Pending",
+    tooltip: "Request has not yet been accepted or rejected",
   },
 };
 

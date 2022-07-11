@@ -42,6 +42,7 @@ export interface BalancesTableRow {
   user_id: string;
   learner_name: string;
   tokens_used: number;
+  balance?: number;
   pendingRequests?: number;
 }
 
@@ -70,12 +71,9 @@ export interface RequestUpdateData {
 
 export interface HistoryTableRow extends RequestsTableRow {}
 
-export type GeneralTableRow =
-  | BalancesTableRow
-  | RequestsTableRow
-  | HistoryTableRow;
+export type GeneralTableRow = Record<any, any>;
 
-export type RequestStatus = "SUBMITTED" | "ACCEPTED" | "REJECTED";
+export type RequestStatus = "SUBMITTED" | "ACCEPTED" | "REJECTED" | "PENDING";
 
 // Filters, sorting
 

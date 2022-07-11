@@ -12,9 +12,10 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { FILTERS } from "../utils/constants";
-import { formatDbDate } from "../utils/helpers";
-import { RequestsTableRow } from "../utils/types";
+import { formatDbDate, getComparator, stableSort } from "../utils/helpers";
+import { RequestsTableRow, SortOrder } from "../utils/types";
 import Filter from "./Filter";
+import TableHeaderSort from "./TableHeaderSort";
 
 interface RequestsTableProps {
   rows: RequestsTableRow[];
@@ -24,12 +25,21 @@ interface RequestsTableProps {
 /** Shows the requests of all available students */
 function RequestsTable(props: RequestsTableProps) {
   const { rows, openReviewDialog } = props;
-
   const [filteredRows, setFilteredRows] = useState(rows);
+  const [orderBy, setOrderBy] = useState<keyof RequestsTableRow>("created_at");
+  const [order, setOrder] = useState<SortOrder>(
+    orderBy === "created_at" ? "desc" : "asc"
+  );
 
   useEffect(() => {
     setFilteredRows(rows);
   }, [rows]);
+
+  /** The filteredRows are automatically sorted each render */
+  const sortedFilteredRows = stableSort(
+    filteredRows,
+    getComparator(order, orderBy)
+  );
 
   return (
     <Box>
@@ -45,22 +55,40 @@ function RequestsTable(props: RequestsTableProps) {
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Request Date</TableCell>
-              <TableCell>Student Name</TableCell>
-              <TableCell>Request</TableCell>
+              <TableCell>
+                <TableHeaderSort
+                  column={"created_at"}
+                  columnLabel={"Request Date"}
+                  {...{ order, orderBy, setOrder, setOrderBy }}
+                ></TableHeaderSort>
+              </TableCell>
+              <TableCell>
+                <TableHeaderSort
+                  column={"learner_name"}
+                  columnLabel={"Student Name"}
+                  {...{ order, orderBy, setOrder, setOrderBy }}
+                ></TableHeaderSort>
+              </TableCell>
+              <TableCell>
+                <TableHeaderSort
+                  column={"category_name"}
+                  columnLabel={"Request"}
+                  {...{ order, orderBy, setOrder, setOrderBy }}
+                ></TableHeaderSort>
+              </TableCell>
               <TableCell>Description</TableCell>
               <TableCell align="center">Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {!filteredRows.length ? (
+            {!sortedFilteredRows.length ? (
               <TableRow>
                 <TableCell colSpan={4} sx={{ textAlign: "center" }}>
                   <Typography>No pending requests!</Typography>
                 </TableCell>
               </TableRow>
             ) : (
-              filteredRows.map((row, index) => (
+              sortedFilteredRows.map((row, index) => (
                 <TableRow
                   key={`${index}-${row.request_id}`}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

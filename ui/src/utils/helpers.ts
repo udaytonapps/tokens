@@ -13,6 +13,7 @@ import {
   HistoryTableRow,
   LtiAppInfo,
   RequestStatus,
+  SortOrder,
 } from "./types";
 
 export const getAppConfig = (appInfo: LtiAppInfo): LtiAppInfo => {
@@ -43,12 +44,15 @@ export const getSessionId = (): string => {
 
 export const getStatusColors = (theme: Theme) => {
   const statusColors: Record<RequestStatus, string> = {
-    SUBMITTED: theme.palette.warning.main,
     ACCEPTED: theme.palette.success.main,
+    PENDING: theme.palette.warning.main,
     REJECTED: theme.palette.error.main,
+    SUBMITTED: theme.palette.warning.main,
   };
   return statusColors;
 };
+
+// SORTING
 
 const compareStrings = (a: string, b: string) => {
   if (a < b) return -1;
@@ -57,13 +61,7 @@ const compareStrings = (a: string, b: string) => {
 };
 
 export const compareRowLastNames = (a: GeneralTableRow, b: GeneralTableRow) => {
-  const splitA = a.learner_name.split(" ");
-  const splitB = b.learner_name.split(" ");
-  const lastA = splitA[splitA.length - 1];
-  const lastB = splitB[splitB.length - 1];
-  return lastA === lastB
-    ? compareStrings(splitA[0], splitB[0])
-    : compareStrings(lastA, lastB);
+  return compareLastNames(a.learner_name, b.learner_name);
 };
 
 export const compareLastNames = (a: string, b: string) => {
@@ -98,6 +96,52 @@ export const sortBalancesByPriority = (
     }
   });
   return [...pending, ...resolved];
+};
+
+const descendingComparator = <T>(a: T, b: T, orderBy: keyof T) => {
+  if (b[orderBy] < a[orderBy]) {
+    return -1;
+  }
+  if (b[orderBy] > a[orderBy]) {
+    return 1;
+  }
+  return 0;
+};
+
+export const getComparator = <Key extends keyof GeneralTableRow>(
+  order: SortOrder,
+  orderBy: Key
+): ((
+  a: GeneralTableRow,
+  b: GeneralTableRow
+  // a: { [key in Key]: number | string },
+  // b: { [key in Key]: number | string }
+) => number) => {
+  if (orderBy === "learner_name") {
+    return order === "desc"
+      ? (a, b) => -compareRowLastNames(a, b)
+      : (a, b) => compareRowLastNames(a, b);
+  } else {
+    return order === "desc"
+      ? (a, b) => descendingComparator(a, b, orderBy)
+      : (a, b) => -descendingComparator(a, b, orderBy);
+  }
+};
+
+/** Compatible with IE 11, https://mui.com/material-ui/react-table/ */
+export const stableSort = <T>(
+  array: readonly T[],
+  comparator: (a: T, b: T) => number
+) => {
+  const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) {
+      return order;
+    }
+    return a[1] - b[1];
+  });
+  return stabilizedThis.map((el) => el[0]);
 };
 
 export function a11yProps(index: number) {
