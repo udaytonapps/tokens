@@ -88,7 +88,11 @@ function RequestForm(props: RequestFormProps) {
                   <Typography textTransform={"none"}>
                     {category.category_name}
                   </Typography>
-                  <TokenGraphic count={category.token_cost} size="small" />
+                  <TokenGraphic
+                    count={category.token_cost}
+                    size="small"
+                    disabled={balance - category.token_cost < 0}
+                  />
                 </Box>
               </Button>
             ))}

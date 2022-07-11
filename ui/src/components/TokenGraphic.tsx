@@ -3,10 +3,12 @@ import { Box } from "@mui/material";
 interface TokenGraphicProps {
   count: number;
   size: "small" | "large";
+  disabled?: boolean;
 }
 
-const sizeReference = {
+const styleReference = {
   large: {
+    color: "black",
     fontSize: "150px",
     outerRim: {
       size: "300px",
@@ -25,6 +27,7 @@ const sizeReference = {
     },
   },
   small: {
+    color: "black",
     fontSize: "18px",
     outerRim: {
       size: "30px",
@@ -42,11 +45,23 @@ const sizeReference = {
       border: "none",
     },
   },
+  disabled: {
+    color: "#888",
+    outerRim: {
+      color: "#ccc",
+    },
+    innerRim: {
+      color: "#aaa",
+    },
+    inner: {
+      color: "#bbb",
+    },
+  },
 };
 
 /** Show a graphic of a token */
 function TokenGraphic(props: TokenGraphicProps) {
-  const { count, size } = props;
+  const { count, disabled, size } = props;
 
   const stacked = size === "small" && count > 1;
 
@@ -56,14 +71,18 @@ function TokenGraphic(props: TokenGraphicProps) {
     referenceKey: "outerRim" | "innerRim" | "inner"
   ) => {
     return {
-      height: sizeReference[size][referenceKey].size,
-      width: sizeReference[size][referenceKey].size,
+      height: styleReference[size][referenceKey].size,
+      width: styleReference[size][referenceKey].size,
       borderRadius: 50,
-      border: sizeReference[size][referenceKey].border,
+      border: styleReference[size][referenceKey].border,
       sx: {
-        backgroundColor: sizeReference[size][referenceKey].color,
-        fontSize: sizeReference[size].fontSize,
-        color: "black",
+        backgroundColor: disabled
+          ? styleReference.disabled[referenceKey].color
+          : styleReference[size][referenceKey].color,
+        fontSize: styleReference[size].fontSize,
+        color: disabled
+          ? styleReference.disabled.color
+          : styleReference[size].color,
       },
       display: "flex",
       justifyContent: "center",
@@ -77,7 +96,7 @@ function TokenGraphic(props: TokenGraphicProps) {
         {...generateTokenStyles("outerRim")}
         position={stacked ? "absolute" : "inherit"}
         left={stacked ? 5 : 0}
-        border={sizeReference[size].outerRim.border}
+        border={styleReference[size].outerRim.border}
       >
         <Box {...generateTokenStyles("innerRim")}>
           <Box {...generateTokenStyles("inner")}>{count}</Box>
@@ -86,7 +105,7 @@ function TokenGraphic(props: TokenGraphicProps) {
       {stacked && (
         <Box
           {...generateTokenStyles("outerRim")}
-          border={sizeReference[size].outerRim.border}
+          border={styleReference[size].outerRim.border}
         >
           <Box {...generateTokenStyles("innerRim")}>
             <Box {...generateTokenStyles("inner")}></Box>
