@@ -1,6 +1,7 @@
 import { compareLastNames, getSessionId } from "./helpers";
 import {
   CraEnvironment,
+  FilterConfig,
   LtiAppInfo,
   LtiSessionConfig,
   RequestStatus,
@@ -45,8 +46,42 @@ export const EnvConfig: Record<CraEnvironment, LtiSessionConfig> = {
 export const DB_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
 // Filters
-export const FILTERS = {
+interface Filters {
+  INSTRUCTOR: InstructorFilters;
+  LEARNER: LearnerFilters;
+}
+interface InstructorFilters {
+  BALANCES: FilterConfig[];
+  REQUESTS: FilterConfig[];
+  HISTORY: FilterConfig[];
+}
+
+interface LearnerFilters {
+  HISTORY: FilterConfig[];
+}
+export const FILTERS: Filters = {
   INSTRUCTOR: {
+    BALANCES: [
+      {
+        column: "learner_name",
+        label: "Learner Name",
+        type: "enum",
+        sort: compareLastNames,
+      },
+    ],
+    REQUESTS: [
+      {
+        column: "category_name",
+        label: "Request Type",
+        type: "enum",
+      },
+      {
+        column: "learner_name",
+        label: "Learner Name",
+        type: "enum",
+        sort: compareLastNames,
+      },
+    ],
     HISTORY: [
       {
         column: "category_name",
@@ -85,7 +120,7 @@ export const FILTERS = {
       //   },
     ],
   },
-  STUDENT: {
+  LEARNER: {
     HISTORY: [
       {
         column: "category_name",

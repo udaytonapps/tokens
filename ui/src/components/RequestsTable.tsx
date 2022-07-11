@@ -11,6 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import { FILTERS } from "../utils/constants";
 import { formatDbDate } from "../utils/helpers";
 import { RequestsTableRow } from "../utils/types";
 import Filter from "./Filter";
@@ -19,19 +20,6 @@ interface RequestsTableProps {
   rows: RequestsTableRow[];
   openReviewDialog: (requestId: string) => void;
 }
-
-const requestFilters = [
-  {
-    column: "category_name",
-    label: "Request Type",
-    type: "enum",
-  },
-  {
-    column: "learner_name",
-    label: "Learner Name",
-    type: "enum",
-  },
-];
 
 /** Shows the requests of all available students */
 function RequestsTable(props: RequestsTableProps) {
@@ -49,7 +37,7 @@ function RequestsTable(props: RequestsTableProps) {
         <Filter
           buttonLabel="Filters"
           rows={rows}
-          filters={requestFilters}
+          filters={FILTERS.INSTRUCTOR.REQUESTS}
           filterRows={setFilteredRows}
         />
       </Box>

@@ -94,7 +94,7 @@ function LearnerView() {
           <TabPanel value={tabPosition} index={1}>
             <HistoryTable
               rows={historyRows}
-              filters={FILTERS.STUDENT.HISTORY}
+              filters={FILTERS.LEARNER.HISTORY}
               openReviewDialog={handleOpenReviewDialogFromHistory}
             />
           </TabPanel>

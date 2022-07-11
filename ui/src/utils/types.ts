@@ -77,7 +77,22 @@ export type GeneralTableRow =
 
 export type RequestStatus = "SUBMITTED" | "ACCEPTED" | "REJECTED";
 
+// Filters, sorting
+
 export type SortOrder = "asc" | "desc";
+
+export interface FilterConfig {
+  /** The column that is being filtered */
+  column: string;
+  /** The values to be shown in the filter options (only applies for enum at this point) */
+  label: string;
+  /** Enum is still assumed to be text, but allows checkboxes for each value in the filter options */
+  type: "enum" | "text" | "number";
+  /** Optional function to sort the data in a particular way (if not included, will be alpha) */
+  sort?: (a: string, b: string) => 1 | 0 | -1;
+  /** Optional function to map the label value to another value (such as a display name) */
+  valueMapping?: (val: any) => any;
+}
 
 // API Interfaces
 

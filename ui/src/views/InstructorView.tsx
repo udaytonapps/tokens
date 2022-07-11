@@ -198,7 +198,6 @@ function InstructorView() {
           <TabPanel value={tabPosition} index={0}>
             <BalancesTable
               rows={balanceRows}
-              requestMap={requestMap}
               initialTokens={settings?.initial_tokens || 0}
               setTabPosition={setTabPosition}
             />

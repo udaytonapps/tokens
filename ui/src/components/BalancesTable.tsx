@@ -12,53 +12,27 @@ import {
   Typography,
 } from "@mui/material";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { BalancesTableRow } from "../utils/types";
+import { FILTERS } from "../utils/constants";
+import { BalancesTableRow, SortOrder } from "../utils/types";
 import Filter from "./Filter";
 
 interface BalancesTableProps {
   initialTokens: number;
-  requestMap: Map<string, number>;
   rows: BalancesTableRow[];
   setTabPosition: Dispatch<SetStateAction<number>>;
 }
 
-const balancesFilters = [
-  {
-    column: "learner_name",
-    label: "Learner Name",
-    type: "enum",
-  },
-];
-
 /** Shows the balances of all available students */
 function BalancesTable(props: BalancesTableProps) {
-  const { initialTokens, requestMap, rows, setTabPosition } = props;
+  const { initialTokens, rows, setTabPosition } = props;
   const [filteredRows, setFilteredRows] = useState(rows);
+  const [order, setOrder] = useState<SortOrder>("asc");
+  const [orderBy, setOrderBy] =
+    useState<keyof BalancesTableRow>("learner_name");
 
   useEffect(() => {
     setFilteredRows(rows);
   }, [rows]);
-
-  const getAlert = (learnerId: string) => {
-    return (
-      <Box
-        display={"flex"}
-        minHeight={35}
-        justifyContent={"center"}
-        alignContent={"center"}
-      >
-        {/* Show the icon button only if there is a reference to the learner */}
-        {requestMap.get(learnerId) && (
-          <IconButton onClick={() => setTabPosition(1)} disableRipple={true}>
-            <Badge
-              badgeContent={requestMap.get(learnerId)}
-              color="warning"
-            ></Badge>
-          </IconButton>
-        )}
-      </Box>
-    );
-  };
 
   return (
     <Box>
@@ -66,7 +40,7 @@ function BalancesTable(props: BalancesTableProps) {
         <Filter
           buttonLabel="Filters"
           rows={rows}
-          filters={balancesFilters}
+          filters={FILTERS.INSTRUCTOR.BALANCES}
           filterRows={setFilteredRows}
         />
       </Box>
@@ -95,7 +69,27 @@ function BalancesTable(props: BalancesTableProps) {
                   key={`${index}-${row.user_id}`}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  <TableCell align="center">{getAlert(row.user_id)}</TableCell>
+                  <TableCell align="center">
+                    <Box
+                      display={"flex"}
+                      minHeight={35}
+                      justifyContent={"center"}
+                      alignContent={"center"}
+                    >
+                      {/* Show the icon button only if there is a reference to the learner */}
+                      {row.pendingRequests && (
+                        <IconButton
+                          onClick={() => setTabPosition(1)}
+                          disableRipple={true}
+                        >
+                          <Badge
+                            badgeContent={row.pendingRequests}
+                            color="warning"
+                          ></Badge>
+                        </IconButton>
+                      )}
+                    </Box>
+                  </TableCell>
                   <TableCell>{row.learner_name}</TableCell>
                   <TableCell align="center">{row.tokens_used}</TableCell>
                   <TableCell align="center">
