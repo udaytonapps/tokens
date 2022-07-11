@@ -7,6 +7,8 @@ class LearnerCtr
 {
     /** @var LearnerDAO */
     protected static $DAO;
+    /** @var CommonDAO */
+    protected static $commonDAO;
     protected static $LTIX;
     protected static $user;
     protected static $contextId;
@@ -16,6 +18,7 @@ class LearnerCtr
     {
         global $USER, $CONTEXT, $LINK;
         self::$DAO = new LearnerDAO();
+        self::$commonDAO = new CommonDAO();
         self::$user = $USER;
         self::$contextId = $CONTEXT->id;
         self::$linkId = $LINK->id;
@@ -60,7 +63,22 @@ class LearnerCtr
     /** Create a new request */
     static function addRequest($data)
     {
-        return self::$DAO->addRequest(self::$contextId, self::$user->id, $data['category_id'], $data['learner_comment']);
+        global $CONTEXT, $USER;
+        $res = self::$DAO->addRequest(self::$contextId, self::$user->id, $data['category_id'], $data['learner_comment']);
+        // Send email to self confirming request
+        $category = self::$DAO->getCategory($data['category_id']);
+        $type = $category['category_name'];
+        $personalMsg = "Your request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
+        CommonService::sendEmailToActiveUser("Tokens request submitted!", $personalMsg);
+        // Send email to instructor IF they have that configuration
+        $config = self::$DAO->getConfiguration($CONTEXT->id);
+        if ($config['notifications_pref'] == 1) {
+            // Find list of instructors and send emails to all?
+            $instructor = self::$commonDAO->getUserContact($config['user_id']);
+            $instructorMsg = "A request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nLearner: " . $USER->displayname . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
+            CommonService::sendEmailFromActiveUser($instructor['displayname'], $instructor['email'], "Tokens request submitted!", $instructorMsg);
+        }
+        return $res;
     }
 }
 LearnerCtr::init();

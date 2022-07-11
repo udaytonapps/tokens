@@ -7,6 +7,7 @@ require_once __DIR__ . '/common-dao.php';
 
 use Tsugi\Core\LTIX;
 use Tsugi\UI\Theme;
+
 $LAUNCH = LTIX::requireData();
 /** Ensure the theme is generated to set the dark_mode and theme_base properties */
 $OUTPUT->get_theme();
@@ -56,6 +57,35 @@ class CommonService
     static function compareStudentsLastName($a, $b)
     {
         return strcmp($a["person_name_family"], $b["person_name_family"]);
+    }
+
+    /** Often a notification or confirmation of the user's own activity */
+    static function sendEmailToActiveUser($subject, $body)
+    {
+        global $USER;
+        $msg = "Hi " . $USER->displayname . ",\n\n" . $body . "\n\nHave a great day!";
+        // use wordwrap() if lines are longer than 120 characters
+        $msg = wordwrap($msg, 120);
+
+        $headers = "From: Learning Apps < no-reply@learningapps.udayton.edu >\n";
+        $headers = $headers . "Reply-to: Learning Apps < no-reply@learningapps.udayton.edu >\n";
+
+        mail($USER->email, $subject, $msg, $headers);
+    }
+
+    /** Often notification or communication from an instructor to a student, or vice versa */
+    static function sendEmailFromActiveUser($recipientName, $recipientEmail, $subject, $body)
+    {
+        global $USER;
+        $msg = "Hi " . $recipientName . ",\n\n" . $body . "\n\nHave a great day!";
+
+        // use wordwrap() if lines are longer than 120 characters
+        $msg = wordwrap($msg, 120);
+
+        $headers = "From: Learning Apps < no-reply@learningapps.udayton.edu >\n";
+        $headers = $headers . "Reply-to: " . $USER->displayname . " <" . $USER->email . ">\n";
+
+        mail($recipientEmail, $subject, $msg, $headers);
     }
 }
 CommonService::init();

@@ -34,6 +34,14 @@ class LearnerDAO
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
+    public function getCategory($categoryId)
+    {
+        $query = "SELECT * FROM {$this->p}tokens_category
+        WHERE category_id = :categoryId;";
+        $arr = array(':categoryId' => $categoryId);
+        return $this->PDOX->rowDie($query, $arr);
+    }
+
     /** Retrieves the data from the request table, along with the associated category name and learner name */
     public function getCourseRequests($contextId, $userId)
     {

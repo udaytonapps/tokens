@@ -17,4 +17,12 @@ class CommonDAO
         $this->p = $CFG->dbprefix;
         $this->PDOX = $PDOX;
     }
+
+    public function getUserContact($id)
+    {
+        $query = "SELECT displayname, email FROM {$this->p}lti_user
+        WHERE user_id = :id;";
+        $arr = array(':id' => $id);
+        return $this->PDOX->rowDie($query, $arr);
+    }
 }
