@@ -1,5 +1,6 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { Dispatch, FormEvent, SetStateAction, useState } from "react";
+import { addRequest } from "../utils/api-connector";
 import { TokensCategory } from "../utils/types";
 import ConfirmationDialog from "./ConfirmationDialog";
 import TokenGraphic from "./TokenGraphic";
@@ -23,6 +24,7 @@ function RequestForm(props: RequestFormProps) {
   const [submitted, setSubmitted] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState<TokensCategory>();
+  const [learnerComment, setLearnerComment] = useState<string>("");
 
   const handleSelectCategory = (category: TokensCategory) => {
     updateBalance(balance - category.token_cost);
@@ -40,12 +42,15 @@ function RequestForm(props: RequestFormProps) {
   };
 
   const handleConfirmDialog = async () => {
-    setOpenDialog(false);
-    // API call to submit request - ensure it does not result in negative balance
-    // Refresh the data (rows at learner view level)
-    await refreshData();
-    // This will make a submission message appear that the learner can dismiss
-    setSubmitted(true);
+    if (selectedCategory?.category_id && learnerComment) {
+      setOpenDialog(false);
+      // API call to submit request - it will ensure it does not result in negative balance
+      await addRequest(selectedCategory.category_id, learnerComment);
+      // Refresh the data (rows at learner view level)
+      await refreshData();
+      // This will make a submission message appear that the learner can dismiss
+      setSubmitted(true);
+    }
   };
 
   const handleCloseDialog = () => {
@@ -127,6 +132,7 @@ function RequestForm(props: RequestFormProps) {
                   aria-label="Details about the request to be submitted"
                   multiline
                   rows={4}
+                  onChange={(e) => setLearnerComment(e.target.value)}
                 />
               </Box>
               <Box display={"flex"} justifyContent={"end"} pt={2}>

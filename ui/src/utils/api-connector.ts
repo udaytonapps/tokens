@@ -126,7 +126,9 @@ export const getLearnerSettings = async (): Promise<TokensSettings | null> => {
   }
 };
 
-export const getLearnerRequestHistory = async (): Promise<RequestsTableRow[]> => {
+export const getLearnerRequestHistory = async (): Promise<
+  RequestsTableRow[]
+> => {
   try {
     const res = await axios.get<GetSubmittedRequestsResponse>(
       `${config.apiUrl}/learner/requests?PHPSESSID=${config.sessionId}`
@@ -135,5 +137,25 @@ export const getLearnerRequestHistory = async (): Promise<RequestsTableRow[]> =>
   } catch (e) {
     console.error(e);
     return [];
+  }
+};
+
+export const addRequest = async (
+  categoryId: string,
+  learnerComment: string
+): Promise<void> => {
+  try {
+    const body = {
+      category_id: categoryId,
+      learner_comment: learnerComment,
+    };
+    await axios.post<ApiResponse>(
+      `${config.apiUrl}/learner/requests?PHPSESSID=${config.sessionId}`,
+      body
+    );
+    return;
+  } catch (e) {
+    console.error(e);
+    return;
   }
 };
