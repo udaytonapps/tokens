@@ -49,7 +49,11 @@ function InstructorView() {
     const newRequestMap = new Map();
     requestRows.forEach((request) => {
       if (newRequestMap.get(request.user_id)) {
-        newRequestMap.set(request.user_id, newRequestMap.get(request.user_id));
+        newRequestMap.set(
+          request.user_id,
+          // Increment to reflect the count of pending requests
+          newRequestMap.get(request.user_id) + 1
+        );
       } else {
         newRequestMap.set(request.user_id, 1);
       }
