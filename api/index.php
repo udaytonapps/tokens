@@ -11,8 +11,7 @@ require_once __DIR__ . '/_router/index.php';
 // Import each resource that will be used
 require_once __DIR__ . '/common/index.php';
 require_once __DIR__ . '/instructor/index.php';
-// TODO: learner
-// require_once __DIR__ . '/learner/index.php';
+require_once __DIR__ . '/learner/index.php';
 
 use TokenApi\Route;
 

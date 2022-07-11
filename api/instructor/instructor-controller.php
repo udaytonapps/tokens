@@ -7,6 +7,8 @@ class InstructorCtr
 {
     /** @var InstructorDAO */
     protected static $DAO;
+    /** @var CommonDAO */
+    protected static $commonDAO;
     protected static $LTIX;
     protected static $user;
     protected static $contextId;
@@ -16,6 +18,7 @@ class InstructorCtr
     {
         global $USER, $CONTEXT, $LINK;
         self::$DAO = new InstructorDAO();
+        self::$commonDAO = new CommonDAO();
         self::$user = $USER;
         self::$contextId = $CONTEXT->id;
         self::$linkId = $LINK->id;

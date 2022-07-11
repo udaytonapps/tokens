@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   IconButton,
   Paper,
@@ -10,77 +11,126 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Dispatch, SetStateAction } from "react";
-import { BalancesTableRow } from "../utils/types";
-import StatusName from "./StatusName";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { FILTERS } from "../utils/constants";
+import { BalancesTableRow, SortOrder } from "../utils/types";
+import Filter from "./Filter";
+import { getComparator, stableSort } from "../utils/helpers";
+import TableHeaderSort from "./TableHeaderSort";
 
 interface BalancesTableProps {
-  initialTokens: number;
-  requestMap: Map<string, boolean>;
   rows: BalancesTableRow[];
   setTabPosition: Dispatch<SetStateAction<number>>;
 }
 
 /** Shows the balances of all available students */
 function BalancesTable(props: BalancesTableProps) {
-  const { initialTokens, requestMap, rows, setTabPosition } = props;
+  const { rows, setTabPosition } = props;
+  const [filteredRows, setFilteredRows] = useState(rows);
+  const [orderBy, setOrderBy] =
+    useState<keyof BalancesTableRow>("pendingRequests");
+  const [order, setOrder] = useState<SortOrder>(
+    orderBy === "pendingRequests" ? "desc" : "asc"
+  );
 
-  const getAlert = (learnerId: string) => {
-    return (
-      <Box
-        display={"flex"}
-        minHeight={40}
-        justifyContent={"center"}
-        alignContent={"center"}
-      >
-        {/* Show the icon button only if there is a reference to the learner */}
-        {requestMap.get(learnerId) && (
-          <IconButton onClick={() => setTabPosition(1)}>
-            <StatusName status="SUBMITTED" iconOnly={true} />
-          </IconButton>
-        )}
-      </Box>
-    );
-  };
+  useEffect(() => {
+    setFilteredRows(rows);
+  }, [rows]);
+
+  /** The filteredRows are automatically sorted each render */
+  const sortedFilteredRows = stableSort(
+    filteredRows,
+    getComparator(order, orderBy)
+  );
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell></TableCell>
-            <TableCell>Student Name</TableCell>
-            <TableCell align="center">Balance Remaining</TableCell>
-            <TableCell align="center">Tokens Used</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {!rows.length ? (
+    <Box>
+      <Box mb={1}>
+        <Filter
+          buttonLabel="Filters"
+          rows={rows}
+          filters={FILTERS.INSTRUCTOR.BALANCES}
+          filterRows={setFilteredRows}
+        />
+      </Box>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
             <TableRow>
-              <TableCell colSpan={4} sx={{ textAlign: "center" }}>
-                <Typography>No balances yet!</Typography>
+              <TableCell align="center" width={190}>
+                <TableHeaderSort
+                  column={"pendingRequests"}
+                  columnLabel={"Pending Requests"}
+                  {...{ order, orderBy, setOrder, setOrderBy }}
+                ></TableHeaderSort>
+              </TableCell>
+              <TableCell>
+                <TableHeaderSort
+                  column={"learner_name"}
+                  columnLabel={"Student Name"}
+                  {...{ order, orderBy, setOrder, setOrderBy }}
+                ></TableHeaderSort>
+              </TableCell>
+              <TableCell align="center">
+                <TableHeaderSort
+                  column={"tokens_used"}
+                  columnLabel={"Tokens Used"}
+                  {...{ order, orderBy, setOrder, setOrderBy }}
+                ></TableHeaderSort>
+              </TableCell>
+              <TableCell align="center">
+                <TableHeaderSort
+                  column={"balance"}
+                  columnLabel={"Balance Remaining"}
+                  {...{ order, orderBy, setOrder, setOrderBy }}
+                ></TableHeaderSort>
               </TableCell>
             </TableRow>
-          ) : (
-            rows.map((row, index) => (
-              <TableRow
-                key={`${index}-${row.user_id}`}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell align="center" sx={{ maxWidth: 40 }}>
-                  {getAlert(row.user_id)}
+          </TableHead>
+          <TableBody>
+            {!sortedFilteredRows.length ? (
+              <TableRow>
+                <TableCell colSpan={4} sx={{ textAlign: "center" }}>
+                  <Typography>No results</Typography>
                 </TableCell>
-                <TableCell>{row.learner_name}</TableCell>
-                <TableCell align="center">
-                  {initialTokens - row.tokens_used || 0}
-                </TableCell>
-                <TableCell align="center">{row.tokens_used}</TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+            ) : (
+              sortedFilteredRows.map((row, index) => (
+                <TableRow
+                  key={`${index}-${row.user_id}`}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell align="center">
+                    <Box
+                      display={"flex"}
+                      minHeight={35}
+                      justifyContent={"center"}
+                      alignContent={"center"}
+                    >
+                      {/* Show the icon button only if there is a reference to the learner */}
+                      {row.pendingRequests && (
+                        <IconButton
+                          onClick={() => setTabPosition(1)}
+                          disableRipple={true}
+                        >
+                          <Badge
+                            badgeContent={row.pendingRequests}
+                            color="warning"
+                          ></Badge>
+                        </IconButton>
+                      )}
+                    </Box>
+                  </TableCell>
+                  <TableCell>{row.learner_name}</TableCell>
+                  <TableCell align="center">{row.tokens_used}</TableCell>
+                  <TableCell align="center">{row.balance}</TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 }
 

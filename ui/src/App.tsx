@@ -15,6 +15,7 @@ import { AppContext } from "./utils/context";
 import { getAppConfig, getEnvironment } from "./utils/helpers";
 import { LtiAppInfo } from "./utils/types";
 import InstructorView from "./views/InstructorView";
+import LearnerView from "./views/LearnerView";
 
 function App() {
   const [appConfig, setAppconfig] = useState<LtiAppInfo>();
@@ -73,7 +74,11 @@ function App() {
                 <Header />
                 <Box>
                   {/* Condition for views? */}
-                  <InstructorView />
+                  {appConfig.isInstructor ? (
+                    <InstructorView />
+                  ) : (
+                    <LearnerView />
+                  )}
                 </Box>
               </Box>
             </Box>

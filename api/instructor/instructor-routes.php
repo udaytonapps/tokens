@@ -117,6 +117,7 @@ function restrict($next)
         return $next;
     } else {
         return function () {
+            http_response_code(401);
             return Route::sendJson(array('error' => 'Unauthorized'));
         };
     }

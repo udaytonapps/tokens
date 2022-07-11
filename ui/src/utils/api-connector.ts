@@ -1,5 +1,5 @@
 import axios from "axios";
-import { EnvConfig } from "./contants";
+import { EnvConfig } from "./constants";
 import { getEnvironment } from "./helpers";
 import {
   ApiResponse,
@@ -16,6 +16,8 @@ import {
 
 const config = EnvConfig[getEnvironment()];
 
+/** INSTRUCTOR */
+
 export const getInfo = async (): Promise<LtiAppInfo | null> => {
   try {
     const res = await axios.get<GetInfoResponse>(
@@ -28,17 +30,18 @@ export const getInfo = async (): Promise<LtiAppInfo | null> => {
   }
 };
 
-export const getSettings = async (): Promise<TokensSettings | null> => {
-  try {
-    const res = await axios.get<GetSettingsResponse>(
-      `${config.apiUrl}/instructor/settings?PHPSESSID=${config.sessionId}`
-    );
-    return res.data.data;
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-};
+export const getInstructorSettings =
+  async (): Promise<TokensSettings | null> => {
+    try {
+      const res = await axios.get<GetSettingsResponse>(
+        `${config.apiUrl}/instructor/settings?PHPSESSID=${config.sessionId}`
+      );
+      return res.data.data;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  };
 
 export const addSettings = async (settings: TokensSettings): Promise<void> => {
   try {
@@ -100,6 +103,54 @@ export const updateRequest = async (updateData: RequestUpdateData) => {
     const body = updateData;
     await axios.put<ApiResponse>(
       `${config.apiUrl}/instructor/requests?PHPSESSID=${config.sessionId}`,
+      body
+    );
+    return;
+  } catch (e) {
+    console.error(e);
+    return;
+  }
+};
+
+/** LEARNER */
+
+export const getLearnerSettings = async (): Promise<TokensSettings | null> => {
+  try {
+    const res = await axios.get<GetSettingsResponse>(
+      `${config.apiUrl}/learner/settings?PHPSESSID=${config.sessionId}`
+    );
+    return res.data.data;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+};
+
+export const getLearnerRequestHistory = async (): Promise<
+  RequestsTableRow[]
+> => {
+  try {
+    const res = await axios.get<GetSubmittedRequestsResponse>(
+      `${config.apiUrl}/learner/requests?PHPSESSID=${config.sessionId}`
+    );
+    return res.data.data || [];
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+};
+
+export const addRequest = async (
+  categoryId: string,
+  learnerComment: string
+): Promise<void> => {
+  try {
+    const body = {
+      category_id: categoryId,
+      learner_comment: learnerComment,
+    };
+    await axios.post<ApiResponse>(
+      `${config.apiUrl}/learner/requests?PHPSESSID=${config.sessionId}`,
       body
     );
     return;

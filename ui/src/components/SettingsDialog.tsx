@@ -23,7 +23,7 @@ import {
 import { DateTime } from "luxon";
 import { useCallback, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { DB_DATE_TIME_FORMAT } from "../utils/contants";
+import { DB_DATE_TIME_FORMAT } from "../utils/constants";
 import { TokensSettings } from "../utils/types";
 
 interface SettingsDialogProps {
@@ -42,6 +42,7 @@ function SettingsDialog(props: SettingsDialogProps) {
     control,
     register,
     handleSubmit,
+    watch,
     setValue,
     formState: { errors },
   } = useForm<TokensSettings>({
@@ -66,6 +67,8 @@ function SettingsDialog(props: SettingsDialogProps) {
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: "categories", // unique name for your Field Array
   });
+
+  const pref = watch("notifications_pref", true);
 
   const initValues = useCallback(
     (settings: TokensSettings) => {
@@ -233,7 +236,9 @@ function SettingsDialog(props: SettingsDialogProps) {
                   </InputLabel>
                 </Box>
                 <Checkbox
-                  defaultChecked={true}
+                  color="default"
+                  // Make sure it is a boolean or it will change between defined/undefined (uncontrolled)
+                  checked={!!pref}
                   inputProps={{
                     "aria-label": "Email notifications preference checkbox",
                   }}
@@ -249,7 +254,7 @@ function SettingsDialog(props: SettingsDialogProps) {
             {/* CATEGORY SELECTION */}
             <Box display={"flex"} flexDirection={"column"}>
               <Box display={"flex"}>
-                <Box minWidth={300} mr={2}>
+                <Box minWidth={330} mr={2}>
                   <InputLabel htmlFor="category-name-input-0">
                     <Typography fontWeight={"bold"}>Categories:</Typography>
                   </InputLabel>
@@ -264,11 +269,7 @@ function SettingsDialog(props: SettingsDialogProps) {
                     title="The amount of tokens a student would need to spend."
                     placement="top"
                   >
-                    <InfoOutlined
-                      sx={{ mr: 1 }}
-                      color="primary"
-                      fontSize="small"
-                    />
+                    <InfoOutlined sx={{ mr: 1 }} fontSize="small" />
                   </Tooltip>
                   <InputLabel htmlFor="category-token-input-0">
                     <Typography fontWeight={"bold"}>Token Cost:</Typography>
@@ -329,6 +330,7 @@ function SettingsDialog(props: SettingsDialogProps) {
                           >
                             <Box minWidth={150} width={150}>
                               <TextField
+                                disabled={category.is_used}
                                 margin="dense"
                                 size="small"
                                 id={`category-token-${i}`}
@@ -365,7 +367,6 @@ function SettingsDialog(props: SettingsDialogProps) {
                                       category.is_used ||
                                       onlyOneCategoryExists()
                                     }
-                                    color="primary"
                                     onClick={() => handleDeleteCategory(i)}
                                   >
                                     <Cancel />

@@ -121,7 +121,7 @@ class InstructorDAO
         $query = "UPDATE {$this->p}tokens_request r
         JOIN  {$this->p}tokens_configuration c
             ON c.configuration_id = r.configuration_id
-        SET r.status_name = :newStatus, r.instructor_id = :instructorId, r.instructor_comment = :instructorComment
+        SET r.status_name = :newStatus, r.instructor_id = :instructorId, r.instructor_comment = :instructorComment, status_updated_at = CURRENT_TIMESTAMP
         WHERE r.request_id = :requestId AND c.context_id = :contextId";
         $arr = array(':contextId' => $contextId, ':requestId' => $requestId, ':newStatus' => $newStatus, ':instructorId' => $instructorId, ':instructorComment' => $instructorComment);
         return $this->PDOX->queryDie($query, $arr);

@@ -32,7 +32,7 @@ export interface TokensSettings {
 export interface TokensCategory {
   category_name: string;
   is_used: boolean;
-  token_cost: number | string;
+  token_cost: number;
   sort_order: number;
   category_id?: string;
   dbAction?: "ADD" | "UPDATE" | "DELETE";
@@ -42,6 +42,8 @@ export interface BalancesTableRow {
   user_id: string;
   learner_name: string;
   tokens_used: number;
+  balance?: number;
+  pendingRequests?: number;
 }
 
 export interface RequestsTableRow {
@@ -69,12 +71,26 @@ export interface RequestUpdateData {
 
 export interface HistoryTableRow extends RequestsTableRow {}
 
-export type GeneralTableRow =
-  | BalancesTableRow
-  | RequestsTableRow
-  | HistoryTableRow;
+export type GeneralTableRow = Record<any, any>;
 
-export type RequestStatus = "SUBMITTED" | "ACCEPTED" | "REJECTED";
+export type RequestStatus = "SUBMITTED" | "ACCEPTED" | "REJECTED" | "PENDING";
+
+// Filters, sorting
+
+export type SortOrder = "asc" | "desc";
+
+export interface FilterConfig {
+  /** The column that is being filtered */
+  column: string;
+  /** The values to be shown in the filter options (only applies for enum at this point) */
+  label: string;
+  /** Enum is still assumed to be text, but allows checkboxes for each value in the filter options */
+  type: "enum" | "text" | "number";
+  /** Optional function to sort the data in a particular way (if not included, will be alpha) */
+  sort?: (a: string, b: string) => 1 | 0 | -1;
+  /** Optional function to map the label value to another value (such as a display name) */
+  valueMapping?: (val: any) => any;
+}
 
 // API Interfaces
 

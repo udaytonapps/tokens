@@ -38,6 +38,10 @@ function DevPanel(props: DevPanelProps) {
       <Card sx={{ border: "2px solid red" }}>
         <Box p={2} textAlign="center">
           <Typography>React App status is: {getEnvironment()}</Typography>
+          <Typography>
+            Name: {appInfo?.username}, Role:{" "}
+            {appInfo?.isInstructor ? "Instructor" : "Learner"}
+          </Typography>
           <Typography>Session ID is: {appInfo?.sessionId}</Typography>
           Session is: {expired ? "EXPIRED" : "VALID"}
         </Box>

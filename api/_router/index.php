@@ -19,6 +19,9 @@ class Route extends Steampixel\Route
             if (!isset($res['error'])) {
                 $res['error'] = $res['Error'];
             }
+            if (http_response_code() == 200) {
+                http_response_code(404);
+            }
             return json_encode(array('status' => "error", "message" => $res['error']));
         } else {
             return json_encode(array('status' => "success", "data" => $res));

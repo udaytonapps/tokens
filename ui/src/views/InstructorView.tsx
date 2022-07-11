@@ -10,11 +10,12 @@ import TabPanel from "../components/TabPanel";
 import {
   addSettings,
   getAllBalances,
-  getSettings,
+  getInstructorSettings,
   getSubmittedRequests,
   updateRequest,
   updateSettings,
 } from "../utils/api-connector";
+import { FILTERS } from "../utils/constants";
 import {
   a11yProps,
   compareDateTime,
@@ -33,7 +34,7 @@ function InstructorView() {
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [settings, setSettings] = useState<TokensSettings | null>();
-  const [requestMap, setRequestMap] = useState<Map<string, boolean>>(new Map());
+  const [requestMap, setRequestMap] = useState<Map<string, number>>(new Map());
   const [balanceRows, setBalanceRows] = useState<BalancesTableRow[]>([]);
   const [requestRows, setRequestRows] = useState<RequestsTableRow[]>([]);
   const [historyRows, setHistoryRows] = useState<HistoryTableRow[]>([]);
@@ -47,20 +48,32 @@ function InstructorView() {
     // When request data loads, assemble a mapping of who has pending requests
     const newRequestMap = new Map();
     requestRows.forEach((request) => {
-      newRequestMap.set(request.user_id, true);
+      if (newRequestMap.get(request.user_id)) {
+        newRequestMap.set(
+          request.user_id,
+          // Increment to reflect the count of pending requests
+          newRequestMap.get(request.user_id) + 1
+        );
+      } else {
+        newRequestMap.set(request.user_id, 1);
+      }
     });
     setRequestMap(newRequestMap);
   }, [requestRows]);
 
   useEffect(() => {
     // When the mapping of pending requests is set, retrieve and sort the balance table rows
-    if (requestMap.size) {
+    if (requestMap.size && settings) {
       getAllBalances().then((balances) => {
         const sortedBalances = sortBalancesByPriority(balances, requestMap);
+        sortedBalances.forEach((row) => {
+          row.pendingRequests = requestMap.get(row.user_id);
+          row.balance = (settings.initial_tokens || 0) - (row.tokens_used || 0);
+        });
         setBalanceRows(sortedBalances);
       });
     }
-  }, [requestMap]);
+  }, [requestMap, settings]);
 
   useEffect(() => {
     // If undefined, setting data may still be loading, but if null, response was received and config doesn't exist, so open the dialog
@@ -75,7 +88,7 @@ function InstructorView() {
    */
   const fetchAndAssembleData = async () => {
     // Retrieve and set Tokens Settings
-    const fetchedSettings = await getSettings();
+    const fetchedSettings = await getInstructorSettings();
     setSettings(fetchedSettings);
 
     // Retrieve and set rows for the Requests Table
@@ -141,7 +154,7 @@ function InstructorView() {
     // Close the dialog
     setSettingsDialogOpen(false);
     // Fetch the new/updated settings to refresh the UI
-    const retrievedSettings = await getSettings();
+    const retrievedSettings = await getInstructorSettings();
     setSettings(retrievedSettings);
   };
 
@@ -161,7 +174,7 @@ function InstructorView() {
           <Box display={"flex"} justifyContent={"end"} mr={1} mb={2}>
             <Tooltip title="There are pending requests requiring review">
               <IconButton onClick={() => setTabPosition(1)}>
-                <Badge badgeContent={requestRows.length} color="primary">
+                <Badge badgeContent={requestRows.length} color="warning">
                   <NotificationImportant />
                 </Badge>
               </IconButton>
@@ -184,12 +197,7 @@ function InstructorView() {
             </Tabs>
           </Box>
           <TabPanel value={tabPosition} index={0}>
-            <BalancesTable
-              rows={balanceRows}
-              requestMap={requestMap}
-              initialTokens={settings?.initial_tokens || 0}
-              setTabPosition={setTabPosition}
-            />
+            <BalancesTable rows={balanceRows} setTabPosition={setTabPosition} />
           </TabPanel>
           <TabPanel value={tabPosition} index={1}>
             <RequestsTable
@@ -200,6 +208,7 @@ function InstructorView() {
           <TabPanel value={tabPosition} index={2}>
             <HistoryTable
               rows={historyRows}
+              filters={FILTERS.INSTRUCTOR.HISTORY}
               openReviewDialog={handleOpenReviewDialogFromHistory}
             />
           </TabPanel>
