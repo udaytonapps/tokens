@@ -23,6 +23,7 @@ import {
   RequestUpdateData,
 } from "../utils/types";
 import StatusName from "./StatusName";
+import TokenGraphic from "./TokenGraphic";
 
 interface ReviewDialogProps {
   handleClose: (event?: object, reason?: string) => void;
@@ -119,10 +120,10 @@ function ReviewDialog(props: ReviewDialogProps) {
                     <Typography fontWeight={"bold"}>Type:</Typography>
                   </FormLabel>
                 </Box>
-                <Typography>
-                  {requestRow.category_name} ({requestRow.token_cost} token
-                  {requestRow.token_cost > 1 && "s"})
-                </Typography>
+                <Typography>{requestRow.category_name}</Typography>
+                <Box ml={1}>
+                  <TokenGraphic size="small" count={requestRow.token_cost} />
+                </Box>
               </Box>
               {/* REQUESTER COMMENT */}
               <Box display={"flex"} flexDirection={"column"} mt={1} mb={2}>
