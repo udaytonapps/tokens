@@ -84,7 +84,7 @@ function RequestsTable(props: RequestsTableProps) {
             {!sortedFilteredRows.length ? (
               <TableRow>
                 <TableCell colSpan={4} sx={{ textAlign: "center" }}>
-                  <Typography>No pending requests!</Typography>
+                  <Typography>No results</Typography>
                 </TableCell>
               </TableRow>
             ) : (

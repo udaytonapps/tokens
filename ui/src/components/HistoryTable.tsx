@@ -107,7 +107,7 @@ function HistoryTable(props: HistoryTableProps) {
             {!sortedFilteredRows.length ? (
               <TableRow>
                 <TableCell colSpan={5} sx={{ textAlign: "center" }}>
-                  <Typography>No requests on record yet!</Typography>
+                  <Typography>No results</Typography>
                 </TableCell>
               </TableRow>
             ) : (

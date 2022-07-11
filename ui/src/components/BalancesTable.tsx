@@ -91,7 +91,7 @@ function BalancesTable(props: BalancesTableProps) {
             {!sortedFilteredRows.length ? (
               <TableRow>
                 <TableCell colSpan={4} sx={{ textAlign: "center" }}>
-                  <Typography>No balances yet!</Typography>
+                  <Typography>No results</Typography>
                 </TableCell>
               </TableRow>
             ) : (
