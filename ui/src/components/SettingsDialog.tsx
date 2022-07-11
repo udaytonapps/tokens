@@ -42,6 +42,7 @@ function SettingsDialog(props: SettingsDialogProps) {
     control,
     register,
     handleSubmit,
+    watch,
     setValue,
     formState: { errors },
   } = useForm<TokensSettings>({
@@ -66,6 +67,8 @@ function SettingsDialog(props: SettingsDialogProps) {
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: "categories", // unique name for your Field Array
   });
+
+  const pref = watch("notifications_pref", true);
 
   const initValues = useCallback(
     (settings: TokensSettings) => {
@@ -234,7 +237,8 @@ function SettingsDialog(props: SettingsDialogProps) {
                 </Box>
                 <Checkbox
                   color="default"
-                  defaultChecked={true}
+                  // Make sure it is a boolean or it will change between defined/undefined (uncontrolled)
+                  checked={!!pref}
                   inputProps={{
                     "aria-label": "Email notifications preference checkbox",
                   }}
