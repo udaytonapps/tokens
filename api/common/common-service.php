@@ -59,6 +59,13 @@ class CommonService
         return strcmp($a["person_name_family"], $b["person_name_family"]);
     }
 
+    static function setDateStringToConfigTZEndOfDay($dateString)
+    {
+        global $CFG;
+        $date = new \DateTime($dateString, new \DateTimeZone($CFG->timezone));
+        return date_time_set($date, 23, 59, 59)->format('Y-m-d H:i:s');
+    }
+
     /** Often a notification or confirmation of the user's own activity */
     static function sendEmailToActiveUser($subject, $body)
     {

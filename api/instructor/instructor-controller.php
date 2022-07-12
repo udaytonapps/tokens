@@ -27,7 +27,10 @@ class InstructorCtr
     /** Creates a new configuration (along with associated categories) */
     static function addConfiguration($data)
     {
-        $newConfigId = self::$DAO->addConfiguration(self::$user->id, self::$contextId, self::$linkId, $data['initial_tokens'], $data['use_by_date'], $data['notifications_pref']);
+        // Change the date to midnight of that day in the CFG timezone
+        $date = CommonService::setDateStringToConfigTZEndOfDay(($data['use_by_date']));
+
+        $newConfigId = self::$DAO->addConfiguration(self::$user->id, self::$contextId, self::$linkId, $data['initial_tokens'], $date, $data['notifications_pref']);
         // assign categories to that configuration
         $categories = $data['categories'];
         foreach ($categories as $category) {
@@ -73,8 +76,11 @@ class InstructorCtr
     /** Update the configuration and its associated categories */
     static function updateConfiguration($data)
     {
+        // Change the date to midnight of that day in the CFG timezone
+        $date = CommonService::setDateStringToConfigTZEndOfDay(($data['use_by_date']));
+
         // Update the configuration
-        self::$DAO->updateConfiguration(self::$user->id, self::$contextId, $data['initial_tokens'], $data['use_by_date'], $data['notifications_pref']);
+        self::$DAO->updateConfiguration(self::$user->id, self::$contextId, $data['initial_tokens'], $date, $data['notifications_pref']);
 
         // Update the create/update/delete the categories
         foreach ($data['categories'] as $category) {
