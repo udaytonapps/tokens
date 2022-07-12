@@ -14,6 +14,7 @@ import {
   LtiAppInfo,
   RequestStatus,
   SortOrder,
+  TokensSettings,
 } from "./types";
 
 export const getAppConfig = (appInfo: LtiAppInfo): LtiAppInfo => {
@@ -156,3 +157,11 @@ export function formatDbDate(dateString: string, format?: string) {
     DateTime.DATETIME_MED || format
   );
 }
+
+export const tokensAreExpired = (settings: TokensSettings) => {
+  return !!(
+    settings.use_by_date &&
+    DateTime.fromFormat(settings.use_by_date, DB_DATE_TIME_FORMAT) <
+      DateTime.now()
+  );
+};

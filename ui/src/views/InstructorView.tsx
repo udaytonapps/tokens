@@ -29,6 +29,7 @@ import {
   compareDateTime,
   formatDbDate,
   sortBalancesByPriority,
+  tokensAreExpired,
 } from "../utils/helpers";
 import {
   BalancesTableRow,
@@ -198,9 +199,16 @@ function InstructorView() {
           </Box>
           {settings.use_by_date && (
             <Box mt={2} mb={2}>
-              <Alert severity="info">
-                Tokens are set to expire on {formatDbDate(settings.use_by_date)}
-              </Alert>
+              {tokensAreExpired(settings) ? (
+                <Alert severity="warning">
+                  Tokens expired on {formatDbDate(settings.use_by_date)}
+                </Alert>
+              ) : (
+                <Alert severity="info">
+                  Tokens are set to expire on{" "}
+                  {formatDbDate(settings.use_by_date)}
+                </Alert>
+              )}
             </Box>
           )}
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>

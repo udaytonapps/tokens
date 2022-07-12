@@ -1,4 +1,4 @@
-import { Box, Tab, Tabs } from "@mui/material";
+import { Alert, Box, Tab, Tabs } from "@mui/material";
 import { useEffect, useState } from "react";
 import HistoryTable from "../components/HistoryTable";
 import RequestDashboard from "../components/RequestDashboard";
@@ -9,7 +9,12 @@ import {
   getLearnerSettings,
 } from "../utils/api-connector";
 import { FILTERS } from "../utils/constants";
-import { a11yProps, compareDateTime } from "../utils/helpers";
+import {
+  a11yProps,
+  compareDateTime,
+  formatDbDate,
+  tokensAreExpired,
+} from "../utils/helpers";
 import {
   HistoryTableRow,
   RequestsTableRow,
@@ -74,6 +79,20 @@ function LearnerView() {
     <>
       {settings && (
         <Box>
+          {settings.use_by_date && (
+            <Box mt={2} mb={2}>
+              {tokensAreExpired(settings) ? (
+                <Alert severity="warning">
+                  Tokens expired on {formatDbDate(settings.use_by_date)}
+                </Alert>
+              ) : (
+                <Alert severity="info">
+                  Tokens are set to expire on{" "}
+                  {formatDbDate(settings.use_by_date)}
+                </Alert>
+              )}
+            </Box>
+          )}
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
               value={tabPosition}
