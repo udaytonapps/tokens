@@ -73,18 +73,24 @@ class LearnerCtr
 
         if ($expiration > $now) {
             $res = self::$DAO->addRequest(self::$contextId, self::$user->id, $data['category_id'], $data['learner_comment']);
-            // Send email to self confirming request
-            $category = self::$DAO->getCategory($data['category_id']);
-            $type = $category['category_name'];
-            $subject = "Tokens request submitted for " . $CONTEXT->title;
-            $personalMsg = "Your request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
-            CommonService::sendEmailToActiveUser($subject, $personalMsg);
-            // Send email to instructor IF they have that configuration
-            if ($config['notifications_pref'] == 1) {
-                // Find list of instructors and send emails to all?
-                $instructor = self::$commonDAO->getUserContact($config['user_id']);
-                $instructorMsg = "A request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nLearner: " . $USER->displayname . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
-                CommonService::sendEmailFromActiveUser($instructor['displayname'], $instructor['email'], $subject, $instructorMsg);
+            if ($res == 0) {
+                // Request row wasn't created
+                http_response_code(500);
+                $res = array("error" => "Request was unable to be created");
+            } else {
+                // Send email to self confirming request
+                $category = self::$DAO->getCategory($data['category_id']);
+                $type = $category['category_name'];
+                $subject = "Tokens request submitted for " . $CONTEXT->title;
+                $personalMsg = "Your request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
+                CommonService::sendEmailToActiveUser($subject, $personalMsg);
+                // Send email to instructor IF they have that configuration
+                if ($config['notifications_pref'] == 1) {
+                    // Find list of instructors and send emails to all?
+                    $instructor = self::$commonDAO->getUserContact($config['user_id']);
+                    $instructorMsg = "A request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nLearner: " . $USER->displayname . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
+                    CommonService::sendEmailFromActiveUser($instructor['displayname'], $instructor['email'], $subject, $instructorMsg);
+                }
             }
         } else {
             http_response_code(500);
