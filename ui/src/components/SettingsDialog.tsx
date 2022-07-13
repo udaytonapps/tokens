@@ -61,6 +61,7 @@ function SettingsDialog(props: SettingsDialogProps) {
           sort_order: 1,
         },
       ],
+      notifications_pref: true,
     },
   });
   const { fields, append, move, update, remove } = useFieldArray({
