@@ -1,4 +1,6 @@
 import { Box } from "@mui/material";
+import { useContext } from "react";
+import { AppContext } from "../utils/context";
 
 interface TokenGraphicProps {
   count: number;
@@ -46,15 +48,29 @@ const styleReference = {
     },
   },
   disabled: {
-    color: "#888",
-    outerRim: {
-      color: "#ccc",
+    light: {
+      color: "#888",
+      outerRim: {
+        color: "#ccc",
+      },
+      innerRim: {
+        color: "#aaa",
+      },
+      inner: {
+        color: "#bbb",
+      },
     },
-    innerRim: {
-      color: "#aaa",
-    },
-    inner: {
-      color: "#bbb",
+    dark: {
+      color: "#222",
+      outerRim: {
+        color: "#777",
+      },
+      innerRim: {
+        color: "#666",
+      },
+      inner: {
+        color: "#888",
+      },
     },
   },
 };
@@ -62,6 +78,10 @@ const styleReference = {
 /** Show a graphic of a token */
 function TokenGraphic(props: TokenGraphicProps) {
   const { count, disabled, size } = props;
+
+  const appContext = useContext(AppContext);
+
+  const mode = appContext.darkMode ? "dark" : "light";
 
   const stacked = size === "small" && count > 1;
 
@@ -77,11 +97,11 @@ function TokenGraphic(props: TokenGraphicProps) {
       border: styleReference[size][referenceKey].border,
       sx: {
         backgroundColor: disabled
-          ? styleReference.disabled[referenceKey].color
+          ? styleReference.disabled[mode][referenceKey].color
           : styleReference[size][referenceKey].color,
         fontSize: styleReference[size].fontSize,
         color: disabled
-          ? styleReference.disabled.color
+          ? styleReference.disabled[mode].color
           : styleReference[size].color,
       },
       display: "flex",
