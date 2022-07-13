@@ -76,7 +76,9 @@ class Route extends Steampixel\Route
         }
         // Otherwise, assemble the data from the request body
         foreach ($optionalData as $optionalProp) {
-            $data[$optionalProp] = $body[$optionalProp];
+            if (isset($body[$optionalProp])) {
+                $data[$optionalProp] = $body[$optionalProp];
+            }
         }
         return $data;
     }
