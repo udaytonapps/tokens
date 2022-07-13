@@ -5,6 +5,8 @@ import {
   CssBaseline,
   // useMediaQuery,
   useTheme,
+  // Snackbar,
+  // Alert,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import "./App.scss";
@@ -38,13 +40,15 @@ function App() {
   // const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   /** The default primary color (used if no other primary color is specified) */
   const defaultPrimary = useTheme().palette.primary.main;
+  const darkMode = appConfig?.darkMode;
+  const main = (darkMode && "#fff") || appConfig?.baseColor || defaultPrimary;
   /** Theme customizations */
   const theme = createTheme({
     palette: {
       primary: {
-        main: appConfig?.baseColor || defaultPrimary,
+        main,
       },
-      mode: appConfig?.darkMode ? "dark" : "light",
+      mode: darkMode ? "dark" : "light",
     },
     components: {
       MuiTableCell: {
@@ -57,10 +61,22 @@ function App() {
     },
   });
 
+  // const getSnackBarAlert = () => {
+  //   return <Alert severity="success">This is a success message!</Alert>;
+  // };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className="App">
+        {/* <Snackbar
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          autoHideDuration={6000}
+          open={true}
+          message="Hello there"
+        >
+          {getSnackBarAlert()}
+        </Snackbar> */}
         {appConfig && (
           <AppContext.Provider value={appConfig}>
             <Box display={"flex"} className="App-header">
@@ -86,7 +102,7 @@ function App() {
         )}
       </div>
       {/* Only show dev panel for local development */}
-      {getEnvironment() === "pre_build" && <DevPanel />}
+      {["pre_build", "local_build"].includes(getEnvironment()) && <DevPanel />}
     </ThemeProvider>
   );
 }

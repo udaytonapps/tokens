@@ -1,5 +1,13 @@
 import { NotificationImportant, Settings } from "@mui/icons-material";
-import { Badge, Box, IconButton, Tab, Tabs, Tooltip } from "@mui/material";
+import {
+  Alert,
+  Badge,
+  Box,
+  IconButton,
+  Tab,
+  Tabs,
+  Tooltip,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import BalancesTable from "../components/BalancesTable";
 import HistoryTable from "../components/HistoryTable";
@@ -19,7 +27,9 @@ import { FILTERS } from "../utils/constants";
 import {
   a11yProps,
   compareDateTime,
+  formatDbDate,
   sortBalancesByPriority,
+  tokensAreExpired,
 } from "../utils/helpers";
 import {
   BalancesTableRow,
@@ -171,20 +181,36 @@ function InstructorView() {
     <>
       {settings && (
         <Box>
-          <Box display={"flex"} justifyContent={"end"} mr={1} mb={2}>
-            <Tooltip title="There are pending requests requiring review">
-              <IconButton onClick={() => setTabPosition(1)}>
-                <Badge badgeContent={requestRows.length} color="warning">
-                  <NotificationImportant />
-                </Badge>
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Review or update Tokens settings">
-              <IconButton onClick={handleOpenSettingsDialog}>
-                <Settings />
-              </IconButton>
-            </Tooltip>
+          <Box display={"flex"} justifyContent={"end"} mr={1}>
+            <Box>
+              <Tooltip title="There are pending requests requiring review">
+                <IconButton onClick={() => setTabPosition(1)}>
+                  <Badge badgeContent={requestRows.length} color="warning">
+                    <NotificationImportant />
+                  </Badge>
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Review or update Tokens settings">
+                <IconButton onClick={handleOpenSettingsDialog}>
+                  <Settings />
+                </IconButton>
+              </Tooltip>
+            </Box>
           </Box>
+          {settings.use_by_date && (
+            <Box mt={2} mb={2}>
+              {tokensAreExpired(settings) ? (
+                <Alert severity="warning">
+                  Tokens expired on {formatDbDate(settings.use_by_date)}
+                </Alert>
+              ) : (
+                <Alert severity="info">
+                  Tokens are set to expire on{" "}
+                  {formatDbDate(settings.use_by_date)}
+                </Alert>
+              )}
+            </Box>
+          )}
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs
               value={tabPosition}

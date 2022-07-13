@@ -35,6 +35,7 @@ function RequestDashboard(props: RequestDashboardProps) {
           categories={settings.categories}
           resetBalance={resetBalance}
           refreshData={refreshData}
+          settings={settings}
         />
       </Box>
     </Box>

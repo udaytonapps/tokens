@@ -1,7 +1,8 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { Dispatch, FormEvent, SetStateAction, useState } from "react";
 import { addRequest } from "../utils/api-connector";
-import { TokensCategory } from "../utils/types";
+import { tokensAreExpired } from "../utils/helpers";
+import { TokensCategory, TokensSettings } from "../utils/types";
 import ConfirmationDialog from "./ConfirmationDialog";
 import TokenGraphic from "./TokenGraphic";
 
@@ -11,12 +12,19 @@ interface RequestFormProps {
   updateBalance: Dispatch<SetStateAction<number>>;
   resetBalance: () => void;
   refreshData: () => Promise<void>;
+  settings: TokensSettings;
 }
 
 /** Show learner's token request form */
 function RequestForm(props: RequestFormProps) {
-  const { balance, categories, updateBalance, resetBalance, refreshData } =
-    props;
+  const {
+    balance,
+    categories,
+    updateBalance,
+    resetBalance,
+    refreshData,
+    settings,
+  } = props;
   const sortedCategories = categories.sort((a, b) => {
     return a.sort_order - b.sort_order;
   });
@@ -77,7 +85,10 @@ function RequestForm(props: RequestFormProps) {
           <Box display={"flex"} flexDirection={"column"}>
             {sortedCategories.map((category) => (
               <Button
-                disabled={balance - category.token_cost < 0}
+                disabled={
+                  balance - category.token_cost < 0 ||
+                  (settings && tokensAreExpired(settings))
+                }
                 key={`category-${category.category_id}`}
                 size="large"
                 sx={{ mb: 2 }}
@@ -96,7 +107,10 @@ function RequestForm(props: RequestFormProps) {
                   <TokenGraphic
                     count={category.token_cost}
                     size="small"
-                    disabled={balance - category.token_cost < 0}
+                    disabled={
+                      balance - category.token_cost < 0 ||
+                      (settings && tokensAreExpired(settings))
+                    }
                   />
                 </Box>
               </Button>

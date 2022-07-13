@@ -63,20 +63,32 @@ class LearnerCtr
     /** Create a new request */
     static function addRequest($data)
     {
-        global $CONTEXT, $USER;
-        $res = self::$DAO->addRequest(self::$contextId, self::$user->id, $data['category_id'], $data['learner_comment']);
-        // Send email to self confirming request
-        $category = self::$DAO->getCategory($data['category_id']);
-        $type = $category['category_name'];
-        $personalMsg = "Your request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
-        CommonService::sendEmailToActiveUser("Tokens request submitted!", $personalMsg);
-        // Send email to instructor IF they have that configuration
+        global $CONTEXT, $USER, $CFG;
+        // First be sure the tokens aren't expired (in case the learner kept the form open too long)
         $config = self::$DAO->getConfiguration($CONTEXT->id);
-        if ($config['notifications_pref'] == 1) {
-            // Find list of instructors and send emails to all?
-            $instructor = self::$commonDAO->getUserContact($config['user_id']);
-            $instructorMsg = "A request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nLearner: " . $USER->displayname . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
-            CommonService::sendEmailFromActiveUser($instructor['displayname'], $instructor['email'], "Tokens request submitted!", $instructorMsg);
+        // Get the current server time in the CFG timezone
+        $now = new \DateTime('now', new \DateTimeZone($CFG->timezone));
+        // If use_by_date was stored properly, it should already have been stored in the $CFG timezone
+        $expiration = new \DateTime($config['use_by_date']);
+
+        if ($expiration > $now) {
+            $res = self::$DAO->addRequest(self::$contextId, self::$user->id, $data['category_id'], $data['learner_comment']);
+            // Send email to self confirming request
+            $category = self::$DAO->getCategory($data['category_id']);
+            $type = $category['category_name'];
+            $subject = "Tokens request submitted for " . $CONTEXT->title;
+            $personalMsg = "Your request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
+            CommonService::sendEmailToActiveUser($subject, $personalMsg);
+            // Send email to instructor IF they have that configuration
+            if ($config['notifications_pref'] == 1) {
+                // Find list of instructors and send emails to all?
+                $instructor = self::$commonDAO->getUserContact($config['user_id']);
+                $instructorMsg = "A request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nLearner: " . $USER->displayname . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
+                CommonService::sendEmailFromActiveUser($instructor['displayname'], $instructor['email'], $subject, $instructorMsg);
+            }
+        } else {
+            http_response_code(500);
+            $res = array("error" => "Tokens are expired");
         }
         return $res;
     }

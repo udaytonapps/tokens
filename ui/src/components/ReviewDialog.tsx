@@ -49,9 +49,12 @@ function ReviewDialog(props: ReviewDialogProps) {
   }, [open]);
 
   useEffect(() => {
-    setReadonly(
-      !appInfo.isInstructor || requestRow?.status_name !== "SUBMITTED"
-    );
+    if (requestRow?.status_name) {
+      setReadonly(
+        !appInfo.isInstructor ||
+          !["PENDING", "SUBMITTED"].includes(requestRow?.status_name)
+      );
+    }
   }, [appInfo, requestRow]);
 
   /** Handles submission of the form data */
@@ -95,15 +98,6 @@ function ReviewDialog(props: ReviewDialogProps) {
                 </DialogContentText>
               </Box>
 
-              {/* REQUEST DATE */}
-              <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
-                <Box mr={2}>
-                  <FormLabel>
-                    <Typography fontWeight={"bold"}>Date:</Typography>
-                  </FormLabel>
-                </Box>
-                <Typography>{formatDbDate(requestRow.created_at)}</Typography>
-              </Box>
               {/* LEARNER NAME */}
               <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
                 <Box mr={2}>
@@ -112,6 +106,15 @@ function ReviewDialog(props: ReviewDialogProps) {
                   </FormLabel>
                 </Box>
                 <Typography>{requestRow.learner_name}</Typography>
+              </Box>
+              {/* REQUEST DATE */}
+              <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
+                <Box mr={2}>
+                  <FormLabel>
+                    <Typography fontWeight={"bold"}>Date:</Typography>
+                  </FormLabel>
+                </Box>
+                <Typography>{formatDbDate(requestRow.created_at)}</Typography>
               </Box>
               {/* REQUEST TYPE */}
               <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
