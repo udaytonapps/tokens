@@ -168,12 +168,13 @@ class InstructorCtr
         if ($res->rowCount() !== 0) {
             // Row was updated, send confirmation email to learner
             $updatedRequest = self::$DAO->getRequest($data['request_id']);
+            $learner = self::$commonDAO->getUserContact($updatedRequest['user_id']);
             $action = strtolower($updatedRequest['status_name']);
             $subject = "Tokens request $action for " . $CONTEXT->title;
             $category = self::$DAO->getCategory($updatedRequest['category_id']);
             $reasonString = isset($updatedRequest['instructor_comment']) ? "Instructor Comment: {$updatedRequest['instructor_comment']}\n\n" : "";
             $instructorMsg = "Your Tokens request has been {$action}.\n\n{$reasonString}Course: {$CONTEXT->title}\nRequest Type: {$category['category_name']}\nRequest Description: {$updatedRequest['learner_comment']}";
-            CommonService::sendEmailFromActiveUser(self::$user->displayname, self::$user->email, $subject, $instructorMsg);
+            CommonService::sendEmailFromActiveUser($learner['displayname'], $learner['email'], $subject, $instructorMsg);
         } else {
             // Row was not updated
             http_response_code(500);
