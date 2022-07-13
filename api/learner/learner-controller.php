@@ -76,14 +76,15 @@ class LearnerCtr
             // Send email to self confirming request
             $category = self::$DAO->getCategory($data['category_id']);
             $type = $category['category_name'];
+            $subject = "Tokens request submitted for " . $CONTEXT->title;
             $personalMsg = "Your request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
-            CommonService::sendEmailToActiveUser("Tokens request submitted!", $personalMsg);
+            CommonService::sendEmailToActiveUser($subject, $personalMsg);
             // Send email to instructor IF they have that configuration
             if ($config['notifications_pref'] == 1) {
                 // Find list of instructors and send emails to all?
                 $instructor = self::$commonDAO->getUserContact($config['user_id']);
                 $instructorMsg = "A request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nLearner: " . $USER->displayname . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
-                CommonService::sendEmailFromActiveUser($instructor['displayname'], $instructor['email'], "Tokens request submitted!", $instructorMsg);
+                CommonService::sendEmailFromActiveUser($instructor['displayname'], $instructor['email'], $subject, $instructorMsg);
             }
         } else {
             http_response_code(500);
