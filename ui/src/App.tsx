@@ -40,13 +40,15 @@ function App() {
   // const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   /** The default primary color (used if no other primary color is specified) */
   const defaultPrimary = useTheme().palette.primary.main;
+  const darkMode = appConfig?.darkMode;
+  const main = (darkMode && "#fff") || appConfig?.baseColor || defaultPrimary;
   /** Theme customizations */
   const theme = createTheme({
     palette: {
       primary: {
-        main: appConfig?.baseColor || defaultPrimary,
+        main,
       },
-      mode: appConfig?.darkMode ? "dark" : "light",
+      mode: darkMode ? "dark" : "light",
     },
     components: {
       MuiTableCell: {
