@@ -107,7 +107,22 @@ class InstructorCtr
     /** Get list of all requests related to the course/context */
     static function getRequests()
     {
-        return self::$DAO->getCourseRequests(self::$contextId);
+        $requests = self::$DAO->getCourseRequests(self::$contextId);
+
+        // Check for roster
+        $hasRoster = \Tsugi\Core\LTIX::populateRoster(false);
+        if ($hasRoster) {
+            // If there is a roster, learner list will be populated from it (such as when launched from LMS)
+            $rosterLearners = $GLOBALS['ROSTER']->data;
+            foreach ($rosterLearners as $learner) {
+                foreach ($requests as $key => $request) {
+                    if ($learner["role"] == 'Learner' && $learner['user_id'] == $request['user_id']) {
+                        $requests[$key]['learner_name'] = $learner["person_name_family"] . ', ' . $learner["person_name_given"];
+                    }
+                }
+            }
+        }
+        return $requests;
     }
 
     /** Calculate the balances of all learners, whether or not there is a roster */
@@ -120,18 +135,12 @@ class InstructorCtr
         if ($hasRoster) {
             // If there is a roster, learner list will be populated from it (such as when launched from LMS)
             $rosterLearners = $GLOBALS['ROSTER']->data;
-
-            // Example for testing
-            // $rosterLearners = array(
-            //     array(
-            //         'user_id' => 1,
-            //         'person_name_family' => 'Some',
-            //         'person_name_given' => 'One',
-            //         'role' => 'Learner'
-            //     )
-            // );
-
             foreach ($rosterLearners as $learner) {
+                foreach ($calculatedUsage as $key => $usage) {
+                    if ($learner["role"] == 'Learner' && $learner['user_id'] == $usage['user_id']) {
+                        $calculatedUsage[$key]['learner_name'] = $learner["person_name_family"] . ', ' . $learner["person_name_given"];
+                    }
+                }
                 if ($learner["role"] == 'Learner') {
                     $exists = array_search($learner['user_id'], array_column($calculatedUsage, 'user_id'));
                     if ($exists === false) {

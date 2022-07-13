@@ -66,13 +66,25 @@ export const compareRowLastNames = (a: GeneralTableRow, b: GeneralTableRow) => {
 };
 
 export const compareLastNames = (a: string, b: string) => {
-  const splitA = a.split(" ");
-  const splitB = b.split(" ");
-  const lastA = splitA[splitA.length - 1];
-  const lastB = splitB[splitB.length - 1];
-  return lastA === lastB
-    ? compareStrings(splitA[0], splitB[0])
-    : compareStrings(lastA, lastB);
+  if (a.includes(",") && b.includes(",")) {
+    // Format is "Last, First"
+    const splitA = a.split(" ");
+    const splitB = b.split(" ");
+    const lastA = splitA[0];
+    const lastB = splitB[0];
+    return lastA === lastB
+      ? compareStrings(splitA[splitA.length - 1], splitB[splitB.length - 1])
+      : compareStrings(lastA, lastB);
+  } else {
+    // Format is "First Last"
+    const splitA = a.split(" ");
+    const splitB = b.split(" ");
+    const lastA = splitA[splitA.length - 1];
+    const lastB = splitB[splitB.length - 1];
+    return lastA === lastB
+      ? compareStrings(splitA[0], splitB[0])
+      : compareStrings(lastA, lastB);
+  }
 };
 
 export const compareDateTime = (a: HistoryTableRow, b: HistoryTableRow) => {
