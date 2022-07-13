@@ -152,7 +152,25 @@ class InstructorCtr
 
     static function updateRequest($data)
     {
-        self::$DAO->updateRequest(self::$contextId, $data['request_id'], $data['status_name'], self::$user->id, $data['instructor_comment']);
+        global $CONTEXT;
+        // Comment is optional (it is not currently included when request is ACCEPTED)
+        $comment = isset($data['instructor_comment']) ? $data['instructor_comment'] : null;
+        $res = self::$DAO->updateRequest(self::$contextId, $data['request_id'], $data['status_name'], self::$user->id, $comment);
+        if ($res->rowCount() !== 0) {
+            // Row was updated, send confirmation email to learner
+            $updatedRequest = self::$DAO->getRequest($data['request_id']);
+            $action = strtolower($updatedRequest['status_name']);
+            $subject = "Tokens request $action for " . $CONTEXT->title;
+            $category = self::$DAO->getCategory($updatedRequest['category_id']);
+            $reasonString = isset($updatedRequest['instructor_comment']) ? "Instructor Comment: {$updatedRequest['instructor_comment']}\n\n" : "";
+            $instructorMsg = "Your Tokens request has been {$action}.\n\n{$reasonString}Course: {$CONTEXT->title}\nRequest Type: {$category['category_name']}\nRequest Description: {$updatedRequest['learner_comment']}";
+            CommonService::sendEmailFromActiveUser(self::$user->displayname, self::$user->email, $subject, $instructorMsg);
+        } else {
+            // Row was not updated
+            http_response_code(500);
+            $res = array("error" => "Unable to update request");
+        }
+        return $res;
     }
 }
 InstructorCtr::init();

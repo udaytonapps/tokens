@@ -53,6 +53,14 @@ class InstructorDAO
         return $this->PDOX->lastInsertId();
     }
 
+    public function getCategory($categoryId)
+    {
+        $query = "SELECT * FROM {$this->p}tokens_category
+        WHERE category_id = :categoryId";
+        $arr = array(':categoryId' => $categoryId);
+        return $this->PDOX->rowDie($query, $arr);
+    }
+
     public function updateCategory($categoryId, $newCategoryName, $newTokenCost, $newSortOrder)
     {
         $query = "UPDATE {$this->p}tokens_category
@@ -118,12 +126,24 @@ class InstructorDAO
 
     public function updateRequest($contextId, $requestId, $newStatus, $instructorId, $instructorComment)
     {
+        $commentAssignment = isset($instructorComment) ? "r.instructor_comment = :instructorComment," : "";
         $query = "UPDATE {$this->p}tokens_request r
         JOIN  {$this->p}tokens_configuration c
             ON c.configuration_id = r.configuration_id
-        SET r.status_name = :newStatus, r.instructor_id = :instructorId, r.instructor_comment = :instructorComment, status_updated_at = CURRENT_TIMESTAMP
+        SET r.status_name = :newStatus, r.instructor_id = :instructorId, {$commentAssignment} status_updated_at = CURRENT_TIMESTAMP
         WHERE r.request_id = :requestId AND c.context_id = :contextId";
-        $arr = array(':contextId' => $contextId, ':requestId' => $requestId, ':newStatus' => $newStatus, ':instructorId' => $instructorId, ':instructorComment' => $instructorComment);
+        $arr = array(':contextId' => $contextId, ':requestId' => $requestId, ':newStatus' => $newStatus, ':instructorId' => $instructorId);
+        if (isset($instructorComment)) {
+            $arr[':instructorComment'] = $instructorComment;
+        }
         return $this->PDOX->queryDie($query, $arr);
+    }
+
+    public function getRequest($requestId)
+    {
+        $query = "SELECT * FROM {$this->p}tokens_request
+        WHERE request_id = :requestId";
+        $arr = array(':requestId' => $requestId);
+        return $this->PDOX->rowDie($query, $arr);
     }
 }
