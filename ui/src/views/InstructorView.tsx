@@ -44,7 +44,6 @@ function InstructorView() {
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [settings, setSettings] = useState<TokensSettings | null>();
-  const [requestMap, setRequestMap] = useState<Map<string, number>>(new Map());
   const [balanceRows, setBalanceRows] = useState<BalancesTableRow[]>([]);
   const [requestRows, setRequestRows] = useState<RequestsTableRow[]>([]);
   const [historyRows, setHistoryRows] = useState<HistoryTableRow[]>([]);
@@ -68,22 +67,17 @@ function InstructorView() {
         newRequestMap.set(request.user_id, 1);
       }
     });
-    setRequestMap(newRequestMap);
-  }, [requestRows]);
-
-  useEffect(() => {
-    // When the mapping of pending requests is set, retrieve and sort the balance table rows
-    if (requestMap.size && settings) {
+    if (newRequestMap.size && settings) {
       getAllBalances().then((balances) => {
-        const sortedBalances = sortBalancesByPriority(balances, requestMap);
+        const sortedBalances = sortBalancesByPriority(balances, newRequestMap);
         sortedBalances.forEach((row) => {
-          row.pendingRequests = requestMap.get(row.user_id);
+          row.pendingRequests = newRequestMap.get(row.user_id);
           row.balance = (settings.initial_tokens || 0) - (row.tokens_used || 0);
         });
         setBalanceRows(sortedBalances);
       });
     }
-  }, [requestMap, settings]);
+  }, [requestRows, settings]);
 
   useEffect(() => {
     // If undefined, setting data may still be loading, but if null, response was received and config doesn't exist, so open the dialog
