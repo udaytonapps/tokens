@@ -67,7 +67,7 @@ function InstructorView() {
         newRequestMap.set(request.user_id, 1);
       }
     });
-    if (newRequestMap.size && settings) {
+    if (settings) {
       getAllBalances().then((balances) => {
         const sortedBalances = sortBalancesByPriority(balances, newRequestMap);
         sortedBalances.forEach((row) => {
