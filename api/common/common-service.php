@@ -74,8 +74,8 @@ class CommonService
         // use wordwrap() if lines are longer than 120 characters
         $msg = wordwrap($msg, 120);
 
-        $headers = "From: Learning Apps <" . self::getReplyToEmail() . ">\n";
-        $headers = $headers . "Reply-to: Learning Apps <" . self::getReplyToEmail() . ">\n";
+        $headers = "From: " . self::getReplyToName() . " <" . self::getReplyToEmail() . ">\n";
+        $headers = $headers . "Reply-to: " . self::getReplyToName() . " <" . self::getReplyToEmail() . ">\n";
 
         mail($USER->email, $subject, $msg, $headers);
     }
@@ -89,18 +89,28 @@ class CommonService
         // use wordwrap() if lines are longer than 120 characters
         $msg = wordwrap($msg, 120);
 
-        $headers = "From: Learning Apps <" . self::getReplyToEmail() . ">\n";
+        $headers = "From: " . self::getReplyToName() . " <" . self::getReplyToEmail() . ">\n";
         $headers = $headers . "Reply-to: " . $USER->displayname . " <" . $USER->email . ">\n";
 
         mail($recipientEmail, $subject, $msg, $headers);
+    }
+
+    private static function getReplyToName()
+    {
+        global $CFG;
+        $replyToName = 'No Reply';
+        if (isset($CFG->owneremailsender)) {
+            $replyToName = $CFG->owneremailsender;
+        }
+        return $replyToName;
     }
 
     private static function getReplyToEmail()
     {
         global $CFG;
         $replyToEmail = 'noreply@example.com';
-        if (isset($CFG->ownerNoReplyEmail)) {
-            $replyToEmail = $CFG->ownerNoReplyEmail;
+        if (isset($CFG->ownernoreplyemail)) {
+            $replyToEmail = $CFG->ownernoreplyemail;
         }
         return $replyToEmail;
     }
