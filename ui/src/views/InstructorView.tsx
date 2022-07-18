@@ -177,7 +177,13 @@ function InstructorView() {
         <Box>
           <Box display={"flex"} justifyContent={"end"} mr={1}>
             <Box>
-              <Tooltip title="There are pending requests requiring review">
+              <Tooltip
+                title={
+                  requestRows.length
+                    ? "There are pending requests requiring review"
+                    : ""
+                }
+              >
                 <IconButton onClick={() => setTabPosition(1)}>
                   <Badge badgeContent={requestRows.length} color="warning">
                     <NotificationImportant />
