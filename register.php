@@ -14,6 +14,7 @@ $REGISTER_LTI2 = array(
         "internal"
     ),
     "tool_phase" => "new",
+    "hide_from_store" => true
     // "video" => "",
     // "source_url" => "",
     // "screen_shots" => array(
