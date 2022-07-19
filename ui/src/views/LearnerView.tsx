@@ -77,7 +77,7 @@ function LearnerView() {
   };
   return (
     <>
-      {settings && (
+      {settings ? (
         <Box>
           {settings.use_by_date && (
             <Box mt={2} mb={2}>
@@ -117,6 +117,12 @@ function LearnerView() {
               openReviewDialog={handleOpenReviewDialogFromHistory}
             />
           </TabPanel>
+        </Box>
+      ) : (
+        <Box mt={2}>
+          <Alert severity="info">
+            Your instructor has not yet configured this learning app.
+          </Alert>
         </Box>
       )}
       <ReviewDialog

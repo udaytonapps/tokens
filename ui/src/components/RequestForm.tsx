@@ -135,11 +135,13 @@ function RequestForm(props: RequestFormProps) {
                   />
                 </Box>
                 <Typography>
-                  Please list the details of the activity on which you plan to
-                  use your token{selectedCategory.token_cost > 1 && "s"}:
+                  Please provide specific details on this token request.
+                </Typography>
+                <Typography variant="body2" fontStyle={"italic"}>
+                  Example: Assignment #3
                 </Typography>
               </Box>
-              <Box display={"flex"} flexDirection={"column"}>
+              <Box display={"flex"}>
                 <TextField
                   fullWidth
                   required
@@ -187,7 +189,7 @@ function RequestForm(props: RequestFormProps) {
               </Box>
               <Box display={"flex"} justifyContent={"end"} pt={2}>
                 <Button onClick={handleDismissConfirmation} variant="contained">
-                  Dismiss
+                  Done
                 </Button>
               </Box>
             </>
