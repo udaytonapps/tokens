@@ -14,9 +14,10 @@ $REGISTER_LTI2 = array(
         "internal"
     ),
     "tool_phase" => "new",
-    "video" => "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "source_url" => "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "hide_from_store" => true
+    // "video" => "",
+    // "source_url" => "",
     // "screen_shots" => array(
-    //     "",
+    //     ""
     // )
 );
