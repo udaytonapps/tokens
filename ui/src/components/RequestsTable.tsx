@@ -28,7 +28,8 @@ function RequestsTable(props: RequestsTableProps) {
   const [filteredRows, setFilteredRows] = useState(rows);
   const [orderBy, setOrderBy] = useState<keyof RequestsTableRow>("created_at");
   const [order, setOrder] = useState<SortOrder>(
-    orderBy === "created_at" ? "desc" : "asc"
+    // orderBy === "created_at" ? "desc" : "asc"
+    "asc"
   );
 
   useEffect(() => {
