@@ -109,7 +109,8 @@ function InstructorView() {
   };
 
   // Tab management
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = async (event: React.SyntheticEvent, newValue: number) => {
+    await fetchAndAssembleData();
     setTabPosition(newValue);
   };
 
@@ -184,7 +185,7 @@ function InstructorView() {
                     : ""
                 }
               >
-                <IconButton onClick={() => setTabPosition(1)}>
+                <IconButton onClick={() => setTabPosition(0)}>
                   <Badge badgeContent={requestRows.length} color="warning">
                     <NotificationImportant />
                   </Badge>
@@ -217,19 +218,19 @@ function InstructorView() {
               onChange={handleTabChange}
               aria-label="basic tabs example"
             >
-              <Tab label="Balances" {...a11yProps(0)} />
-              <Tab label="Requests" {...a11yProps(1)} />
+              <Tab label="Requests" {...a11yProps(0)} />
+              <Tab label="Balances" {...a11yProps(1)} />
               <Tab label="History" {...a11yProps(2)} />
             </Tabs>
           </Box>
           <TabPanel value={tabPosition} index={0}>
-            <BalancesTable rows={balanceRows} setTabPosition={setTabPosition} />
-          </TabPanel>
-          <TabPanel value={tabPosition} index={1}>
             <RequestsTable
               rows={requestRows}
               openReviewDialog={handleOpenReviewDialogFromRequests}
             />
+          </TabPanel>
+          <TabPanel value={tabPosition} index={1}>
+            <BalancesTable rows={balanceRows} setTabPosition={setTabPosition} />
           </TabPanel>
           <TabPanel value={tabPosition} index={2}>
             <HistoryTable
