@@ -110,7 +110,7 @@ function BalancesTable(props: BalancesTableProps) {
                       {/* Show the icon button only if there is a reference to the learner */}
                       {row.pendingRequests && (
                         <IconButton
-                          onClick={() => setTabPosition(1)}
+                          onClick={() => setTabPosition(0)}
                           disableRipple={true}
                         >
                           <Badge
