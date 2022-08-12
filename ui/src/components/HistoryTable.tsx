@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  LinearProgress,
   Paper,
   Table,
   TableBody,
@@ -26,13 +27,14 @@ import TableHeaderSort from "./TableHeaderSort";
 
 interface HistoryTableProps {
   rows: HistoryTableRow[];
+  loading: boolean;
   filters: any[];
   openReviewDialog: (requestId: string) => void;
 }
 
 /** Shows the history of requests of all available students */
 function HistoryTable(props: HistoryTableProps) {
-  const { rows, filters, openReviewDialog } = props;
+  const { rows, loading, filters, openReviewDialog } = props;
   const appInfo = useContext(AppContext);
   const [filteredRows, setFilteredRows] = useState(rows);
   const statusColors = getStatusColors(useTheme());
@@ -102,6 +104,13 @@ function HistoryTable(props: HistoryTableProps) {
               </TableCell>
               <TableCell align="center">Action</TableCell>
             </TableRow>
+            {loading && (
+              <TableRow>
+                <TableCell colSpan={5} padding={"none"}>
+                  <LinearProgress />
+                </TableCell>
+              </TableRow>
+            )}
           </TableHead>
           <TableBody>
             {!sortedFilteredRows.length ? (

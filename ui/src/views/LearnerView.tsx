@@ -28,12 +28,14 @@ function LearnerView() {
   const [historyRows, setHistoryRows] = useState<HistoryTableRow[]>([]);
   const [requestInReview, setRequestInReview] = useState<RequestsTableRow>();
   const [learnerBalance, setLearnerBalance] = useState<number>(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchAndAssembleData();
   }, []);
 
   const fetchAndAssembleData = async () => {
+    setLoading(true);
     // Retrieve and set Tokens Settings
     const fetchedSettings = await getLearnerSettings();
     setSettings(fetchedSettings);
@@ -53,6 +55,7 @@ function LearnerView() {
       }, 0);
       setLearnerBalance(fetchedSettings.initial_tokens - tokensUsed);
     }
+    setLoading(false);
   };
 
   // Tab management
@@ -113,6 +116,7 @@ function LearnerView() {
           <TabPanel value={tabPosition} index={1}>
             <HistoryTable
               rows={historyRows}
+              loading={loading}
               filters={FILTERS.LEARNER.HISTORY}
               openReviewDialog={handleOpenReviewDialogFromHistory}
             />
