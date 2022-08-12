@@ -2,6 +2,7 @@ import {
   Badge,
   Box,
   IconButton,
+  LinearProgress,
   Paper,
   Table,
   TableBody,
@@ -20,12 +21,13 @@ import TableHeaderSort from "./TableHeaderSort";
 
 interface BalancesTableProps {
   rows: BalancesTableRow[];
+  loading: boolean;
   setTabPosition: Dispatch<SetStateAction<number>>;
 }
 
 /** Shows the balances of all available students */
 function BalancesTable(props: BalancesTableProps) {
-  const { rows, setTabPosition } = props;
+  const { rows, loading, setTabPosition } = props;
   const [filteredRows, setFilteredRows] = useState(rows);
   const [orderBy, setOrderBy] =
     useState<keyof BalancesTableRow>("pendingRequests");
@@ -86,6 +88,13 @@ function BalancesTable(props: BalancesTableProps) {
                 ></TableHeaderSort>
               </TableCell>
             </TableRow>
+            {loading && (
+              <TableRow>
+                <TableCell colSpan={4} padding={"none"}>
+                  <LinearProgress />
+                </TableCell>
+              </TableRow>
+            )}
           </TableHead>
           <TableBody>
             {!sortedFilteredRows.length ? (

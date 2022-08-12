@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  LinearProgress,
   Paper,
   Table,
   TableBody,
@@ -19,12 +20,13 @@ import TableHeaderSort from "./TableHeaderSort";
 
 interface RequestsTableProps {
   rows: RequestsTableRow[];
+  loading: boolean;
   openReviewDialog: (requestId: string) => void;
 }
 
 /** Shows the requests of all available students */
 function RequestsTable(props: RequestsTableProps) {
-  const { rows, openReviewDialog } = props;
+  const { rows, loading, openReviewDialog } = props;
   const [filteredRows, setFilteredRows] = useState(rows);
   const [orderBy, setOrderBy] = useState<keyof RequestsTableRow>("created_at");
   const [order, setOrder] = useState<SortOrder>(
@@ -80,11 +82,18 @@ function RequestsTable(props: RequestsTableProps) {
               <TableCell>Description</TableCell>
               <TableCell align="center">Action</TableCell>
             </TableRow>
+            {loading && (
+              <TableRow>
+                <TableCell colSpan={5} padding={"none"}>
+                  <LinearProgress />
+                </TableCell>
+              </TableRow>
+            )}
           </TableHead>
           <TableBody>
             {!sortedFilteredRows.length ? (
               <TableRow>
-                <TableCell colSpan={4} sx={{ textAlign: "center" }}>
+                <TableCell colSpan={5} sx={{ textAlign: "center" }}>
                   <Typography>No results</Typography>
                 </TableCell>
               </TableRow>

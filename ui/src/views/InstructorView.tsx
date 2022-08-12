@@ -48,36 +48,11 @@ function InstructorView() {
   const [requestRows, setRequestRows] = useState<RequestsTableRow[]>([]);
   const [historyRows, setHistoryRows] = useState<HistoryTableRow[]>([]);
   const [requestInReview, setRequestInReview] = useState<RequestsTableRow>();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchAndAssembleData();
   }, []);
-
-  useEffect(() => {
-    // When request data loads, assemble a mapping of who has pending requests
-    const newRequestMap = new Map();
-    requestRows.forEach((request) => {
-      if (newRequestMap.get(request.user_id)) {
-        newRequestMap.set(
-          request.user_id,
-          // Increment to reflect the count of pending requests
-          newRequestMap.get(request.user_id) + 1
-        );
-      } else {
-        newRequestMap.set(request.user_id, 1);
-      }
-    });
-    if (settings) {
-      getAllBalances().then((balances) => {
-        const sortedBalances = sortBalancesByPriority(balances, newRequestMap);
-        sortedBalances.forEach((row) => {
-          row.pendingRequests = newRequestMap.get(row.user_id);
-          row.balance = (settings.initial_tokens || 0) - (row.tokens_used || 0);
-        });
-        setBalanceRows(sortedBalances);
-      });
-    }
-  }, [requestRows, settings]);
 
   useEffect(() => {
     // If undefined, setting data may still be loading, but if null, response was received and config doesn't exist, so open the dialog
@@ -91,27 +66,56 @@ function InstructorView() {
    *  since the balances table needs to know about pending requests
    */
   const fetchAndAssembleData = async () => {
+    setLoading(true);
     // Retrieve and set Tokens Settings
     const fetchedSettings = await getInstructorSettings();
-    setSettings(fetchedSettings);
+    if (fetchedSettings) {
+      setSettings(fetchedSettings);
 
-    // Retrieve and set rows for the Requests Table
-    const fetchedRequestRows = await getSubmittedRequests();
-    // Sort all by timestamp (requests and history will show newest first)
-    fetchedRequestRows.sort(compareDateTime);
+      // Retrieve and set rows for the Requests Table
+      const fetchedRequestRows = await getSubmittedRequests();
+      // Sort all by timestamp (requests and history will show newest first)
+      fetchedRequestRows.sort(compareDateTime);
 
-    const newlySubmittedRequests = fetchedRequestRows.filter((row) => {
-      return row.status_name === "SUBMITTED";
-    });
-    // newlySubmittedRequests.sort(compareLastNames);
-    setRequestRows(newlySubmittedRequests);
-    setHistoryRows(fetchedRequestRows);
+      const newlySubmittedRequests = fetchedRequestRows.filter((row) => {
+        return row.status_name === "SUBMITTED";
+      });
+      // newlySubmittedRequests.sort(compareLastNames);
+      setRequestRows(newlySubmittedRequests);
+      setHistoryRows(fetchedRequestRows);
+
+      const newRequestMap = new Map();
+      requestRows.forEach((request) => {
+        if (newRequestMap.get(request.user_id)) {
+          newRequestMap.set(
+            request.user_id,
+            // Increment to reflect the count of pending requests
+            newRequestMap.get(request.user_id) + 1
+          );
+        } else {
+          newRequestMap.set(request.user_id, 1);
+        }
+      });
+      const balances = await getAllBalances();
+      const sortedBalances = sortBalancesByPriority(balances, newRequestMap);
+      sortedBalances.forEach((row) => {
+        row.pendingRequests = newRequestMap.get(row.user_id);
+        row.balance =
+          (fetchedSettings.initial_tokens || 0) - (row.tokens_used || 0);
+      });
+      setBalanceRows(sortedBalances);
+      setLoading(false);
+    }
   };
 
   // Tab management
-  const handleTabChange = async (event: React.SyntheticEvent, newValue: number) => {
-    await fetchAndAssembleData();
+  const handleTabChange = async (
+    event: React.SyntheticEvent,
+    newValue: number
+  ) => {
+    setLoading(true);
     setTabPosition(newValue);
+    fetchAndAssembleData().then(() => setLoading(false));
   };
 
   // Dialog management
@@ -226,15 +230,21 @@ function InstructorView() {
           <TabPanel value={tabPosition} index={0}>
             <RequestsTable
               rows={requestRows}
+              loading={loading}
               openReviewDialog={handleOpenReviewDialogFromRequests}
             />
           </TabPanel>
           <TabPanel value={tabPosition} index={1}>
-            <BalancesTable rows={balanceRows} setTabPosition={setTabPosition} />
+            <BalancesTable
+              rows={balanceRows}
+              loading={loading}
+              setTabPosition={setTabPosition}
+            />
           </TabPanel>
           <TabPanel value={tabPosition} index={2}>
             <HistoryTable
               rows={historyRows}
+              loading={loading}
               filters={FILTERS.INSTRUCTOR.HISTORY}
               openReviewDialog={handleOpenReviewDialogFromHistory}
             />
