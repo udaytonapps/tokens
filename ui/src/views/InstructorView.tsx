@@ -105,6 +105,9 @@ function InstructorView() {
       });
       setBalanceRows(sortedBalances);
       setLoading(false);
+    } else {
+      // No settings were retrieved - set null to trigger opening of dialog
+      setSettings(null);
     }
   };
 
