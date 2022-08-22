@@ -104,11 +104,11 @@ function InstructorView() {
           (fetchedSettings.initial_tokens || 0) - (row.tokens_used || 0);
       });
       setBalanceRows(sortedBalances);
-      setLoading(false);
     } else {
       // No settings were retrieved - set null to trigger opening of dialog
       setSettings(null);
     }
+    setLoading(false);
   };
 
   // Tab management
