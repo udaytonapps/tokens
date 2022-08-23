@@ -57,6 +57,25 @@ function SettingsDialog(props: SettingsDialogProps) {
 
   const pref = watch("notifications_pref", true);
 
+  const setDefaultCategories = useCallback(() => {
+    setValue("categories", [
+      {
+        category_name: "Missed Class",
+        token_cost: 1,
+        dbAction: "ADD",
+        sort_order: 0,
+        is_used: false,
+      },
+      {
+        category_name: "Late Assignment",
+        token_cost: 1,
+        dbAction: "ADD",
+        sort_order: 1,
+        is_used: false,
+      },
+    ]);
+  }, [setValue]);
+
   const initValues = useCallback(
     (settings: TokensSettings) => {
       const formattedDate = DateTime.fromFormat(
@@ -70,32 +89,19 @@ function SettingsDialog(props: SettingsDialogProps) {
       if (settings.categories.length) {
         setValue("categories", settings.categories);
       } else {
-        setValue("categories", [
-          {
-            category_name: "Missed Class",
-            token_cost: 1,
-            dbAction: "ADD",
-            sort_order: 0,
-            is_used: false,
-          },
-          {
-            category_name: "Late Assignment",
-            token_cost: 1,
-            dbAction: "ADD",
-            sort_order: 1,
-            is_used: false,
-          },
-        ]);
+        setDefaultCategories();
       }
     },
-    [setValue]
+    [setValue, setDefaultCategories]
   );
 
   useEffect(() => {
     if (settings && open) {
       initValues(settings);
+    } else if (open) {
+      setDefaultCategories();
     }
-  }, [settings, open, initValues]);
+  }, [settings, open, initValues, setDefaultCategories]);
 
   const moveCategoryUp = (i: number) => {
     move(i, i - 1);
