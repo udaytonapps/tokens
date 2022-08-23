@@ -47,20 +47,6 @@ function SettingsDialog(props: SettingsDialogProps) {
     formState: { errors },
   } = useForm<TokensSettings>({
     defaultValues: {
-      categories: [
-        {
-          category_name: "Missed Class",
-          token_cost: 1,
-          dbAction: "ADD",
-          sort_order: 0,
-        },
-        {
-          category_name: "Late Assignment",
-          token_cost: 1,
-          dbAction: "ADD",
-          sort_order: 1,
-        },
-      ],
       notifications_pref: true,
     },
   });
@@ -81,7 +67,26 @@ function SettingsDialog(props: SettingsDialogProps) {
       setValue("initial_tokens", settings.initial_tokens);
       setValue("notifications_pref", settings.notifications_pref);
       setValue("use_by_date", formattedDate);
-      setValue("categories", settings.categories);
+      if (settings.categories.length) {
+        setValue("categories", settings.categories);
+      } else {
+        setValue("categories", [
+          {
+            category_name: "Missed Class",
+            token_cost: 1,
+            dbAction: "ADD",
+            sort_order: 0,
+            is_used: false,
+          },
+          {
+            category_name: "Late Assignment",
+            token_cost: 1,
+            dbAction: "ADD",
+            sort_order: 1,
+            is_used: false,
+          },
+        ]);
+      }
     },
     [setValue]
   );
