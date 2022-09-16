@@ -15,6 +15,8 @@ $OUTPUT->get_theme();
 /** Holds methods for handling each route. Constructed with the request path (uri) */
 class CommonService
 {
+    public static $hasRoster;
+    public static $rosterData;
     /** @var CommonDAO */
     protected static $DAO;
     protected static $LTIX;
@@ -29,6 +31,10 @@ class CommonService
         self::$user = $USER;
         self::$contextId = $CONTEXT->id;
         self::$linkId = $LINK->id;
+        self::$hasRoster = \Tsugi\Core\LTIX::populateRoster(false);
+        if (self::$hasRoster) {
+            self::$rosterData = $GLOBALS['ROSTER']->data;
+        }
     }
 
     static function me()
