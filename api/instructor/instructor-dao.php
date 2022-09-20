@@ -22,7 +22,7 @@ class InstructorDAO
     {
         $query = "INSERT INTO {$this->p}tokens_configuration (user_id, context_id, link_id, initial_tokens, use_by_date, notifications_pref)
         VALUES (:userId, :contextId, :linkId, :initialTokens, :useByDate, :notificationsPref);";
-        $arr = array(':userId' => $userId, ':contextId' => $contextId, ':linkId' => $linkId, ':initialTokens' => $initialTokens, ':useByDate' => $useByDate, ':notificationsPref' => $notificationsPref);
+        $arr = array(':userId' => $userId, ':contextId' => $contextId, ':linkId' => $linkId, ':initialTokens' => $initialTokens, ':useByDate' => $useByDate, ':notificationsPref' => (int)$notificationsPref);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
     }
@@ -32,7 +32,7 @@ class InstructorDAO
         $query = "UPDATE {$this->p}tokens_configuration
         SET user_id = :userId, initial_tokens = :initialTokens, use_by_date = :useByDate, notifications_pref = :notificationsPref
         WHERE context_id = :contextId";
-        $arr = array('userId' => $userId, ':contextId' => $contextId, ':initialTokens' => $initialTokens, ':useByDate' => $useByDate, ':notificationsPref' => $notificationsPref === false ? 0 : $notificationsPref);
+        $arr = array('userId' => $userId, ':contextId' => $contextId, ':initialTokens' => $initialTokens, ':useByDate' => $useByDate, ':notificationsPref' => (int)$notificationsPref);
         return $this->PDOX->queryDie($query, $arr);
     }
 
@@ -41,6 +41,32 @@ class InstructorDAO
         $query = "SELECT * FROM {$this->p}tokens_configuration
         WHERE context_id = :contextId;";
         $arr = array(':contextId' => $contextId);
+        return $this->PDOX->rowDie($query, $arr);
+    }
+
+    public function addNotificationOption($userId, $configurationId, $notificationsPref)
+    {
+        $query = "INSERT INTO {$this->p}tokens_instructor_option (user_id, configuration_id, notifications_pref)
+        VALUES (:userId, :configurationId, :notificationsPref);";
+        $arr = array(':userId' => $userId, ':configurationId' => $configurationId, ':notificationsPref' => (int)$notificationsPref);
+        $this->PDOX->queryDie($query, $arr);
+        return $this->PDOX->lastInsertId();
+    }
+
+    public function updateNotificationOption($userId, $configurationId, $notificationsPref)
+    {
+        $query = "UPDATE {$this->p}tokens_instructor_option
+        SET notifications_pref = :notificationsPref
+        WHERE user_id = :userId AND configuration_id = :configurationId";
+        $arr = array('userId' => $userId, ':configurationId' => $configurationId, ':notificationsPref' => (int)$notificationsPref);
+        return $this->PDOX->queryDie($query, $arr);
+    }
+
+    public function getNotificationOption($userId, $configurationId)
+    {
+        $query = "SELECT * FROM {$this->p}tokens_instructor_option
+        WHERE user_id = :userId AND configuration_id = :configurationId";
+        $arr = array('userId' => $userId, ':configurationId' => $configurationId);
         return $this->PDOX->rowDie($query, $arr);
     }
 
