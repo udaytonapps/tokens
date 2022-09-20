@@ -44,6 +44,32 @@ class InstructorDAO
         return $this->PDOX->rowDie($query, $arr);
     }
 
+    public function addNotificationOption($userId, $configurationId, $notificationsPref)
+    {
+        $query = "INSERT INTO {$this->p}tokens_instructor_option (user_id, configuration_id, notifications_pref)
+        VALUES (:userId, :configurationId, :notificationsPref);";
+        $arr = array(':userId' => $userId, ':configurationId' => $configurationId, ':notificationsPref' => $notificationsPref);
+        $this->PDOX->queryDie($query, $arr);
+        return $this->PDOX->lastInsertId();
+    }
+
+    public function updateNotificationOption($userId, $configurationId, $notificationsPref)
+    {
+        $query = "UPDATE {$this->p}tokens_instructor_option
+        SET notifications_pref = :notificationsPref
+        WHERE user_id = :userId AND configuration_id = :configurationId";
+        $arr = array('userId' => $userId, ':configurationId' => $configurationId, ':notificationsPref' => $notificationsPref === false ? 0 : $notificationsPref);
+        return $this->PDOX->queryDie($query, $arr);
+    }
+
+    public function getNotificationOption($userId, $configurationId)
+    {
+        $query = "SELECT * FROM {$this->p}tokens_instructor_option
+        WHERE user_id = :userId AND configuration_id = :configurationId";
+        $arr = array('userId' => $userId, ':configurationId' => $configurationId);
+        return $this->PDOX->rowDie($query, $arr);
+    }
+
     public function addCategory($configId, $category)
     {
         $query = "INSERT INTO {$this->p}tokens_category (configuration_id, category_name, token_cost, sort_order)
