@@ -85,11 +85,31 @@ class LearnerCtr
                 $personalMsg = "Your request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
                 CommonService::sendEmailToActiveUser($subject, $personalMsg);
                 // Send email to instructor IF they have that configuration
-                if ($config['notifications_pref'] == 1) {
-                    // Find list of instructors and send emails to all?
+                $instructorMsg = "A request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nLearner: " . $USER->displayname . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
+                if (CommonService::$hasRoster) {
+                    // If there is a roster, check notifications settings for each
+                    foreach (CommonService::$rosterData as $rosterPerson) {
+                        if ($rosterPerson["roles"] == 'Instructor') {
+                            // Check first to see if notifications are turned off.
+                            $instructor = CommonService::getUserContactByRosterId($rosterPerson['user_id']);
+                            // Must clear out option each time
+                            $option = null;
+                            if (isset($instructor['user_id'])) {
+                                $option = self::$DAO->getInstructorNotificationOption($instructor['user_id'], $config['configuration_id']);
+                            }
+                            if (!isset($option['notifications_pref']) || $option['notifications_pref'] == true) {
+                                CommonService::sendEmailFromActiveUser($rosterPerson['person_name_full'], $rosterPerson['person_contact_email_primary'], $subject, $instructorMsg);
+                            }
+                        }
+                    }
+                } else {
+                    // If no roster, simply determine notification preference based on the userId on the instructor that created the settings
                     $instructor = self::$commonDAO->getUserContact($config['user_id']);
-                    $instructorMsg = "A request to use Tokens has been submitted.\n\nCourse: " . $CONTEXT->title . "\nLearner: " . $USER->displayname . "\nRequest Type: " . $type . "\nRequest Description: " . $data['learner_comment'];
-                    CommonService::sendEmailFromActiveUser($instructor['displayname'], $instructor['email'], $subject, $instructorMsg);
+                    $option = self::$DAO->getInstructorNotificationOption($instructor['user_id'], $config['configuration_id']);
+                    // Check first to see if notifications are turned off.
+                    if (!isset($option['notifications_pref']) || $option['notifications_pref'] == true) {
+                        CommonService::sendEmailFromActiveUser($instructor['displayname'], $instructor['email'], $subject, $instructorMsg);
+                    }
                 }
             }
         } else {

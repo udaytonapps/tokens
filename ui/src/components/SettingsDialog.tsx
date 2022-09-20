@@ -47,7 +47,6 @@ function SettingsDialog(props: SettingsDialogProps) {
     handleSubmit,
     watch,
     setValue,
-    getValues,
     formState: { errors },
   } = useForm<TokensSettings>();
   const { fields, append, move, update, remove } = useFieldArray({
@@ -93,6 +92,7 @@ function SettingsDialog(props: SettingsDialogProps) {
       }
     } else if (open) {
       setDefaultCategories();
+      setValue("notifications_pref", true);
     }
   }, [settings, open, setDefaultCategories, setValue]);
 
