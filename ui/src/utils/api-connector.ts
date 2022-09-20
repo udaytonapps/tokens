@@ -12,7 +12,6 @@ import {
   RequestUpdateData,
   LtiAppInfo,
   TokensSettings,
-  GetInstructorOptionResponse,
 } from "./types";
 
 const config = EnvConfig[getEnvironment()];
