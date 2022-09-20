@@ -17,6 +17,12 @@ Route::add($resource . '/settings', restrict(function () {
     return Route::sendJson($res);
 }), 'get');
 
+/** Return a given context's instructor options */
+Route::add($resource . '/options', restrict(function () {
+    $res = InstructorCtr::getNotificationOption();
+    return Route::sendJson($res);
+}), 'get');
+
 /** Add a configuration for the context */
 Route::add($resource . '/settings', restrict(function () {
     // Define the expected data
