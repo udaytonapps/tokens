@@ -36,6 +36,8 @@ class InstructorCtr
         foreach ($categories as $category) {
             self::$DAO->addCategory($newConfigId, $category);
         }
+        $notificationsPref = $data['notifications_pref'];
+        self::$DAO->addNotificationOption(self::$user->id, $newConfigId, $notificationsPref);
         return $newConfigId;
     }
 
@@ -56,11 +58,12 @@ class InstructorCtr
                     'is_used' => count($categoryUsage) > 0,
                 );
             }
+            $option = self::$DAO->getNotificationOption(self::$user->id, $config['configuration_id']);
             return array(
                 'configuration_id' => $config['configuration_id'],
                 'initial_tokens' => intval($config['initial_tokens']),
                 'use_by_date' => $config['use_by_date'],
-                'notifications_pref' => $config['notifications_pref'] ? true : false,
+                'notifications_pref' => $option['notifications_pref'] ? true : false,
                 'categories' => $config['categories'],
             );
         } else {
@@ -102,6 +105,31 @@ class InstructorCtr
                 }
             }
         }
+        $notificationsPref = $data['notifications_pref'];
+        $existingOptions = self::$DAO->getNotificationOption(self::$user->id, $data['configuration_id']);
+        if (isset($existingOptions['option_id'])) {
+            self::$DAO->updateNotificationOption(self::$user->id, $data['configuration_id'], $notificationsPref);
+        } else {
+            self::$DAO->addNotificationOption(self::$user->id, $data['configuration_id'], $notificationsPref);
+        }
+    }
+
+    static function addNotificationOption($data)
+    {
+        $config = self::$DAO->getConfiguration(self::$contextId);
+        self::$DAO->addNotificationOption(self::$user->id, $config['configuration_id'], $data['notifications_pref']);
+    }
+
+    static function updateNotificationOption($data)
+    {
+        $config = self::$DAO->getConfiguration(self::$contextId);
+        self::$DAO->updateNotificationOption(self::$user->id, $config['configuration_id'], $data['notifications_pref']);
+    }
+
+    static function getNotificationOption()
+    {
+        $config = self::$DAO->getConfiguration(self::$contextId);
+        self::$DAO->getNotificationOption(self::$user->id, $config['configuration_id']);
     }
 
     /** Get list of all requests related to the course/context */
