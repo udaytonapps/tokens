@@ -31,18 +31,6 @@ export const getInfo = async (): Promise<LtiAppInfo | null> => {
   }
 };
 
-export const getInstructorOptions = async () => {
-  try {
-    const res = await axios.get<GetInstructorOptionResponse>(
-      `${config.apiUrl}/instructor/options?PHPSESSID=${config.sessionId}`
-    );
-    return res.data.data || null;
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-};
-
 export const getInstructorSettings =
   async (): Promise<TokensSettings | null> => {
     try {
