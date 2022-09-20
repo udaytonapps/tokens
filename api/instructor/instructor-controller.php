@@ -36,8 +36,7 @@ class InstructorCtr
         foreach ($categories as $category) {
             self::$DAO->addCategory($newConfigId, $category);
         }
-        $notificationsPref = $data['notifications_pref'];
-        self::$DAO->addNotificationOption(self::$user->id, $newConfigId, $notificationsPref);
+        self::$DAO->addNotificationOption(self::$user->id, $newConfigId, $data['notifications_pref']);
         return $newConfigId;
     }
 
