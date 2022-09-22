@@ -42,6 +42,14 @@ class LearnerDAO
         return $this->PDOX->rowDie($query, $arr);
     }
 
+    public function getInstructorNotificationOption($instructorId, $configurationId)
+    {
+        $query = "SELECT * FROM {$this->p}tokens_instructor_option
+        WHERE user_id = :userId AND configuration_id = :configurationId";
+        $arr = array('userId' => $instructorId, ':configurationId' => $configurationId);
+        return $this->PDOX->rowDie($query, $arr);
+    }
+
     /** Retrieves the data from the request table, along with the associated category name and learner name */
     public function getCourseRequests($contextId, $userId)
     {
@@ -62,9 +70,10 @@ class LearnerDAO
     {
         /**
          * SELECT 1 -> Selects from dual (in memory table as a placeholder to allow the WHERE condition below)
-         * SELECT 2 -> Determine the amount of initial tokens
-         * SELECT 3 -> Determine the amount of tokens already in use (request exists that isn't REJECTED)
-         * SELECT 4 -> Determine the token cost of the existing request
+         * SELECT 2 -> Retrieves the configuration_id for the context
+         * SELECT 3 -> Determine the amount of initial tokens for the configuration
+         * SELECT 4 -> Determine the amount of tokens already in use (request exists that isn't REJECTED)
+         * SELECT 5 -> Determine the token cost of the existing request
          * WHERE condition hinges on initial_tokens - (used tokens) >= token_cost
          * If that condition is not met, the insert doesn't happen, and id 0 is returned
          */

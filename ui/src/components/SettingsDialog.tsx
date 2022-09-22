@@ -21,9 +21,10 @@ import {
   Typography,
 } from "@mui/material";
 import { DateTime } from "luxon";
-import { useCallback, useEffect } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { DB_DATE_TIME_FORMAT } from "../utils/constants";
+import { AppContext } from "../utils/context";
 import { TokensSettings } from "../utils/types";
 
 interface SettingsDialogProps {
@@ -37,6 +38,8 @@ interface SettingsDialogProps {
 function SettingsDialog(props: SettingsDialogProps) {
   const { handleClose, handleSave, open, settings } = props;
 
+  const appInfo = useContext(AppContext);
+
   // Form management
   const {
     control,
@@ -45,11 +48,7 @@ function SettingsDialog(props: SettingsDialogProps) {
     watch,
     setValue,
     formState: { errors },
-  } = useForm<TokensSettings>({
-    defaultValues: {
-      notifications_pref: true,
-    },
-  });
+  } = useForm<TokensSettings>();
   const { fields, append, move, update, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: "categories", // unique name for your Field Array
@@ -76,8 +75,8 @@ function SettingsDialog(props: SettingsDialogProps) {
     ]);
   }, [setValue]);
 
-  const initValues = useCallback(
-    (settings: TokensSettings) => {
+  useEffect(() => {
+    if (settings && open) {
       const formattedDate = DateTime.fromFormat(
         settings.use_by_date,
         DB_DATE_TIME_FORMAT
@@ -91,17 +90,11 @@ function SettingsDialog(props: SettingsDialogProps) {
       } else {
         setDefaultCategories();
       }
-    },
-    [setValue, setDefaultCategories]
-  );
-
-  useEffect(() => {
-    if (settings && open) {
-      initValues(settings);
     } else if (open) {
       setDefaultCategories();
+      setValue("notifications_pref", true);
     }
-  }, [settings, open, initValues, setDefaultCategories]);
+  }, [settings, open, setDefaultCategories, setValue]);
 
   const moveCategoryUp = (i: number) => {
     move(i, i - 1);
@@ -243,7 +236,7 @@ function SettingsDialog(props: SettingsDialogProps) {
                 <Box mr={3}>
                   <InputLabel htmlFor="email-pref">
                     <Typography fontWeight={"bold"}>
-                      Email notifications:
+                      Email notifications for {appInfo.username}:
                     </Typography>
                   </InputLabel>
                 </Box>
@@ -257,7 +250,7 @@ function SettingsDialog(props: SettingsDialogProps) {
                   {...register("notifications_pref")}
                 />
               </Box>
-              <Box mb={3}>
+              <Box mb={1}>
                 <Typography variant="body2">
                   Receive emails when students use tokens.
                 </Typography>
