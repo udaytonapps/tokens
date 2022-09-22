@@ -57,11 +57,10 @@ class InstructorCtr
                     'is_used' => count($categoryUsage) > 0,
                 );
             }
-            $option = self::$DAO->getNotificationOption(self::$user->id, $config['configuration_id']);
+            $option = true;
+            $existingOptions = self::$DAO->getNotificationOption(self::$user->id, $config['configuration_id']);
             if (isset($existingOptions['option_id'])) {
-                $option = $option['notifications_pref'];
-            } else {
-                $option = false;
+                $option = $existingOptions['notifications_pref'];
             }
             return array(
                 'configuration_id' => $config['configuration_id'],
