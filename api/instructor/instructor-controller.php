@@ -58,11 +58,16 @@ class InstructorCtr
                 );
             }
             $option = self::$DAO->getNotificationOption(self::$user->id, $config['configuration_id']);
+            if (isset($existingOptions['option_id'])) {
+                $option = $option['notifications_pref'];
+            } else {
+                $option = false;
+            }
             return array(
                 'configuration_id' => $config['configuration_id'],
                 'initial_tokens' => intval($config['initial_tokens']),
                 'use_by_date' => $config['use_by_date'],
-                'notifications_pref' => $option['notifications_pref'] ? true : false,
+                'notifications_pref' => $option,
                 'categories' => $config['categories'],
             );
         } else {
@@ -111,24 +116,6 @@ class InstructorCtr
         } else {
             self::$DAO->addNotificationOption(self::$user->id, $data['configuration_id'], $notificationsPref);
         }
-    }
-
-    static function addNotificationOption($data)
-    {
-        $config = self::$DAO->getConfiguration(self::$contextId);
-        self::$DAO->addNotificationOption(self::$user->id, $config['configuration_id'], $data['notifications_pref']);
-    }
-
-    static function updateNotificationOption($data)
-    {
-        $config = self::$DAO->getConfiguration(self::$contextId);
-        self::$DAO->updateNotificationOption(self::$user->id, $config['configuration_id'], $data['notifications_pref']);
-    }
-
-    static function getNotificationOption()
-    {
-        $config = self::$DAO->getConfiguration(self::$contextId);
-        self::$DAO->getNotificationOption(self::$user->id, $config['configuration_id']);
     }
 
     /** Get list of all requests related to the course/context */
