@@ -5,6 +5,7 @@ $DATABASE_UNINSTALL = array();
 
 /** Table names */
 $TOKENS_CONFIG_TABLE_NAME = "{$CFG->dbprefix}tokens_configuration";
+$TOKENS_INSTRUCTOR_OPTION_TABLE_NAME = "{$CFG->dbprefix}tokens_instructor_option";
 $TOKENS_CATEGORY_TABLE_NAME = "{$CFG->dbprefix}tokens_category";
 $TOKENS_REQUEST_TABLE_NAME = "{$CFG->dbprefix}tokens_request";
 
@@ -29,6 +30,29 @@ $TOKENS_CONFIGURATION = "CREATE TABLE {$TOKENS_CONFIG_TABLE_NAME} (
     PRIMARY KEY(configuration_id),
 
     UNIQUE(context_id, link_id)
+
+) ENGINE = InnoDB DEFAULT CHARSET=utf8";
+
+$TOKENS_INSTRUCTOR_OPTION = "CREATE TABLE {$TOKENS_INSTRUCTOR_OPTION_TABLE_NAME} (
+
+    /* PRIMARY KEY */
+    option_id               INTEGER NOT NULL AUTO_INCREMENT,
+    
+    /* COMMON COLS */
+    user_id                 INTEGER NOT NULL, /* ID of the instructor that chose the option */
+    created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    /* TOKEN COLS */
+    configuration_id        INTEGER NOT NULL, /* FK reference to the configuration */
+    notifications_pref      BOOLEAN,
+
+    PRIMARY KEY(option_id),
+
+    CONSTRAINT `fk_option_configuration`
+        FOREIGN KEY (`configuration_id`)
+        REFERENCES `{$TOKENS_CONFIG_TABLE_NAME}` (`configuration_id`)
+        ON DELETE CASCADE
 
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8";
 
@@ -91,5 +115,6 @@ $TOKENS_REQUEST = "CREATE TABLE {$TOKENS_REQUEST_TABLE_NAME} (
 $DATABASE_INSTALL = array(
     array($TOKENS_CONFIG_TABLE_NAME, $TOKENS_CONFIGURATION),
     array($TOKENS_CATEGORY_TABLE_NAME, $TOKENS_CATEGORY),
-    array($TOKENS_REQUEST_TABLE_NAME, $TOKENS_REQUEST)
+    array($TOKENS_REQUEST_TABLE_NAME, $TOKENS_REQUEST),
+    array($TOKENS_INSTRUCTOR_OPTION_TABLE_NAME, $TOKENS_INSTRUCTOR_OPTION)
 );

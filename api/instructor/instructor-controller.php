@@ -36,6 +36,7 @@ class InstructorCtr
         foreach ($categories as $category) {
             self::$DAO->addCategory($newConfigId, $category);
         }
+        self::$DAO->addNotificationOption(self::$user->id, $newConfigId, $data['notifications_pref']);
         return $newConfigId;
     }
 
@@ -56,11 +57,16 @@ class InstructorCtr
                     'is_used' => count($categoryUsage) > 0,
                 );
             }
+            $option = true;
+            $existingOptions = self::$DAO->getNotificationOption(self::$user->id, $config['configuration_id']);
+            if (isset($existingOptions['option_id'])) {
+                $option = (bool)$existingOptions['notifications_pref'];
+            }
             return array(
                 'configuration_id' => $config['configuration_id'],
                 'initial_tokens' => intval($config['initial_tokens']),
                 'use_by_date' => $config['use_by_date'],
-                'notifications_pref' => $config['notifications_pref'] ? true : false,
+                'notifications_pref' => $option,
                 'categories' => $config['categories'],
             );
         } else {
@@ -102,6 +108,13 @@ class InstructorCtr
                 }
             }
         }
+        $notificationsPref = $data['notifications_pref'];
+        $existingOptions = self::$DAO->getNotificationOption(self::$user->id, $data['configuration_id']);
+        if (isset($existingOptions['option_id'])) {
+            self::$DAO->updateNotificationOption(self::$user->id, $data['configuration_id'], $notificationsPref);
+        } else {
+            self::$DAO->addNotificationOption(self::$user->id, $data['configuration_id'], $notificationsPref);
+        }
     }
 
     /** Get list of all requests related to the course/context */
@@ -110,11 +123,9 @@ class InstructorCtr
         $requests = self::$DAO->getCourseRequests(self::$contextId);
 
         // Check for roster
-        $hasRoster = \Tsugi\Core\LTIX::populateRoster(false);
-        if ($hasRoster) {
+        if (CommonService::$hasRoster) {
             // If there is a roster, learner list will be populated from it (such as when launched from LMS)
-            $rosterLearners = $GLOBALS['ROSTER']->data;
-            foreach ($rosterLearners as $learner) {
+            foreach (CommonService::$rosterData as $learner) {
                 foreach ($requests as $key => $request) {
                     if ($learner["role"] == 'Learner' && $learner['user_id'] == $request['user_id']) {
                         $requests[$key]['learner_name'] = $learner["person_name_family"] . ', ' . $learner["person_name_given"];
@@ -131,11 +142,9 @@ class InstructorCtr
         $calculatedUsage = self::$DAO->getKnownUsage(self::$contextId);
 
         // Check for roster
-        $hasRoster = \Tsugi\Core\LTIX::populateRoster(false);
-        if ($hasRoster) {
+        if (CommonService::$hasRoster) {
             // If there is a roster, learner list will be populated from it (such as when launched from LMS)
-            $rosterLearners = $GLOBALS['ROSTER']->data;
-            foreach ($rosterLearners as $learner) {
+            foreach (CommonService::$rosterData as $learner) {
                 foreach ($calculatedUsage as $key => $usage) {
                     if ($learner["role"] == 'Learner' && $learner['user_id'] == $usage['user_id']) {
                         $calculatedUsage[$key]['learner_name'] = $learner["person_name_family"] . ', ' . $learner["person_name_given"];
