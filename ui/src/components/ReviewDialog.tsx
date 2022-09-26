@@ -65,7 +65,7 @@ function ReviewDialog(props: ReviewDialogProps) {
         request_id: requestRow.request_id,
         status_name: actionStatus,
       };
-      if (actionStatus === "REJECTED") {
+      if ((comment?.length || 0) > 0) {
         submission.instructor_comment = comment;
       }
       handleSave(submission);
@@ -180,7 +180,7 @@ function ReviewDialog(props: ReviewDialogProps) {
                       </Typography>
                     </Box>
                   )}
-                  {requestRow.status_name === "REJECTED" && (
+                  {requestRow.instructor_comment && (
                     <Box
                       display={"flex"}
                       flexDirection={"column"}
@@ -239,33 +239,27 @@ function ReviewDialog(props: ReviewDialogProps) {
                       </RadioGroup>
                     </Box>
                   </FormControl>
-                  {actionStatus === "REJECTED" && (
-                    <Box
-                      display={"flex"}
-                      flexDirection={"column"}
-                      mt={1}
-                      mb={2}
-                    >
-                      <Box mb={2}>
-                        <FormLabel>
-                          <Typography fontWeight={"bold"}>
-                            Instructor Comment:
-                          </Typography>
-                        </FormLabel>
-                      </Box>
-                      <Box pl={2}>
-                        <TextField
-                          fullWidth
-                          required
-                          aria-label="An input for the instructor to comment on the request"
-                          multiline
-                          rows={6}
-                          value={comment}
-                          onChange={handleCommentChange}
-                        />
-                      </Box>
+                  <Box display={"flex"} flexDirection={"column"} mt={1} mb={2}>
+                    <Box mb={2}>
+                      <FormLabel>
+                        <Typography fontWeight={"bold"}>
+                          Instructor Comment
+                          {actionStatus === "REJECTED" ? " (Required)" : ""}:
+                        </Typography>
+                      </FormLabel>
                     </Box>
-                  )}
+                    <Box pl={2}>
+                      <TextField
+                        fullWidth
+                        required={actionStatus === "REJECTED"}
+                        aria-label="An input for the instructor to comment on the request"
+                        multiline
+                        rows={6}
+                        value={comment}
+                        onChange={handleCommentChange}
+                      />
+                    </Box>
+                  </Box>
                 </Box>
               )}
             </DialogContent>
