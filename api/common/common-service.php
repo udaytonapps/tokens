@@ -39,6 +39,7 @@ class CommonService
         // self::$hasRoster = true;
         // self::$rosterData = array(
         //     array("user_id" => "292832126", "person_name_given" => "Jane", "person_name_family" => "Instructor", "person_contact_email_primary" => "inst@ischool.edu", "person_name_full" => "Jane Instructor", "role" => "Instructor", "groups" => array(array("title" => "Group1"))),
+        //     array("user_id" => "121212341", "person_name_given" => "Bev", "person_name_family" => "Person", "person_contact_email_primary" => "bev@ischool.edu", "person_name_full" => "Bev Person", "role" => "Learner", "groups" => array(array("title" => "Group1"))),
         //     array("user_id" => "998928898", "person_name_given" => "Sue", "person_name_family" => "Student", "person_contact_email_primary" => "student@ischool.edu", "person_name_full" => "Sue Student", "role" => "Learner", "groups" => array(array("title" => "Group1"))),
         //     array("user_id" => "121212331", "person_name_given" => "Ed", "person_name_family" => "Student", "person_contact_email_primary" => "ed@ischool.edu", "person_name_full" => "Ed Student", "role" => "Learner", "groups" => array(array("title" => "Group1"))),
         // );
