@@ -127,7 +127,7 @@ class InstructorCtr
             // If there is a roster, learner list will be populated from it (such as when launched from LMS)
             foreach (CommonService::$rosterData as $learner) {
                 foreach ($requests as $key => $request) {
-                    if ($learner["role"] == 'Learner' && $learner['user_id'] == $request['user_key']) {
+                    if ($learner["role"] == 'Learner' && isset($usage['user_key']) && $learner['user_id'] == $request['user_key']) {
                         $requests[$key]['learner_name'] = $learner["person_name_family"] . ', ' . $learner["person_name_given"];
                     }
                 }
@@ -146,7 +146,7 @@ class InstructorCtr
             // If there is a roster, learner list will be populated from it (such as when launched from LMS)
             foreach (CommonService::$rosterData as $learner) {
                 foreach ($calculatedUsage as $key => $usage) {
-                    if ($learner["role"] == 'Learner' && $learner['user_id'] == $usage['user_key']) {
+                    if ($learner["role"] == 'Learner' && isset($usage['user_key']) && $learner['user_id'] == $usage['user_key']) {
                         $calculatedUsage[$key]['learner_name'] = $learner["person_name_family"] . ', ' . $learner["person_name_given"];
                     }
                 }
