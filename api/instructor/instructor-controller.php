@@ -127,7 +127,7 @@ class InstructorCtr
             // If there is a roster, learner list will be populated from it (such as when launched from LMS)
             foreach (CommonService::$rosterData as $learner) {
                 foreach ($requests as $key => $request) {
-                    if ($learner["role"] == 'Learner' && $learner['user_id'] == $request['user_id']) {
+                    if ($learner["role"] == 'Learner' && isset($request['user_key']) && $learner['user_id'] == $request['user_key']) {
                         $requests[$key]['learner_name'] = $learner["person_name_family"] . ', ' . $learner["person_name_given"];
                     }
                 }
@@ -146,17 +146,17 @@ class InstructorCtr
             // If there is a roster, learner list will be populated from it (such as when launched from LMS)
             foreach (CommonService::$rosterData as $learner) {
                 foreach ($calculatedUsage as $key => $usage) {
-                    if ($learner["role"] == 'Learner' && $learner['user_id'] == $usage['user_id']) {
+                    if ($learner["role"] == 'Learner' && isset($usage['user_key']) && $learner['user_id'] == $usage['user_key']) {
                         $calculatedUsage[$key]['learner_name'] = $learner["person_name_family"] . ', ' . $learner["person_name_given"];
                     }
                 }
                 if ($learner["role"] == 'Learner') {
-                    $exists = array_search($learner['user_id'], array_column($calculatedUsage, 'user_id'));
+                    $exists = array_search($learner['user_id'], array_column($calculatedUsage, 'user_key'));
                     if ($exists === false) {
                         // If learner ID is not in the list...
                         // Push the learner ID and name and tokens_used = 0 to the array
                         $calculatedRecord = array(
-                            'user_id' => $learner['user_id'],
+                            'user_id' => null,
                             'learner_name' => $learner["person_name_family"] . ', ' . $learner["person_name_given"],
                             'tokens_used' => 0
                         );
