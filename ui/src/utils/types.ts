@@ -44,6 +44,7 @@ export interface BalancesTableRow {
   tokens_used: number;
   balance?: number;
   pendingRequests?: number;
+  tokens_awarded?: number;
 }
 
 export interface RequestsTableRow {

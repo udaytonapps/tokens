@@ -192,6 +192,13 @@ function BalancesTable(props: BalancesTableProps) {
               </TableCell>
               <TableCell align="center">
                 <TableHeaderSort
+                  column={"tokens_awarded"}
+                  columnLabel={"Tokens Awarded"}
+                  {...{ order, orderBy, setOrder, setOrderBy }}
+                ></TableHeaderSort>
+              </TableCell>
+              <TableCell align="center">
+                <TableHeaderSort
                   column={"balance"}
                   columnLabel={"Balance Remaining"}
                   {...{ order, orderBy, setOrder, setOrderBy }}
@@ -200,7 +207,7 @@ function BalancesTable(props: BalancesTableProps) {
             </TableRow>
             {loading && (
               <TableRow>
-                <TableCell colSpan={5} padding={"none"}>
+                <TableCell colSpan={6} padding={"none"}>
                   <LinearProgress />
                 </TableCell>
               </TableRow>
@@ -252,6 +259,9 @@ function BalancesTable(props: BalancesTableProps) {
                   </TableCell>
                   <TableCell>{row.learner_name}</TableCell>
                   <TableCell align="center">{row.tokens_used}</TableCell>
+                  <TableCell align="center">
+                    {row.tokens_awarded || 0}
+                  </TableCell>
                   <TableCell align="center">{row.balance}</TableCell>
                 </TableRow>
               ))

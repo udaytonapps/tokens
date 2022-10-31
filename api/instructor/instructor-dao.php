@@ -137,7 +137,13 @@ class InstructorDAO
 
     public function getKnownUsage($contextId)
     {
-        $query = "SELECT u.user_id, u.user_key, u.displayname as learner_name, SUM(cat.token_cost) as tokens_used FROM {$this->p}tokens_request r
+        $query = "SELECT
+            u.user_id,
+            u.user_key,
+            u.displayname as learner_name,
+            SUM(cat.token_cost) as tokens_used,
+            (SELECT SUM(award_count) FROM {$this->p}tokens_award WHERE u.user_id = recipient_id) as tokens_awarded
+        FROM {$this->p}tokens_request r
         INNER JOIN {$this->p}tokens_configuration c
             ON c.configuration_id = r.configuration_id
         INNER JOIN {$this->p}tokens_category cat
