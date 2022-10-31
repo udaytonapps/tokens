@@ -242,6 +242,7 @@ function InstructorView() {
               rows={balanceRows}
               loading={loading}
               setTabPosition={setTabPosition}
+              triggerDataRefresh={fetchAndAssembleData}
             />
           </TabPanel>
           <TabPanel value={tabPosition} index={2}>

@@ -112,6 +112,28 @@ export const updateRequest = async (updateData: RequestUpdateData) => {
   }
 };
 
+export const addAwardTokens = async (
+  count: number,
+  comment: string,
+  recipientIds: string[]
+) => {
+  try {
+    const body = {
+      count,
+      comment,
+      recipientIds,
+    };
+    await axios.post<ApiResponse>(
+      `${config.apiUrl}/instructor/award-tokens?PHPSESSID=${config.sessionId}`,
+      body
+    );
+    return;
+  } catch (e) {
+    console.error(e);
+    return;
+  }
+};
+
 /** LEARNER */
 
 export const getLearnerSettings = async (): Promise<TokensSettings | null> => {
