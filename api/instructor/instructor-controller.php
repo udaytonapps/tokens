@@ -194,10 +194,17 @@ class InstructorCtr
 
     static function addAwardTokens($data)
     {
+        global $CONTEXT;
         $config = self::$DAO->getConfiguration(self::$contextId);
         if (isset($config['configuration_id'])) {
             foreach ($data['recipientIds'] as $userId) {
                 self::$DAO->addAwardToken($config['configuration_id'], $userId, $data['count'], $data['comment']);
+                $learner = self::$commonDAO->getUserContact($userId);
+                $tokenText = $data['count'] > 1 ? "{$data['count']} Tokens" : 'a Token';
+                $subject = "You've been granted {$tokenText} for " . $CONTEXT->title;
+                $reasonString = isset($data['comment']) ? "Instructor Comment: {$data['comment']}\n\n" : "";
+                $instructorMsg = "You have been granted {$tokenText}.\n\n{$reasonString}Course: {$CONTEXT->title}";
+                CommonService::sendEmailFromActiveUser($learner['displayname'], $learner['email'], $subject, $instructorMsg);
             }
         }
     }
