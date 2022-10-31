@@ -172,4 +172,13 @@ class InstructorDAO
         $arr = array(':requestId' => $requestId);
         return $this->PDOX->rowDie($query, $arr);
     }
+
+    public function addAwardToken($configId, $userId, $count, $comment)
+    {
+        $query = "INSERT INTO {$this->p}tokens_award (configuration_id, recipient_id, award_count, comment)
+        VALUES (:configId, :userId, :awardCount, :comment);";
+        $arr = array(':configId' => $configId, ':userId' => $userId, ':awardCount' => $count, ':comment' => $comment);
+        $this->PDOX->queryDie($query, $arr);
+        return $this->PDOX->lastInsertId();
+    }
 }

@@ -191,5 +191,15 @@ class InstructorCtr
         }
         return $res;
     }
+
+    static function addAwardTokens($data)
+    {
+        $config = self::$DAO->getConfiguration(self::$contextId);
+        if (isset($config['configuration_id'])) {
+            foreach ($data['recipientIds'] as $userId) {
+                self::$DAO->addAwardToken($config['configuration_id'], $userId, $data['count'], $data['comment']);
+            }
+        }
+    }
 }
 InstructorCtr::init();
