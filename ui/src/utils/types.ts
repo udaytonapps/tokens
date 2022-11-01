@@ -70,6 +70,16 @@ export interface RequestUpdateData {
   instructor_comment?: string;
 }
 
+export interface TokenAward {
+  award_count: number;
+  award_id: number;
+  comment: string;
+  configuration_id: number;
+  created_at: string;
+  recipient_id: number;
+  updated_at: string;
+}
+
 export interface HistoryTableRow extends RequestsTableRow {}
 
 export type GeneralTableRow = Record<any, any>;
@@ -116,4 +126,8 @@ export interface GetAllBalancesResponse extends ApiResponse {
 
 export interface GetSubmittedRequestsResponse extends ApiResponse {
   data: RequestsTableRow[];
+}
+
+export interface GetAwardsRequestsResponse extends ApiResponse {
+  data: TokenAward[];
 }
