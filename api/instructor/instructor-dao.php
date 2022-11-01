@@ -135,14 +135,14 @@ class InstructorDAO
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
-    public function getKnownUsage($contextId)
+    public function getKnownUsage($contextId, $configurationId)
     {
         $query = "SELECT
             u.user_id,
             u.user_key,
             u.displayname as learner_name,
             SUM(cat.token_cost) as tokens_used,
-            (SELECT SUM(award_count) FROM {$this->p}tokens_award WHERE u.user_id = recipient_id) as tokens_awarded
+            (SELECT SUM(award_count) FROM {$this->p}tokens_award WHERE u.user_id = recipient_id AND configuration_id = :configurationId) as tokens_awarded
         FROM {$this->p}tokens_request r
         INNER JOIN {$this->p}tokens_configuration c
             ON c.configuration_id = r.configuration_id
@@ -152,7 +152,7 @@ class InstructorDAO
             ON u.user_id = r.user_id
         WHERE c.context_id = :contextId AND r.status_name != 'REJECTED'
         GROUP BY u.user_id;";
-        $arr = array(':contextId' => $contextId);
+        $arr = array(':contextId' => $contextId, ':configurationId' => $configurationId);
         return $this->PDOX->allRowsDie($query, $arr);
     }
 

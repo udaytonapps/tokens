@@ -100,4 +100,12 @@ class LearnerDAO
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
     }
+
+    public function getTokenAwards($userId, $configurationId)
+    {
+        $query = "SELECT * FROM {$this->p}tokens_award
+        WHERE recipient_id = :userId AND configuration_id = :configurationId";
+        $arr = array(':userId' => $userId, ':configurationId' => $configurationId);
+        return $this->PDOX->allRowsDie($query, $arr);
+    }
 }

@@ -118,5 +118,14 @@ class LearnerCtr
         }
         return $res;
     }
+
+    /** Get current balance */
+    static function getTokenAwards()
+    {
+        $config = self::$DAO->getConfiguration(self::$contextId);
+        if (isset($config['configuration_id'])) {
+            return  self::$DAO->getTokenAwards(self::$user->id, $config['configuration_id']);
+        }
+    }
 }
 LearnerCtr::init();

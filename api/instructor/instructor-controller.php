@@ -139,7 +139,8 @@ class InstructorCtr
     /** Calculate the balances of all learners, whether or not there is a roster */
     static function getBalances()
     {
-        $calculatedUsage = self::$DAO->getKnownUsage(self::$contextId);
+        $config = self::$DAO->getConfiguration(self::$contextId);
+        $calculatedUsage = self::$DAO->getKnownUsage(self::$contextId, $config['configuration_id']);
 
         // Check for roster
         if (CommonService::$hasRoster) {
