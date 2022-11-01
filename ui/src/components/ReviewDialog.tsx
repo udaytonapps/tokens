@@ -74,9 +74,6 @@ function ReviewDialog(props: ReviewDialogProps) {
 
   const handleActionChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newStatus = e.target.value as RequestStatus;
-    if (newStatus === "ACCEPTED") {
-      setComment("");
-    }
     setActionStatus(newStatus);
   };
 

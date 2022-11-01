@@ -23,6 +23,12 @@ Route::add($resource . '/requests', function () {
     return Route::sendJson($res);
 }, 'get');
 
+/** Get the list of learner-generated requests */
+Route::add($resource . '/awards', function () {
+    $res = LearnerCtr::getTokenAwards();
+    return Route::sendJson($res);
+}, 'get');
+
 /** Submit a request */
 Route::add($resource . '/requests', function () {
     $data = array();

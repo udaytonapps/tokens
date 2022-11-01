@@ -139,7 +139,8 @@ class InstructorCtr
     /** Calculate the balances of all learners, whether or not there is a roster */
     static function getBalances()
     {
-        $calculatedUsage = self::$DAO->getKnownUsage(self::$contextId);
+        $config = self::$DAO->getConfiguration(self::$contextId);
+        $calculatedUsage = self::$DAO->getKnownUsage(self::$contextId, $config['configuration_id']);
 
         // Check for roster
         if (CommonService::$hasRoster) {
@@ -190,6 +191,23 @@ class InstructorCtr
             $res = array("error" => "Unable to update request");
         }
         return $res;
+    }
+
+    static function addAwardTokens($data)
+    {
+        global $CONTEXT;
+        $config = self::$DAO->getConfiguration(self::$contextId);
+        if (isset($config['configuration_id'])) {
+            foreach ($data['recipientIds'] as $userId) {
+                self::$DAO->addAwardToken($config['configuration_id'], $userId, $data['count'], $data['comment']);
+                $learner = self::$commonDAO->getUserContact($userId);
+                $tokenText = $data['count'] > 1 ? "{$data['count']} Tokens" : 'a Token';
+                $subject = "You've been granted {$tokenText} for " . $CONTEXT->title;
+                $reasonString = isset($data['comment']) ? "Instructor Comment: {$data['comment']}\n\n" : "";
+                $instructorMsg = "You have been granted {$tokenText}.\n\n{$reasonString}Course: {$CONTEXT->title}";
+                CommonService::sendEmailFromActiveUser($learner['displayname'], $learner['email'], $subject, $instructorMsg);
+            }
+        }
     }
 }
 InstructorCtr::init();
