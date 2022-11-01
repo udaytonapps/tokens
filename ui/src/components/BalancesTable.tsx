@@ -51,9 +51,9 @@ function BalancesTable(props: BalancesTableProps) {
     let allChecked = true;
     let atleastOne = false;
     rows.forEach((row) => {
-      if (selectedRef[row.user_id]) {
+      if (selectedRef[`${row.learner_name}-${row.user_id}`]) {
         atleastOne = true;
-      } else if (!selectedRef[row.user_id]) {
+      } else if (!selectedRef[`${row.learner_name}-${row.user_id}`]) {
         allChecked = false;
       }
     });
@@ -74,7 +74,9 @@ function BalancesTable(props: BalancesTableProps) {
   const handleClickCheckbox = (row: BalancesTableRow) => {
     setSelectedRef({
       ...selectedRef,
-      [row.user_id]: selectedRef[row.user_id] ? null : row,
+      [`${row.learner_name}-${row.user_id}`]: selectedRef[`${row.learner_name}-${row.user_id}`]
+        ? null
+        : row,
     });
   };
 
@@ -87,7 +89,7 @@ function BalancesTable(props: BalancesTableProps) {
       let tempRef: Record<string, BalancesTableRow> = {};
       // Select all
       rows.forEach((row) => {
-        tempRef[row.user_id] = row;
+        tempRef[`${row.learner_name}-${row.user_id}`] = row;
       });
       setSelectedRef(tempRef);
     }
@@ -105,11 +107,9 @@ function BalancesTable(props: BalancesTableProps) {
     count: number,
     comment: string
   ) => {
-    console.log("Awarding: ", count);
-    console.log("Comment: ", comment);
     // Get list of ids before reference is cleared
     const userIdList = Object.values(selectedRef).flatMap((row) =>
-      row ? row.user_id : []
+      row && row.user_id ? row.user_id : []
     );
     // Close the dialog
     setAwardTokensDialogOpen(false);
@@ -230,7 +230,7 @@ function BalancesTable(props: BalancesTableProps) {
                     <Checkbox
                       onClick={() => handleClickCheckbox(row)}
                       color="primary"
-                      checked={!!selectedRef[row.user_id]}
+                      checked={!!selectedRef[`${row.learner_name}-${row.user_id}`]}
                       inputProps={{
                         "aria-labelledby": row.learner_name,
                       }}
@@ -275,7 +275,7 @@ function BalancesTable(props: BalancesTableProps) {
         handleClose={handleCloseAwardTokensDialog}
         handleConfirm={handleSaveAwardTokensDialog}
         selectedRows={Object.values(selectedRef).flatMap((row) =>
-          row ? row : []
+          row && row.user_id ? row : []
         )}
       />
     </Box>
