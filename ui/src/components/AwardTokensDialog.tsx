@@ -141,7 +141,7 @@ export default function AwardTokensDialog(props: AwardTokensDialogProps) {
                           <TableRow>
                             <TableCell>Recipient Name</TableCell>
                             <TableCell align="center">
-                              Original Balance
+                              Current Balance
                             </TableCell>
                             <TableCell align="center">
                               Balance After Award
