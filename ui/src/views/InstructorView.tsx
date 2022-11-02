@@ -101,7 +101,9 @@ function InstructorView() {
       sortedBalances.forEach((row) => {
         row.pendingRequests = newRequestMap.get(row.user_id);
         row.balance =
-          (fetchedSettings.initial_tokens || 0) - (row.tokens_used || 0);
+          (Number(fetchedSettings.initial_tokens) || 0) +
+          (Number(row.tokens_awarded) || 0) -
+          (Number(row.tokens_used) || 0);
       });
       setBalanceRows(sortedBalances);
     } else {
@@ -242,6 +244,7 @@ function InstructorView() {
               rows={balanceRows}
               loading={loading}
               setTabPosition={setTabPosition}
+              triggerDataRefresh={fetchAndAssembleData}
             />
           </TabPanel>
           <TabPanel value={tabPosition} index={2}>

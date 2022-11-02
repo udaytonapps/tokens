@@ -5,6 +5,7 @@ import RequestDashboard from "../components/RequestDashboard";
 import ReviewDialog from "../components/ReviewDialog";
 import TabPanel from "../components/TabPanel";
 import {
+  getTokenAwards,
   getLearnerRequestHistory,
   getLearnerSettings,
 } from "../utils/api-connector";
@@ -41,6 +42,8 @@ function LearnerView() {
     setSettings(fetchedSettings);
     // Retrieve and set rows for the Requests Table
     const fetchedRequestRows = await getLearnerRequestHistory();
+    // Get award amount to calculate balance
+    const tokenAwards = await getTokenAwards();
     // Sort all by timestamp (requests and history will show newest first)
     fetchedRequestRows.sort(compareDateTime);
     setHistoryRows(fetchedRequestRows);
@@ -53,7 +56,14 @@ function LearnerView() {
           return a + b.token_cost;
         }
       }, 0);
-      setLearnerBalance(fetchedSettings.initial_tokens - tokensUsed);
+
+      const tokensAwarded = tokenAwards.reduce((a, b) => {
+        return a + b.award_count;
+      }, 0);
+
+      setLearnerBalance(
+        fetchedSettings.initial_tokens + tokensAwarded - tokensUsed
+      );
     }
     setLoading(false);
   };

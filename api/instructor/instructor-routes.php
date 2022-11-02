@@ -102,6 +102,23 @@ Route::add($resource . '/balances', restrict(function () {
     return Route::sendJson($res);
 }), 'get');
 
+/** Add a configuration for the context */
+Route::add($resource . '/award-tokens', restrict(function () {
+    // Define the expected data
+    $requiredData = array('count', 'comment', 'recipientIds');
+    $optionalData = array();
+    // Assemble from JSON to PHP associative array
+    $data = Route::assembleRouteData($requiredData, $optionalData);
+    if (!isset($data)) {
+        // Reject if required data is missing
+        return Route::sendJson(array('error' => 'Missing parameters'));
+    } else {
+        // Process the request
+        $res = InstructorCtr::addAwardTokens($data);
+        return Route::sendJson($res);
+    }
+}), 'post');
+
 /**
  * Helper Functions
  */

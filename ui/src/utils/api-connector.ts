@@ -12,6 +12,8 @@ import {
   RequestUpdateData,
   LtiAppInfo,
   TokensSettings,
+  GetAwardsRequestsResponse,
+  TokenAward,
 } from "./types";
 
 const config = EnvConfig[getEnvironment()];
@@ -112,6 +114,28 @@ export const updateRequest = async (updateData: RequestUpdateData) => {
   }
 };
 
+export const addAwardTokens = async (
+  count: number,
+  comment: string,
+  recipientIds: string[]
+) => {
+  try {
+    const body = {
+      count,
+      comment,
+      recipientIds,
+    };
+    await axios.post<ApiResponse>(
+      `${config.apiUrl}/instructor/award-tokens?PHPSESSID=${config.sessionId}`,
+      body
+    );
+    return;
+  } catch (e) {
+    console.error(e);
+    return;
+  }
+};
+
 /** LEARNER */
 
 export const getLearnerSettings = async (): Promise<TokensSettings | null> => {
@@ -157,5 +181,17 @@ export const addRequest = async (
   } catch (e) {
     console.error(e);
     return;
+  }
+};
+
+export const getTokenAwards = async (): Promise<TokenAward[]> => {
+  try {
+    const res = await axios.get<GetAwardsRequestsResponse>(
+      `${config.apiUrl}/learner/awards?PHPSESSID=${config.sessionId}`
+    );
+    return res.data.data || [];
+  } catch (e) {
+    console.error(e);
+    return [];
   }
 };

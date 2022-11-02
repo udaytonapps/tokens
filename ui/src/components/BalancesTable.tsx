@@ -1,6 +1,8 @@
 import {
   Badge,
   Box,
+  Button,
+  Checkbox,
   IconButton,
   LinearProgress,
   Paper,
@@ -18,22 +20,46 @@ import { BalancesTableRow, SortOrder } from "../utils/types";
 import Filter from "./Filter";
 import { getComparator, stableSort } from "../utils/helpers";
 import TableHeaderSort from "./TableHeaderSort";
+import TokenGraphic from "./TokenGraphic";
+import AwardTokensDialog from "./AwardTokensDialog";
+import { addAwardTokens } from "../utils/api-connector";
 
 interface BalancesTableProps {
   rows: BalancesTableRow[];
   loading: boolean;
   setTabPosition: Dispatch<SetStateAction<number>>;
+  triggerDataRefresh: () => Promise<void>;
 }
 
 /** Shows the balances of all available students */
 function BalancesTable(props: BalancesTableProps) {
-  const { rows, loading, setTabPosition } = props;
+  const { rows, loading, setTabPosition, triggerDataRefresh } = props;
   const [filteredRows, setFilteredRows] = useState(rows);
   const [orderBy, setOrderBy] =
     useState<keyof BalancesTableRow>("pendingRequests");
   const [order, setOrder] = useState<SortOrder>(
     orderBy === "pendingRequests" ? "desc" : "asc"
   );
+  const [selectedRef, setSelectedRef] = useState<
+    Record<string, BalancesTableRow | null>
+  >({});
+  const [atLeastOneSelected, setAtLeastOneSelected] = useState(false);
+  const [allSelected, setAllSelected] = useState(false);
+  const [awardTokensDialogOpen, setAwardTokensDialogOpen] = useState(false);
+
+  useEffect(() => {
+    let allChecked = true;
+    let atleastOne = false;
+    rows.forEach((row) => {
+      if (selectedRef[`${row.learner_name}-${row.user_id}`]) {
+        atleastOne = true;
+      } else if (!selectedRef[`${row.learner_name}-${row.user_id}`]) {
+        allChecked = false;
+      }
+    });
+    setAtLeastOneSelected(atleastOne);
+    setAllSelected(allChecked);
+  }, [selectedRef]);
 
   useEffect(() => {
     setFilteredRows(rows);
@@ -45,9 +71,80 @@ function BalancesTable(props: BalancesTableProps) {
     getComparator(order, orderBy)
   );
 
+  const handleClickCheckbox = (row: BalancesTableRow) => {
+    setSelectedRef({
+      ...selectedRef,
+      [`${row.learner_name}-${row.user_id}`]: selectedRef[`${row.learner_name}-${row.user_id}`]
+        ? null
+        : row,
+    });
+  };
+
+  const handleClickAllCheckbox = () => {
+    // Only deselect them all if they were all selected
+    if (allSelected) {
+      // Deselect all
+      setSelectedRef({});
+    } else {
+      let tempRef: Record<string, BalancesTableRow> = {};
+      // Select all
+      rows.forEach((row) => {
+        tempRef[`${row.learner_name}-${row.user_id}`] = row;
+      });
+      setSelectedRef(tempRef);
+    }
+  };
+
+  const handleCloseAwardTokensDialog = (event?: object, reason?: string) => {
+    const reasonsToStayOpen = ["backdropClick", "escapeKeyDown"];
+    if (reason && reasonsToStayOpen.includes(reason)) {
+      return;
+    }
+    setAwardTokensDialogOpen(false);
+  };
+
+  const handleSaveAwardTokensDialog = async (
+    count: number,
+    comment: string
+  ) => {
+    // Get list of ids before reference is cleared
+    const userIdList = Object.values(selectedRef).flatMap((row) =>
+      row && row.user_id ? row.user_id : []
+    );
+    // Close the dialog
+    setAwardTokensDialogOpen(false);
+    // Clear out any selections
+    setSelectedRef({});
+    // Send the update
+    await addAwardTokens(count, comment, userIdList);
+    // Refresh the data in the UI
+    await triggerDataRefresh();
+  };
+
   return (
     <Box>
-      <Box mb={1}>
+      <Box mb={1} display={"flex"} justifyContent={"end"} gap={1}>
+        <Button
+          disabled={!atLeastOneSelected}
+          variant="outlined"
+          onClick={() => setAwardTokensDialogOpen(true)}
+        >
+          <Box
+            display={"flex"}
+            justifyContent={"space-between"}
+            width={"100%"}
+            alignItems={"center"}
+          >
+            Award Tokens
+            <Box ml={1}>
+              <TokenGraphic
+                count={1}
+                size="small"
+                disabled={!atLeastOneSelected}
+              />
+            </Box>
+          </Box>
+        </Button>
         <Filter
           buttonLabel="Filters"
           rows={rows}
@@ -59,6 +156,19 @@ function BalancesTable(props: BalancesTableProps) {
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
+              <TableCell padding="checkbox">
+                {rows.length > 0 && (
+                  <Checkbox
+                    color="primary"
+                    indeterminate={atLeastOneSelected && !allSelected}
+                    checked={allSelected}
+                    onChange={() => handleClickAllCheckbox()}
+                    inputProps={{
+                      "aria-label": "select all desserts",
+                    }}
+                  />
+                )}
+              </TableCell>
               <TableCell align="center" width={190}>
                 <TableHeaderSort
                   column={"pendingRequests"}
@@ -82,6 +192,13 @@ function BalancesTable(props: BalancesTableProps) {
               </TableCell>
               <TableCell align="center">
                 <TableHeaderSort
+                  column={"tokens_awarded"}
+                  columnLabel={"Tokens Awarded"}
+                  {...{ order, orderBy, setOrder, setOrderBy }}
+                ></TableHeaderSort>
+              </TableCell>
+              <TableCell align="center">
+                <TableHeaderSort
                   column={"balance"}
                   columnLabel={"Balance Remaining"}
                   {...{ order, orderBy, setOrder, setOrderBy }}
@@ -90,7 +207,7 @@ function BalancesTable(props: BalancesTableProps) {
             </TableRow>
             {loading && (
               <TableRow>
-                <TableCell colSpan={4} padding={"none"}>
+                <TableCell colSpan={6} padding={"none"}>
                   <LinearProgress />
                 </TableCell>
               </TableRow>
@@ -109,6 +226,16 @@ function BalancesTable(props: BalancesTableProps) {
                   key={`${index}-${row.user_id}`}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      onClick={() => handleClickCheckbox(row)}
+                      color="primary"
+                      checked={!!selectedRef[`${row.learner_name}-${row.user_id}`]}
+                      inputProps={{
+                        "aria-labelledby": row.learner_name,
+                      }}
+                    />
+                  </TableCell>
                   <TableCell align="center">
                     <Box
                       display={"flex"}
@@ -132,6 +259,9 @@ function BalancesTable(props: BalancesTableProps) {
                   </TableCell>
                   <TableCell>{row.learner_name}</TableCell>
                   <TableCell align="center">{row.tokens_used}</TableCell>
+                  <TableCell align="center">
+                    {row.tokens_awarded || 0}
+                  </TableCell>
                   <TableCell align="center">{row.balance}</TableCell>
                 </TableRow>
               ))
@@ -139,6 +269,15 @@ function BalancesTable(props: BalancesTableProps) {
           </TableBody>
         </Table>
       </TableContainer>
+      {/* DIALOGS */}
+      <AwardTokensDialog
+        open={awardTokensDialogOpen}
+        handleClose={handleCloseAwardTokensDialog}
+        handleConfirm={handleSaveAwardTokensDialog}
+        selectedRows={Object.values(selectedRef).flatMap((row) =>
+          row && row.user_id ? row : []
+        )}
+      />
     </Box>
   );
 }
