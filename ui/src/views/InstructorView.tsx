@@ -19,7 +19,9 @@ import {
   addSettings,
   getAllBalances,
   getInstructorSettings,
+  getRoster,
   getSubmittedRequests,
+  getTsugiUsers,
   updateRequest,
   updateSettings,
 } from "../utils/api-connector";
@@ -66,6 +68,8 @@ function InstructorView() {
    *  since the balances table needs to know about pending requests
    */
   const fetchAndAssembleData = async () => {
+    getRoster().then((roster) => console.debug("Roster: ", roster));
+    getTsugiUsers().then((users) => console.debug("Tsugi Users: ", users));
     setLoading(true);
     // Retrieve and set Tokens Settings
     const fetchedSettings = await getInstructorSettings();
