@@ -157,6 +157,13 @@ class InstructorDAO
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
+    public function getAwardCountByEmail($configurationId, $email)
+    {
+        $query = "SELECT SUM(award_count) as total FROM {$this->p}tokens_award WHERE recipient_id = :email AND configuration_id = :configurationId;";
+        $arr = array(':email' => $email, ':configurationId' => $configurationId);
+        return $this->PDOX->rowDie($query, $arr);
+    }
+
     public function updateRequest($contextId, $requestId, $newStatus, $instructorId, $instructorComment)
     {
         $commentAssignment = isset($instructorComment) ? "r.instructor_comment = :instructorComment," : "";
