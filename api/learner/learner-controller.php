@@ -72,7 +72,7 @@ class LearnerCtr
         $expiration = new \DateTime($config['use_by_date']);
 
         if ($expiration > $now) {
-            $res = self::$DAO->addRequest(self::$contextId, self::$user->id, $config['configuration_id'], $data['category_id'], $data['learner_comment']);
+            $res = self::$DAO->addRequest(self::$contextId, self::$user->id, self::$user->email, $config['configuration_id'], $data['category_id'], $data['learner_comment']);
             if ($res == 0) {
                 // Request row wasn't created
                 http_response_code(500);
@@ -124,7 +124,7 @@ class LearnerCtr
     {
         $config = self::$DAO->getConfiguration(self::$contextId);
         if (isset($config['configuration_id'])) {
-            return  self::$DAO->getTokenAwards(self::$user->id, $config['configuration_id']);
+            return  self::$DAO->getTokenAwards(self::$user->email, $config['configuration_id']);
         }
     }
 }

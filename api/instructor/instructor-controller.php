@@ -147,7 +147,7 @@ class InstructorCtr
             // If there is a roster, learner list will be populated from it (such as when launched from LMS)
             foreach (CommonService::$rosterData as $learner) {
                 foreach ($calculatedUsage as $key => $usage) {
-                    if ($learner["role"] == 'Learner' && isset($usage['user_key']) && $learner['user_id'] == $usage['user_key']) {
+                    if ($learner["role"] == 'Learner' && isset($usage['email']) && $learner['person_contact_email_primary'] == $usage['email']) {
                         $calculatedUsage[$key]['learner_name'] = $learner["person_name_family"] . ', ' . $learner["person_name_given"];
                     }
                 }
@@ -158,6 +158,7 @@ class InstructorCtr
                         // Push the learner ID and name and tokens_used = 0 to the array
                         $calculatedRecord = array(
                             'user_id' => null,
+                            'email' => $learner['person_contact_email_primary'],
                             'learner_name' => $learner["person_name_family"] . ', ' . $learner["person_name_given"],
                             'tokens_used' => 0
                         );
@@ -198,14 +199,13 @@ class InstructorCtr
         global $CONTEXT;
         $config = self::$DAO->getConfiguration(self::$contextId);
         if (isset($config['configuration_id'])) {
-            foreach ($data['recipientIds'] as $userId) {
-                self::$DAO->addAwardToken($config['configuration_id'], $userId, $data['count'], $data['comment']);
-                $learner = self::$commonDAO->getUserContact($userId);
+            foreach ($data['recipientIds'] as $email) {
+                self::$DAO->addAwardToken($config['configuration_id'], $email, $data['count'], $data['comment']);
                 $tokenText = $data['count'] > 1 ? "{$data['count']} Tokens" : 'a Token';
                 $subject = "You've been granted {$tokenText} for " . $CONTEXT->title;
                 $reasonString = isset($data['comment']) ? "Instructor Comment: {$data['comment']}\n\n" : "";
                 $instructorMsg = "You have been granted {$tokenText}.\n\n{$reasonString}Course: {$CONTEXT->title}";
-                CommonService::sendEmailFromActiveUser($learner['displayname'], $learner['email'], $subject, $instructorMsg);
+                CommonService::sendEmailFromActiveUser('', $email, $subject, $instructorMsg);
             }
         }
     }

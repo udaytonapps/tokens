@@ -144,3 +144,16 @@ $DATABASE_INSTALL = array(
     array($TOKENS_INSTRUCTOR_OPTION_TABLE_NAME, $TOKENS_INSTRUCTOR_OPTION),
     array($TOKENS_AWARD_TABLE_NAME, $TOKENS_AWARD),
 );
+
+$DATABASE_UPGRADE = function ($oldversion) {
+    global $PDOX, $TOKENS_AWARD_TABLE_NAME;
+    // Add updated_at column
+    if ($PDOX->columnExists('recipient_id', "{$TOKENS_AWARD_TABLE_NAME}")) {
+        $sql = "ALTER TABLE {$TOKENS_AWARD_TABLE_NAME} MODIFY COLUMN recipient_id TEXT";
+        echo ("Upgrading: " . $sql . "<br/>\n");
+        error_log("Upgrading: " . $sql);
+        $q = $PDOX->queryDie($sql);
+    }
+
+    return '202211031707';
+};
