@@ -22,6 +22,16 @@ Route::add('/info', function () {
     return Route::sendJson($res);
 }, 'get');
 
+Route::add('/roster', function () {
+    $res = CommonService::roster();
+    return Route::sendJson($res);
+}, 'get');
+
+Route::add('/tsugi-users', function () {
+    $res = CommonCtr::getTsugiUsers();
+    return Route::sendJson($res);
+}, 'get');
+
 /**
  * Helper Functions
  */
