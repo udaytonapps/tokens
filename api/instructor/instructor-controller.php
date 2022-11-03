@@ -152,14 +152,16 @@ class InstructorCtr
                     }
                 }
                 if ($learner["role"] == 'Learner') {
-                    $exists = array_search($learner['user_id'], array_column($calculatedUsage, 'user_key'));
+                    $exists = array_search($learner['person_contact_email_primary'], array_column($calculatedUsage, 'email'));
                     if ($exists === false) {
                         // If learner ID is not in the list...
                         // Push the learner ID and name and tokens_used = 0 to the array
+                        $awardCount = self::$DAO->getAwardCountByEmail($config['configuration_id'], $learner['person_contact_email_primary']);
                         $calculatedRecord = array(
                             'user_id' => null,
                             'email' => $learner['person_contact_email_primary'],
                             'learner_name' => $learner["person_name_family"] . ', ' . $learner["person_name_given"],
+                            'tokens_awarded' => $awardCount['total'],
                             'tokens_used' => 0
                         );
                         array_push($calculatedUsage, $calculatedRecord);
