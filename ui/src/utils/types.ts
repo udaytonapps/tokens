@@ -40,6 +40,7 @@ export interface TokensCategory {
 
 export interface BalancesTableRow {
   user_id: string;
+  email: string;
   learner_name: string;
   tokens_used: number;
   balance?: number;
@@ -76,7 +77,7 @@ export interface TokenAward {
   comment: string;
   configuration_id: number;
   created_at: string;
-  recipient_id: number;
+  recipient_id: string;
   updated_at: string;
 }
 

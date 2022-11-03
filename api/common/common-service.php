@@ -112,7 +112,12 @@ class CommonService
     static function sendEmailFromActiveUser($recipientName, $recipientEmail, $subject, $body)
     {
         global $USER;
-        $msg = "Hi " . $recipientName . ",\n\n" . $body . "\n\nHave a great day!";
+        if (isset($recipientName) && strlen($recipientName) > 0) {
+            $salutation = "Hi " . $recipientName . ",\n\n";
+        } else {
+            $salutation = "Hi,\n\n";
+        }
+        $msg = $salutation . $body . "\n\nHave a great day!";
 
         // use wordwrap() if lines are longer than 120 characters
         $msg = wordwrap($msg, 120);
