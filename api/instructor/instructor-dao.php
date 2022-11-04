@@ -135,6 +135,18 @@ class InstructorDAO
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
+    public function getAwardCounts($configurationId)
+    {
+        $query = "SELECT
+            recipient_id,
+            SUM(award_count) as tokens_awarded
+        FROM {$this->p}tokens_award
+        WHERE configuration_id = :configurationId
+        GROUP BY recipient_id;";
+        $arr = array(':configurationId' => $configurationId);
+        return $this->PDOX->allRowsDie($query, $arr);
+    }
+
     public function getKnownUsage($contextId, $configurationId)
     {
         $query = "SELECT
