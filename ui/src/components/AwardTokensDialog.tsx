@@ -150,7 +150,7 @@ export default function AwardTokensDialog(props: AwardTokensDialogProps) {
                         </TableHead>
                         <TableBody>
                           {sortedRows.map((row, index) => (
-                            <TableRow key={`recipient-${index}-${row.user_id}`}>
+                            <TableRow key={`recipient-${index}-${row.recipient_key}`}>
                               <TableCell>{row.learner_name}</TableCell>
                               <TableCell align="center">
                                 {row.balance || 0}
