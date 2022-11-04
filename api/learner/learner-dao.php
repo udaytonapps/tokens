@@ -66,11 +66,11 @@ class LearnerDAO
     }
 
     /** Attempts to add a new request, first checking that the request type isn't more expensive than the sum of tokens already used */
-    public function addRequest($contextId, $learnerId, $configId, $categoryId, $learnerComment)
+    public function addRequest($contextId, $learnerId, $recipient_id, $configId, $categoryId, $learnerComment)
     {
         /**
          * SELECT 1 -> Selects from dual (in memory table as a placeholder to allow the WHERE condition below)
-         * SELECT 2 -> Retrieves the configuration_id for the context
+         * SELECT 2 -> Retrieves the count of awards received
          * SELECT 3 -> Determine the amount of initial tokens for the configuration
          * SELECT 4 -> Determine the amount of tokens already in use (request exists that isn't REJECTED)
          * SELECT 5 -> Determine the token cost of the existing request
@@ -88,7 +88,7 @@ class LearnerDAO
         WHERE
             (SELECT initial_tokens from {$this->p}tokens_configuration WHERE context_id = :contextId)
             +
-            (SELECT SUM(award_count) FROM {$this->p}tokens_award WHERE recipient_id = :learnerId AND configuration_id = :configurationId)
+            (SELECT SUM(award_count) FROM {$this->p}tokens_award WHERE recipient_id = :recipient_id AND configuration_id = :configurationId)
             -
             (SELECT COALESCE(SUM(c.token_cost), 0) FROM {$this->p}tokens_category c
                 INNER JOIN {$this->p}tokens_request r
@@ -98,7 +98,7 @@ class LearnerDAO
                 WHERE r.user_id = :learnerId AND con.context_id = :contextId AND r.status_name <> 'REJECTED')
             >=
             (SELECT token_cost from {$this->p}tokens_category WHERE category_id = :categoryId LIMIT 1);";
-        $arr = array(':learnerId' => $learnerId, ':contextId' => $contextId, ':categoryId' => $categoryId, ':learnerComment' => $learnerComment, ':configurationId' => $configId);
+        $arr = array(':learnerId' => $learnerId, ':recipient_id' => $recipient_id, ':contextId' => $contextId, ':categoryId' => $categoryId, ':learnerComment' => $learnerComment, ':configurationId' => $configId);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
     }

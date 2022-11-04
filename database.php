@@ -123,7 +123,7 @@ $TOKENS_AWARD = "CREATE TABLE {$TOKENS_AWARD_TABLE_NAME} (
     
     /* TOKEN COLS */
     configuration_id        INTEGER NOT NULL, /* FK reference to the configuration */
-    recipient_id            INTEGER NOT NULL, /* Id of the recipient */
+    recipient_id            VARCHAR(255) NOT NULL, /* Id of the recipient */
     comment                 TEXT NOT NULL,
     award_count             INTEGER NOT NULL,
 
@@ -144,3 +144,16 @@ $DATABASE_INSTALL = array(
     array($TOKENS_INSTRUCTOR_OPTION_TABLE_NAME, $TOKENS_INSTRUCTOR_OPTION),
     array($TOKENS_AWARD_TABLE_NAME, $TOKENS_AWARD),
 );
+
+$DATABASE_UPGRADE = function ($oldversion) {
+    global $PDOX, $TOKENS_AWARD_TABLE_NAME;
+    // Add updated_at column
+    if ($PDOX->columnExists('recipient_id', "{$TOKENS_AWARD_TABLE_NAME}")) {
+        $sql = "ALTER TABLE {$TOKENS_AWARD_TABLE_NAME} MODIFY COLUMN recipient_id VARCHAR(255) NOT NULL";
+        echo ("Upgrading: " . $sql . "<br/>\n");
+        error_log("Upgrading: " . $sql);
+        $q = $PDOX->queryDie($sql);
+    }
+
+    return '202211031707';
+};

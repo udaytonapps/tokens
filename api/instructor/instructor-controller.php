@@ -141,32 +141,42 @@ class InstructorCtr
     {
         $config = self::$DAO->getConfiguration(self::$contextId);
         $calculatedUsage = self::$DAO->getKnownUsage(self::$contextId, $config['configuration_id']);
+        $recipientAwardCounts = self::$DAO->getAwardCounts($config['configuration_id']);
+
+        // For assembling results
+        $res = array();
 
         // Check for roster
         if (CommonService::$hasRoster) {
             // If there is a roster, learner list will be populated from it (such as when launched from LMS)
             foreach (CommonService::$rosterData as $learner) {
-                foreach ($calculatedUsage as $key => $usage) {
-                    if ($learner["role"] == 'Learner' && isset($usage['user_key']) && $learner['user_id'] == $usage['user_key']) {
-                        $calculatedUsage[$key]['learner_name'] = $learner["person_name_family"] . ', ' . $learner["person_name_given"];
-                    }
-                }
                 if ($learner["role"] == 'Learner') {
-                    $exists = array_search($learner['user_id'], array_column($calculatedUsage, 'user_key'));
-                    if ($exists === false) {
-                        // If learner ID is not in the list...
-                        // Push the learner ID and name and tokens_used = 0 to the array
-                        $calculatedRecord = array(
-                            'user_id' => null,
-                            'learner_name' => $learner["person_name_family"] . ', ' . $learner["person_name_given"],
-                            'tokens_used' => 0
-                        );
-                        array_push($calculatedUsage, $calculatedRecord);
-                    }
+                    $learnerName = $learner["person_name_family"] . ', ' . $learner["person_name_given"];
+                    // If roster exists, recipient_id is roster person_sourcedid
+                    $awardInfoKey = array_search($learner['person_sourcedid'], array_column($recipientAwardCounts, 'recipient_id'));
+                    // Check for balance info for the roster user
+                    $balanceInfoKey = array_search($learner['user_id'], array_column($calculatedUsage, 'user_key'));
+                    $recipientKey = $learner['person_sourcedid'];
+
+                    $learnerBalanceData = self::assembleBalanceInfo($recipientKey, $learnerName, $recipientAwardCounts, $awardInfoKey, $calculatedUsage, $balanceInfoKey);
+                    array_push($res, $learnerBalanceData);
                 }
             }
+        } else {
+            // No roster, just use the Tsugi db info, don't need to compare to the roster
+            foreach ($calculatedUsage as $usageInfo) {
+                $learnerName = $usageInfo['learner_name'];
+                // If no roster, recipient_id is user_id since Tsugi users will be known
+                $awardInfoKey = array_search($usageInfo['user_id'], array_column($recipientAwardCounts, 'recipient_id'));
+                // Check for balance info for the roster user
+                $balanceInfoKey = array_search($usageInfo['user_id'], array_column($calculatedUsage, 'user_id'));
+                $recipientKey = $usageInfo['user_id'];
+
+                $learnerBalanceData = self::assembleBalanceInfo($recipientKey, $learnerName, $recipientAwardCounts, $awardInfoKey, $calculatedUsage, $balanceInfoKey);
+                array_push($res, $learnerBalanceData);
+            }
         }
-        return $calculatedUsage;
+        return $res;
     }
 
     static function updateRequest($data)
@@ -198,16 +208,70 @@ class InstructorCtr
         global $CONTEXT;
         $config = self::$DAO->getConfiguration(self::$contextId);
         if (isset($config['configuration_id'])) {
-            foreach ($data['recipientIds'] as $userId) {
-                self::$DAO->addAwardToken($config['configuration_id'], $userId, $data['count'], $data['comment']);
-                $learner = self::$commonDAO->getUserContact($userId);
-                $tokenText = $data['count'] > 1 ? "{$data['count']} Tokens" : 'a Token';
-                $subject = "You've been granted {$tokenText} for " . $CONTEXT->title;
-                $reasonString = isset($data['comment']) ? "Instructor Comment: {$data['comment']}\n\n" : "";
-                $instructorMsg = "You have been granted {$tokenText}.\n\n{$reasonString}Course: {$CONTEXT->title}";
-                CommonService::sendEmailFromActiveUser($learner['displayname'], $learner['email'], $subject, $instructorMsg);
+
+            if (CommonService::$hasRoster) {
+                // If roster, recipient id (for checking award count) is roster['person_sourcedid']
+                // Checking roster against email for now - should be ok if email changes, as long as it changes in both places
+                // $res = self::$DAO->addRequest(self::$contextId, self::$user->id, $sourceId, $config['configuration_id'], $data['category_id'], $data['learner_comment']);
+                foreach ($data['recipientIds'] as $rosterKey) {
+                    self::$DAO->addAwardToken($config['configuration_id'], $rosterKey, $data['count'], $data['comment']);
+                    // Get user contact info
+                    $rosterPersonKey = array_search($rosterKey, array_column(CommonService::$rosterData, 'person_sourcedid'));
+                    $rosterName = CommonService::$rosterData[$rosterPersonKey]['person_name_full'];
+                    $rosterEmail = CommonService::$rosterData[$rosterPersonKey]['person_contact_email_primary'];
+                    // Prepare email
+                    $tokenText = $data['count'] > 1 ? "{$data['count']} Tokens" : 'a Token';
+                    $subject = "You've been granted {$tokenText} for " . $CONTEXT->title;
+                    $reasonString = isset($data['comment']) ? "Instructor Comment: {$data['comment']}\n\n" : "";
+                    $instructorMsg = "You have been granted {$tokenText}.\n\n{$reasonString}Course: {$CONTEXT->title}";
+                    CommonService::sendEmailFromActiveUser($rosterName, $rosterEmail, $subject, $instructorMsg);
+                }
+            } else {
+                // If no roster, userId is recipientId for Token awards
+                foreach ($data['recipientIds'] as $userId) {
+                    self::$DAO->addAwardToken($config['configuration_id'], $userId, $data['count'], $data['comment']);
+
+                    // Get user contact info
+                    $userInfo = self::$commonDAO->getUserContact($userId);
+                    // Prepare email
+                    $tokenText = $data['count'] > 1 ? "{$data['count']} Tokens" : 'a Token';
+                    $subject = "You've been granted {$tokenText} for " . $CONTEXT->title;
+                    $reasonString = isset($data['comment']) ? "Instructor Comment: {$data['comment']}\n\n" : "";
+                    $instructorMsg = "You have been granted {$tokenText}.\n\n{$reasonString}Course: {$CONTEXT->title}";
+                    CommonService::sendEmailFromActiveUser($userInfo['displayname'], $userInfo['email'], $subject, $instructorMsg);
+                }
             }
         }
+    }
+
+    private static function assembleBalanceInfo($recipientKey, $learnerName, $awardInfo, $awardInfoKey, $balanceInfo, $balanceInfoKey)
+    {
+        $user_id = null;
+        // In either case, assign or default the values
+        if ($awardInfoKey === false || !isset($awardInfo[$awardInfoKey]['tokens_awarded'])) {
+            // No matching award info retrieved for this roster user
+            $awardCount = 0;
+        } else {
+            // Otherwise, assign count based on results
+            $awardCount = $awardInfo[$awardInfoKey]['tokens_awarded'];
+        }
+        if ($balanceInfoKey === false || !isset($balanceInfo[$balanceInfoKey]['tokens_used'])) {
+            // No matching award info retrieved for this roster user
+            $tokens_used = 0;
+        } else {
+            // Otherwise, assign count based on results
+            $tokens_used = $balanceInfo[$balanceInfoKey]['tokens_used'];
+            if (isset($balanceInfo[$balanceInfoKey]['user_id'])) {
+                $user_id = $balanceInfo[$balanceInfoKey]['user_id'];
+            }
+        }
+        return array(
+            'recipient_key' => $recipientKey,
+            'learner_name' => $learnerName,
+            'tokens_awarded' => $awardCount,
+            'tokens_used' => $tokens_used,
+            'user_id' => $user_id
+        );
     }
 }
 InstructorCtr::init();

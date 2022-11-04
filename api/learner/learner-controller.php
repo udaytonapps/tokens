@@ -72,7 +72,20 @@ class LearnerCtr
         $expiration = new \DateTime($config['use_by_date']);
 
         if ($expiration > $now) {
-            $res = self::$DAO->addRequest(self::$contextId, self::$user->id, $config['configuration_id'], $data['category_id'], $data['learner_comment']);
+            if (CommonService::$hasRoster) {
+                // If roster, recipient id (for checking award count) is roster['person_sourcedid']
+                // Checking roster against email for now - should be ok if email changes, as long as it changes in both places
+                $rosterPersonKey = array_search(self::$user->email, array_column(CommonService::$rosterData, 'person_contact_email_primary'));
+                if ($rosterPersonKey === false) {
+                    $res = 0;
+                } else {
+                    $sourceId = CommonService::$rosterData[$rosterPersonKey]['person_sourcedid'];
+                    $res = self::$DAO->addRequest(self::$contextId, self::$user->id, $sourceId, $config['configuration_id'], $data['category_id'], $data['learner_comment']);
+                }
+            } else {
+                // If no roster, userId is recipientId for Token awards
+                $res = self::$DAO->addRequest(self::$contextId, self::$user->id, self::$user->id, $config['configuration_id'], $data['category_id'], $data['learner_comment']);
+            }
             if ($res == 0) {
                 // Request row wasn't created
                 http_response_code(500);
@@ -124,7 +137,16 @@ class LearnerCtr
     {
         $config = self::$DAO->getConfiguration(self::$contextId);
         if (isset($config['configuration_id'])) {
-            return  self::$DAO->getTokenAwards(self::$user->id, $config['configuration_id']);
+            if (CommonService::$hasRoster) {
+                // If roster, recipient id (for checking award count) is roster['person_sourcedid']
+                // Checking roster against email for now - should be ok if email changes, as long as it changes in both places
+                $rosterPersonKey = array_search(self::$user->email, array_column(CommonService::$rosterData, 'person_contact_email_primary'));
+                $sourceId = CommonService::$rosterData[$rosterPersonKey]['person_sourcedid'];
+                return  self::$DAO->getTokenAwards($sourceId, $config['configuration_id']);
+            } else {
+                // If no roster, userId is recipientId for Token awards
+                return  self::$DAO->getTokenAwards(self::$user->id, $config['configuration_id']);
+            }
         }
     }
 }

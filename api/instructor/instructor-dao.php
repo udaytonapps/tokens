@@ -135,14 +135,27 @@ class InstructorDAO
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
+    public function getAwardCounts($configurationId)
+    {
+        $query = "SELECT
+            recipient_id,
+            SUM(award_count) as tokens_awarded
+        FROM {$this->p}tokens_award
+        WHERE configuration_id = :configurationId
+        GROUP BY recipient_id;";
+        $arr = array(':configurationId' => $configurationId);
+        return $this->PDOX->allRowsDie($query, $arr);
+    }
+
     public function getKnownUsage($contextId, $configurationId)
     {
         $query = "SELECT
             u.user_id,
             u.user_key,
+            u.email,
             u.displayname as learner_name,
             SUM(cat.token_cost) as tokens_used,
-            (SELECT SUM(award_count) FROM {$this->p}tokens_award WHERE u.user_id = recipient_id AND configuration_id = :configurationId) as tokens_awarded
+            (SELECT SUM(award_count) FROM {$this->p}tokens_award WHERE u.email = recipient_id AND configuration_id = :configurationId) as tokens_awarded
         FROM {$this->p}tokens_request r
         INNER JOIN {$this->p}tokens_configuration c
             ON c.configuration_id = r.configuration_id
@@ -154,6 +167,13 @@ class InstructorDAO
         GROUP BY u.user_id;";
         $arr = array(':contextId' => $contextId, ':configurationId' => $configurationId);
         return $this->PDOX->allRowsDie($query, $arr);
+    }
+
+    public function getAwardCountByEmail($configurationId, $email)
+    {
+        $query = "SELECT SUM(award_count) as total FROM {$this->p}tokens_award WHERE recipient_id = :email AND configuration_id = :configurationId;";
+        $arr = array(':email' => $email, ':configurationId' => $configurationId);
+        return $this->PDOX->rowDie($query, $arr);
     }
 
     public function updateRequest($contextId, $requestId, $newStatus, $instructorId, $instructorComment)

@@ -26,6 +26,16 @@ class CommonDAO
         return $this->PDOX->rowDie($query, $arr);
     }
 
+    public function getContextUsers($contextId)
+    {
+        $query = "SELECT lu.user_id, lu.user_key, lu.displayname, lu.email, lm.role FROM {$this->p}lti_user lu
+        INNER JOIN {$this->p}lti_membership lm
+        ON lm.user_id = lu.user_id
+        WHERE lm.context_id = :contextId;";
+        $arr = array(':contextId' => $contextId);
+        return $this->PDOX->allRowsDie($query, $arr);
+    }
+
     public function getUserContactByRosterId($userId)
     {
         $query = "SELECT user_id, displayname, email FROM {$this->p}lti_user WHERE user_key = :userId;";
