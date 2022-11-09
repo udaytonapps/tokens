@@ -268,8 +268,8 @@ class InstructorCtr
         return array(
             'recipient_key' => $recipientKey,
             'learner_name' => $learnerName,
-            'tokens_awarded' => $awardCount,
-            'tokens_used' => $tokens_used,
+            'tokens_awarded' => (int)$awardCount,
+            'tokens_used' => (int)$tokens_used,
             'user_id' => $user_id
         );
     }
