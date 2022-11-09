@@ -142,7 +142,11 @@ class LearnerCtr
                 // Checking roster against email for now - should be ok if email changes, as long as it changes in both places
                 $rosterPersonKey = array_search(self::$user->email, array_column(CommonService::$rosterData, 'person_contact_email_primary'));
                 $sourceId = CommonService::$rosterData[$rosterPersonKey]['person_sourcedid'];
-                return  self::$DAO->getTokenAwards($sourceId, $config['configuration_id']);
+                $awards = self::$DAO->getTokenAwards($sourceId, $config['configuration_id']);
+                foreach ($awards as &$award) {
+                    $award['award_count'] = (int)$award['award_count'];
+                }
+                return $awards;
             } else {
                 // If no roster, userId is recipientId for Token awards
                 return  self::$DAO->getTokenAwards(self::$user->id, $config['configuration_id']);
