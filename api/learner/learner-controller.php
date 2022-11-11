@@ -70,7 +70,7 @@ class LearnerCtr
         $now = new \DateTime('now', new \DateTimeZone($CFG->timezone));
         // If use_by_date was stored properly, it should already have been stored in the $CFG timezone
         $expiration = new \DateTime($config['use_by_date']);
-
+        $message = '';
         if ($expiration > $now) {
             if (CommonService::$hasRoster) {
                 // If roster, recipient id (for checking award count) is roster['person_sourcedid']
@@ -78,6 +78,7 @@ class LearnerCtr
                 $rosterPersonKey = array_search(self::$user->email, array_column(CommonService::$rosterData, 'person_contact_email_primary'));
                 if ($rosterPersonKey === false) {
                     $res = 0;
+                    $message = ' - Person not found on this roster when comparing Tsugi email: ' . self::$user->email . ' against roster person_contact_email_primary.';
                 } else {
                     $sourceId = CommonService::$rosterData[$rosterPersonKey]['person_sourcedid'];
                     $res = self::$DAO->addRequest(self::$contextId, self::$user->id, $sourceId, $config['configuration_id'], $data['category_id'], $data['learner_comment']);
@@ -85,11 +86,12 @@ class LearnerCtr
             } else {
                 // If no roster, userId is recipientId for Token awards
                 $res = self::$DAO->addRequest(self::$contextId, self::$user->id, self::$user->id, $config['configuration_id'], $data['category_id'], $data['learner_comment']);
+                $message = ' - This log may indicate there was an issue with the db operation: ' . $res;
             }
             if ($res == 0) {
                 // Request row wasn't created
                 http_response_code(500);
-                $res = array("error" => "Request was unable to be created");
+                $res = array("error" => "Request was unable to be created" . $message);
             } else {
                 // Send email to self confirming request
                 $category = self::$DAO->getCategory($data['category_id']);
