@@ -25,6 +25,7 @@ import AwardTokensDialog from "./AwardTokensDialog";
 import { addAwardTokens } from "../utils/api-connector";
 
 interface BalancesTableProps {
+  initialTokens: number;
   rows: BalancesTableRow[];
   loading: boolean;
   setTabPosition: Dispatch<SetStateAction<number>>;
@@ -33,7 +34,8 @@ interface BalancesTableProps {
 
 /** Shows the balances of all available students */
 function BalancesTable(props: BalancesTableProps) {
-  const { rows, loading, setTabPosition, triggerDataRefresh } = props;
+  const { initialTokens, rows, loading, setTabPosition, triggerDataRefresh } =
+    props;
   const [filteredRows, setFilteredRows] = useState(rows);
   const [orderBy, setOrderBy] =
     useState<keyof BalancesTableRow>("pendingRequests");
@@ -185,17 +187,18 @@ function BalancesTable(props: BalancesTableProps) {
                   {...{ order, orderBy, setOrder, setOrderBy }}
                 ></TableHeaderSort>
               </TableCell>
+              <TableCell align="center">Initial Tokens</TableCell>
               <TableCell align="center">
                 <TableHeaderSort
-                  column={"tokens_used"}
-                  columnLabel={"Tokens Used"}
+                  column={"tokens_awarded"}
+                  columnLabel={"Tokens Awarded"}
                   {...{ order, orderBy, setOrder, setOrderBy }}
                 ></TableHeaderSort>
               </TableCell>
               <TableCell align="center">
                 <TableHeaderSort
-                  column={"tokens_awarded"}
-                  columnLabel={"Tokens Awarded"}
+                  column={"tokens_used"}
+                  columnLabel={"Tokens Used"}
                   {...{ order, orderBy, setOrder, setOrderBy }}
                 ></TableHeaderSort>
               </TableCell>
@@ -264,10 +267,11 @@ function BalancesTable(props: BalancesTableProps) {
                     </Box>
                   </TableCell>
                   <TableCell>{row.learner_name}</TableCell>
-                  <TableCell align="center">{row.tokens_used}</TableCell>
+                  <TableCell align="center">{initialTokens}</TableCell>
                   <TableCell align="center">
                     {row.tokens_awarded || 0}
                   </TableCell>
+                  <TableCell align="center">{row.tokens_used}</TableCell>
                   <TableCell align="center">{row.balance}</TableCell>
                 </TableRow>
               ))
