@@ -245,6 +245,7 @@ function InstructorView() {
           </TabPanel>
           <TabPanel value={tabPosition} index={1}>
             <BalancesTable
+              initialTokens={settings.initial_tokens}
               rows={balanceRows}
               loading={loading}
               setTabPosition={setTabPosition}
