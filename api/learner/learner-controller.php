@@ -82,6 +82,9 @@ class LearnerCtr
                 } else {
                     $sourceId = CommonService::$rosterData[$rosterPersonKey]['person_sourcedid'];
                     $res = self::$DAO->addRequest(self::$contextId, self::$user->id, $sourceId, $config['configuration_id'], $data['category_id'], $data['learner_comment']);
+                    if ($res === 0) {
+                        $message = ' - Unable to create request using contextId: ' . self::$contextId . ', sourceId: ' . $sourceId . ', configId: ' . $config['configuration_id'] . ', categoryId: ' . $data['category_id'] . ', ' . $data['learner_comment'];
+                    }
                 }
             } else {
                 // If no roster, userId is recipientId for Token awards

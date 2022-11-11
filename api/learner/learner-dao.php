@@ -88,7 +88,7 @@ class LearnerDAO
         WHERE
             (SELECT initial_tokens from {$this->p}tokens_configuration WHERE context_id = :contextId)
             +
-            (SELECT SUM(award_count) FROM {$this->p}tokens_award WHERE recipient_id = :recipient_id AND configuration_id = :configurationId)
+            (SELECT COALESCE(SUM(award_count), 0) FROM {$this->p}tokens_award WHERE recipient_id = :recipient_id AND configuration_id = :configurationId)
             -
             (SELECT COALESCE(SUM(c.token_cost), 0) FROM {$this->p}tokens_category c
                 INNER JOIN {$this->p}tokens_request r
