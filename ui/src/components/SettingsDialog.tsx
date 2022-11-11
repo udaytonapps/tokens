@@ -156,7 +156,7 @@ function SettingsDialog(props: SettingsDialogProps) {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={handleClose} maxWidth="md">
       <Box p={2}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogTitle>Instructor Settings</DialogTitle>

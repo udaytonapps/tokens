@@ -19,7 +19,9 @@ import {
   addSettings,
   getAllBalances,
   getInstructorSettings,
+  getRoster,
   getSubmittedRequests,
+  getTsugiUsers,
   updateRequest,
   updateSettings,
 } from "../utils/api-connector";
@@ -66,6 +68,8 @@ function InstructorView() {
    *  since the balances table needs to know about pending requests
    */
   const fetchAndAssembleData = async () => {
+    getRoster().then((roster) => console.debug("Roster: ", roster));
+    getTsugiUsers().then((users) => console.debug("Tsugi Users: ", users));
     setLoading(true);
     // Retrieve and set Tokens Settings
     const fetchedSettings = await getInstructorSettings();
@@ -101,7 +105,9 @@ function InstructorView() {
       sortedBalances.forEach((row) => {
         row.pendingRequests = newRequestMap.get(row.user_id);
         row.balance =
-          (fetchedSettings.initial_tokens || 0) - (row.tokens_used || 0);
+          (Number(fetchedSettings.initial_tokens) || 0) +
+          (Number(row.tokens_awarded) || 0) -
+          (Number(row.tokens_used) || 0);
       });
       setBalanceRows(sortedBalances);
     } else {
@@ -239,9 +245,11 @@ function InstructorView() {
           </TabPanel>
           <TabPanel value={tabPosition} index={1}>
             <BalancesTable
+              initialTokens={settings.initial_tokens}
               rows={balanceRows}
               loading={loading}
               setTabPosition={setTabPosition}
+              triggerDataRefresh={fetchAndAssembleData}
             />
           </TabPanel>
           <TabPanel value={tabPosition} index={2}>

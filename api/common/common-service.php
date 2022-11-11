@@ -38,10 +38,11 @@ class CommonService
         // For mocking the instructor emails from the roster...
         // self::$hasRoster = true;
         // self::$rosterData = array(
-        //     array("user_id" => "292832126", "person_name_given" => "Jane", "person_name_family" => "Instructor", "person_contact_email_primary" => "inst@ischool.edu", "person_name_full" => "Jane Instructor", "role" => "Instructor", "groups" => array(array("title" => "Group1"))),
-        //     array("user_id" => "121212341", "person_name_given" => "Bev", "person_name_family" => "Person", "person_contact_email_primary" => "bev@ischool.edu", "person_name_full" => "Bev Person", "role" => "Learner", "groups" => array(array("title" => "Group1"))),
-        //     array("user_id" => "998928898", "person_name_given" => "Sue", "person_name_family" => "Student", "person_contact_email_primary" => "student@ischool.edu", "person_name_full" => "Sue Student", "role" => "Learner", "groups" => array(array("title" => "Group1"))),
-        //     array("user_id" => "121212331", "person_name_given" => "Ed", "person_name_family" => "Student", "person_contact_email_primary" => "ed@ischool.edu", "person_name_full" => "Ed Student", "role" => "Learner", "groups" => array(array("title" => "Group1"))),
+        //     array("person_sourcedid" => "123", "user_id" => "292832126", "person_name_given" => "Jane", "person_name_family" => "Instructor", "person_contact_email_primary" => "inst@ischool.edu", "person_name_full" => "Jane Instructor", "role" => "Instructor", "groups" => array(array("title" => "Group1"))),
+        //     array("person_sourcedid" => "234", "user_id" => "121212341", "person_name_given" => "Bev", "person_name_family" => "Person", "person_contact_email_primary" => "bev@ischool.edu", "person_name_full" => "Bev Person", "role" => "Learner", "groups" => array(array("title" => "Group1"))),
+        //     array("person_sourcedid" => "345", "user_id" => "998928898", "person_name_given" => "Sue", "person_name_family" => "Student", "person_contact_email_primary" => "student@ischool.edu", "person_name_full" => "Sue Student", "role" => "Learner", "groups" => array(array("title" => "Group1"))),
+        //     array("person_sourcedid" => "456", "user_id" => "000000000", "person_name_given" => "Une", "person_name_family" => "Cooperative", "person_contact_email_primary" => "never@loggedin.edu", "person_name_full" => "Une Cooperative", "role" => "Learner", "groups" => array(array("title" => "Group1"))),
+        //     array("person_sourcedid" => "567", "user_id" => "121212331", "person_name_given" => "Ed", "person_name_family" => "Student", "person_contact_email_primary" => "ed@ischool.edu", "person_name_full" => "Ed Student", "role" => "Learner", "groups" => array(array("title" => "Group1"))),
         // );
     }
 
@@ -51,6 +52,15 @@ class CommonService
             return 'No user';
         } else {
             return array('username' => self::$user->displayname);
+        }
+    }
+
+    static function roster()
+    {
+        if (isset(self::$hasRoster) && isset(self::$rosterData)) {
+            return self::$rosterData;
+        } else {
+            return array();
         }
     }
 
@@ -103,7 +113,12 @@ class CommonService
     static function sendEmailFromActiveUser($recipientName, $recipientEmail, $subject, $body)
     {
         global $USER;
-        $msg = "Hi " . $recipientName . ",\n\n" . $body . "\n\nHave a great day!";
+        if (isset($recipientName) && strlen($recipientName) > 0) {
+            $salutation = "Hi " . $recipientName . ",\n\n";
+        } else {
+            $salutation = "Hi,\n\n";
+        }
+        $msg = $salutation . $body . "\n\nHave a great day!";
 
         // use wordwrap() if lines are longer than 120 characters
         $msg = wordwrap($msg, 120);

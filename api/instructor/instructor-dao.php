@@ -135,9 +135,28 @@ class InstructorDAO
         return $this->PDOX->allRowsDie($query, $arr);
     }
 
-    public function getKnownUsage($contextId)
+    public function getAwardCounts($configurationId)
     {
-        $query = "SELECT u.user_id, u.user_key, u.displayname as learner_name, SUM(cat.token_cost) as tokens_used FROM {$this->p}tokens_request r
+        $query = "SELECT
+            recipient_id,
+            COALESCE(SUM(award_count), 0) as tokens_awarded
+        FROM {$this->p}tokens_award
+        WHERE configuration_id = :configurationId
+        GROUP BY recipient_id;";
+        $arr = array(':configurationId' => $configurationId);
+        return $this->PDOX->allRowsDie($query, $arr);
+    }
+
+    public function getKnownUsage($contextId, $configurationId)
+    {
+        $query = "SELECT
+            u.user_id,
+            u.user_key,
+            u.email,
+            u.displayname as learner_name,
+            COALESCE(SUM(cat.token_cost), 0) as tokens_used,
+            (SELECT COALESCE(SUM(award_count), 0) FROM {$this->p}tokens_award WHERE u.email = recipient_id AND configuration_id = :configurationId) as tokens_awarded
+        FROM {$this->p}tokens_request r
         INNER JOIN {$this->p}tokens_configuration c
             ON c.configuration_id = r.configuration_id
         INNER JOIN {$this->p}tokens_category cat
@@ -146,8 +165,15 @@ class InstructorDAO
             ON u.user_id = r.user_id
         WHERE c.context_id = :contextId AND r.status_name != 'REJECTED'
         GROUP BY u.user_id;";
-        $arr = array(':contextId' => $contextId);
+        $arr = array(':contextId' => $contextId, ':configurationId' => $configurationId);
         return $this->PDOX->allRowsDie($query, $arr);
+    }
+
+    public function getAwardCountByEmail($configurationId, $email)
+    {
+        $query = "SELECT COALESCE(SUM(award_count), 0) as total FROM {$this->p}tokens_award WHERE recipient_id = :email AND configuration_id = :configurationId;";
+        $arr = array(':email' => $email, ':configurationId' => $configurationId);
+        return $this->PDOX->rowDie($query, $arr);
     }
 
     public function updateRequest($contextId, $requestId, $newStatus, $instructorId, $instructorComment)
@@ -171,5 +197,14 @@ class InstructorDAO
         WHERE request_id = :requestId";
         $arr = array(':requestId' => $requestId);
         return $this->PDOX->rowDie($query, $arr);
+    }
+
+    public function addAwardToken($configId, $userId, $count, $comment)
+    {
+        $query = "INSERT INTO {$this->p}tokens_award (configuration_id, recipient_id, award_count, comment)
+        VALUES (:configId, :userId, :awardCount, :comment);";
+        $arr = array(':configId' => $configId, ':userId' => $userId, ':awardCount' => $count, ':comment' => $comment);
+        $this->PDOX->queryDie($query, $arr);
+        return $this->PDOX->lastInsertId();
     }
 }

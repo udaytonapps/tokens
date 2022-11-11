@@ -40,10 +40,12 @@ export interface TokensCategory {
 
 export interface BalancesTableRow {
   user_id: string;
+  recipient_key: string;
   learner_name: string;
   tokens_used: number;
   balance?: number;
   pendingRequests?: number;
+  tokens_awarded?: number;
 }
 
 export interface RequestsTableRow {
@@ -67,6 +69,16 @@ export interface RequestUpdateData {
   request_id: string;
   status_name: RequestStatus;
   instructor_comment?: string;
+}
+
+export interface TokenAward {
+  award_count: number;
+  award_id: number;
+  comment: string;
+  configuration_id: number;
+  created_at: string;
+  recipient_id: string;
+  updated_at: string;
 }
 
 export interface HistoryTableRow extends RequestsTableRow {}
@@ -115,4 +127,8 @@ export interface GetAllBalancesResponse extends ApiResponse {
 
 export interface GetSubmittedRequestsResponse extends ApiResponse {
   data: RequestsTableRow[];
+}
+
+export interface GetAwardsRequestsResponse extends ApiResponse {
+  data: TokenAward[];
 }
