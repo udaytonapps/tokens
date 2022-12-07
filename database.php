@@ -146,10 +146,17 @@ $DATABASE_INSTALL = array(
 );
 
 $DATABASE_UPGRADE = function ($oldversion) {
-    global $PDOX, $TOKENS_AWARD_TABLE_NAME;
+    global $PDOX, $TOKENS_AWARD_TABLE_NAME, $TOKENS_CONFIG_TABLE_NAME;
     // Add updated_at column
     if ($PDOX->columnExists('recipient_id', "{$TOKENS_AWARD_TABLE_NAME}")) {
         $sql = "ALTER TABLE {$TOKENS_AWARD_TABLE_NAME} MODIFY COLUMN recipient_id VARCHAR(255) NOT NULL";
+        echo ("Upgrading: " . $sql . "<br/>\n");
+        error_log("Upgrading: " . $sql);
+        $q = $PDOX->queryDie($sql);
+    }
+
+    if (!$PDOX->columnExists('general_note', "{$TOKENS_CONFIG_TABLE_NAME}")) {
+        $sql = "ALTER TABLE {$TOKENS_CONFIG_TABLE_NAME} ADD COLUMN general_note TEXT";
         echo ("Upgrading: " . $sql . "<br/>\n");
         error_log("Upgrading: " . $sql);
         $q = $PDOX->queryDie($sql);
