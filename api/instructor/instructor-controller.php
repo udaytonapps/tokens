@@ -30,7 +30,7 @@ class InstructorCtr
         // Change the date to midnight of that day in the CFG timezone
         $date = CommonService::setDateStringToConfigTZEndOfDay(($data['use_by_date']));
 
-        $newConfigId = self::$DAO->addConfiguration(self::$user->id, self::$contextId, self::$linkId, $data['initial_tokens'], $date, $data['notifications_pref']);
+        $newConfigId = self::$DAO->addConfiguration(self::$user->id, self::$contextId, self::$linkId, $data['initial_tokens'], $date, $data['notifications_pref'], isset($data['general_note']) ? $data['general_note'] : null);
         // assign categories to that configuration
         $categories = $data['categories'];
         foreach ($categories as $category) {
@@ -68,6 +68,7 @@ class InstructorCtr
                 'use_by_date' => $config['use_by_date'],
                 'notifications_pref' => $option,
                 'categories' => $config['categories'],
+                'general_note' => $config['general_note']
             );
         } else {
             return null;
@@ -86,7 +87,7 @@ class InstructorCtr
         $date = CommonService::setDateStringToConfigTZEndOfDay(($data['use_by_date']));
 
         // Update the configuration
-        self::$DAO->updateConfiguration(self::$user->id, self::$contextId, $data['initial_tokens'], $date, $data['notifications_pref']);
+        self::$DAO->updateConfiguration(self::$user->id, self::$contextId, $data['initial_tokens'], $date, $data['notifications_pref'], isset($data['general_note']) ? $data['general_note'] : null);
 
         // Update the create/update/delete the categories
         foreach ($data['categories'] as $category) {
