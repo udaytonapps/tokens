@@ -72,6 +72,14 @@ function RequestForm(props: RequestFormProps) {
     setSubmitted(false);
   };
 
+  // Establish editorState so it can be checked for being empty before rendering
+  let editorState = EditorState.createEmpty();
+  if (settings.general_note) {
+    editorState = EditorState.createWithContent(
+      convertFromRaw(JSON.parse(settings.general_note))
+    );
+  }
+
   return (
     <Box>
       {!selectedCategory ? (
@@ -85,21 +93,20 @@ function RequestForm(props: RequestFormProps) {
             </Typography>
           </Box>
           <Box mb={2}>
-            {settings?.general_note && (
-              <Box>
-                <Alert severity="info">
-                  <Editor
-                    editorStyle={{
-                      margin: 0,
-                    }}
-                    editorState={EditorState.createWithContent(
-                      convertFromRaw(JSON.parse(settings.general_note))
-                    )}
-                    toolbarHidden={true}
-                  />
-                </Alert>
-              </Box>
-            )}
+            {settings?.general_note &&
+              editorState.getCurrentContent().hasText() && (
+                <Box>
+                  <Alert severity="info">
+                    <Editor
+                      editorStyle={{
+                        margin: 0,
+                      }}
+                      editorState={editorState}
+                      toolbarHidden={true}
+                    />
+                  </Alert>
+                </Box>
+              )}
           </Box>
           <Box display={"flex"} flexDirection={"column"}>
             {sortedCategories.map((category) => (
