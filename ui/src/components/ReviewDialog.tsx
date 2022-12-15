@@ -44,7 +44,7 @@ function ReviewDialog(props: ReviewDialogProps) {
   useEffect(() => {
     if (open) {
       setActionStatus(undefined);
-      setComment(undefined);
+      setComment("");
     }
   }, [open]);
 
