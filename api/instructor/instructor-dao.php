@@ -18,21 +18,21 @@ class InstructorDAO
         $this->PDOX = $PDOX;
     }
 
-    public function addConfiguration($userId, $contextId, $linkId, $initialTokens, $useByDate, $notificationsPref)
+    public function addConfiguration($userId, $contextId, $linkId, $initialTokens, $useByDate, $notificationsPref, $generalNote)
     {
-        $query = "INSERT INTO {$this->p}tokens_configuration (user_id, context_id, link_id, initial_tokens, use_by_date, notifications_pref)
-        VALUES (:userId, :contextId, :linkId, :initialTokens, :useByDate, :notificationsPref);";
-        $arr = array(':userId' => $userId, ':contextId' => $contextId, ':linkId' => $linkId, ':initialTokens' => $initialTokens, ':useByDate' => $useByDate, ':notificationsPref' => (int)$notificationsPref);
+        $query = "INSERT INTO {$this->p}tokens_configuration (user_id, context_id, link_id, initial_tokens, use_by_date, notifications_pref, general_note)
+        VALUES (:userId, :contextId, :linkId, :initialTokens, :useByDate, :notificationsPref, :generalNote);";
+        $arr = array(':userId' => $userId, ':contextId' => $contextId, ':linkId' => $linkId, ':initialTokens' => $initialTokens, ':useByDate' => $useByDate, ':notificationsPref' => (int)$notificationsPref, ':generalNote' => $generalNote);
         $this->PDOX->queryDie($query, $arr);
         return $this->PDOX->lastInsertId();
     }
 
-    public function updateConfiguration($userId, $contextId, $initialTokens, $useByDate, $notificationsPref)
+    public function updateConfiguration($userId, $contextId, $initialTokens, $useByDate, $notificationsPref, $generalNote)
     {
         $query = "UPDATE {$this->p}tokens_configuration
-        SET user_id = :userId, initial_tokens = :initialTokens, use_by_date = :useByDate, notifications_pref = :notificationsPref
+        SET user_id = :userId, initial_tokens = :initialTokens, use_by_date = :useByDate, notifications_pref = :notificationsPref, general_note = :generalNote
         WHERE context_id = :contextId";
-        $arr = array('userId' => $userId, ':contextId' => $contextId, ':initialTokens' => $initialTokens, ':useByDate' => $useByDate, ':notificationsPref' => (int)$notificationsPref);
+        $arr = array('userId' => $userId, ':contextId' => $contextId, ':initialTokens' => $initialTokens, ':useByDate' => $useByDate, ':notificationsPref' => (int)$notificationsPref, ':generalNote' => $generalNote);
         return $this->PDOX->queryDie($query, $arr);
     }
 

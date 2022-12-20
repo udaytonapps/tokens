@@ -44,6 +44,7 @@ class LearnerCtr
                 'initial_tokens' => intval($config['initial_tokens']),
                 'use_by_date' => $config['use_by_date'],
                 'categories' => $config['categories'],
+                'general_note' => $config['general_note']
             );
         } else {
             return null;

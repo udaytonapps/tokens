@@ -1,5 +1,7 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, TextField, Typography } from "@mui/material";
+import { convertFromRaw, EditorState } from "draft-js";
 import { Dispatch, FormEvent, SetStateAction, useState } from "react";
+import { Editor } from "react-draft-wysiwyg";
 import { addRequest } from "../utils/api-connector";
 import { tokensAreExpired } from "../utils/helpers";
 import { TokensCategory, TokensSettings } from "../utils/types";
@@ -70,6 +72,14 @@ function RequestForm(props: RequestFormProps) {
     setSubmitted(false);
   };
 
+  // Establish editorState so it can be checked for being empty before rendering
+  let editorState = EditorState.createEmpty();
+  if (settings.general_note) {
+    editorState = EditorState.createWithContent(
+      convertFromRaw(JSON.parse(settings.general_note))
+    );
+  }
+
   return (
     <Box>
       {!selectedCategory ? (
@@ -77,10 +87,26 @@ function RequestForm(props: RequestFormProps) {
           <Box mb={4}>
             <Typography fontSize={30}>Request</Typography>
           </Box>
-          <Box mb={4}>
+          <Box mb={2}>
             <Typography>
               Use tokens by selecting one of the requests below.
             </Typography>
+          </Box>
+          <Box mb={2}>
+            {settings?.general_note &&
+              editorState.getCurrentContent().hasText() && (
+                <Box>
+                  <Alert severity="info">
+                    <Editor
+                      editorStyle={{
+                        margin: 0,
+                      }}
+                      editorState={editorState}
+                      toolbarHidden={true}
+                    />
+                  </Alert>
+                </Box>
+              )}
           </Box>
           <Box display={"flex"} flexDirection={"column"}>
             {sortedCategories.map((category) => (

@@ -26,6 +26,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { DB_DATE_TIME_FORMAT } from "../utils/constants";
 import { AppContext } from "../utils/context";
 import { TokensSettings } from "../utils/types";
+import RichTextField from "./RichTextField";
 
 interface SettingsDialogProps {
   handleClose: (event?: object, reason?: string) => void;
@@ -85,6 +86,9 @@ function SettingsDialog(props: SettingsDialogProps) {
       setValue("initial_tokens", settings.initial_tokens);
       setValue("notifications_pref", settings.notifications_pref);
       setValue("use_by_date", formattedDate);
+      if (settings?.general_note) {
+        setValue("general_note", settings.general_note);
+      }
       if (settings.categories.length) {
         setValue("categories", settings.categories);
       } else {
@@ -142,6 +146,7 @@ function SettingsDialog(props: SettingsDialogProps) {
       use_by_date: data.use_by_date,
       notifications_pref: data.notifications_pref,
       categories: data.categories,
+      general_note: data.general_note,
     };
     // Update any category dbActions and sortOrder
     settingsToSubmit.categories.forEach((category, i) => {
@@ -256,10 +261,38 @@ function SettingsDialog(props: SettingsDialogProps) {
                 </Typography>
               </Box>
             </Box>
+            {/* INSTRUCTIONS */}
+            <Box mb={3}>
+              <Box display={"flex"} flexDirection={"column"}>
+                <Box mr={3} mb={1} mt={2}>
+                  <InputLabel htmlFor="email-pref">
+                    <Typography fontWeight={"bold"}>
+                      Note to Students:
+                    </Typography>
+                  </InputLabel>
+                </Box>
+                <Box mb={2}>
+                  <Typography variant="body2">
+                    Display specific comments to students before they make a
+                    request.
+                  </Typography>
+                </Box>
+                <Box display={"flex"} alignItems={"flex-end"} gap={2}>
+                  <Box>
+                    <RichTextField
+                      control={control}
+                      fieldKey={"general_note"}
+                      fieldValue={settings?.general_note}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+
             {/* CATEGORY SELECTION */}
             <Box display={"flex"} flexDirection={"column"}>
               <Box display={"flex"}>
-                <Box minWidth={330} mr={2}>
+                <Box minWidth={330} mr={5.5}>
                   <InputLabel htmlFor="category-name-input-0">
                     <Typography fontWeight={"bold"}>Categories:</Typography>
                   </InputLabel>
@@ -287,7 +320,7 @@ function SettingsDialog(props: SettingsDialogProps) {
                     <Box key={category.id}>
                       {/* Categories are only shown if not marked for deletion */}
                       {category.dbAction !== "DELETE" && (
-                        <Box display={"flex"}>
+                        <Box display={"flex"} alignItems={"center"}>
                           <Box>
                             <IconButton
                               size="small"

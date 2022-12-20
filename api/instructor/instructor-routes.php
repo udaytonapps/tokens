@@ -21,7 +21,7 @@ Route::add($resource . '/settings', restrict(function () {
 Route::add($resource . '/settings', restrict(function () {
     // Define the expected data
     $requiredData = array('initial_tokens', 'categories', 'notifications_pref', 'use_by_date');
-    $optionalData = array();
+    $optionalData = array('general_note');
     // Assemble from JSON to PHP associative array
     $data = Route::assembleRouteData($requiredData, $optionalData);
     if (
@@ -61,7 +61,7 @@ Route::add($resource . '/settings', restrict(function () {
 Route::add($resource . '/settings', restrict(function () {
     // Define the expected data
     $requiredData = array('configuration_id', 'initial_tokens', 'categories', 'notifications_pref', 'use_by_date');
-    $optionalData = array();
+    $optionalData = array('general_note');
     // Assemble from JSON to PHP associative array
     $data = Route::assembleRouteData($requiredData, $optionalData);
     if (!isset($data)) {

@@ -44,7 +44,7 @@ function ReviewDialog(props: ReviewDialogProps) {
   useEffect(() => {
     if (open) {
       setActionStatus(undefined);
-      setComment(undefined);
+      setComment("");
     }
   }, [open]);
 
@@ -83,7 +83,7 @@ function ReviewDialog(props: ReviewDialogProps) {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={handleClose} fullWidth={true}>
       {requestRow && (
         <Box p={2}>
           <form onSubmit={onSubmit}>
@@ -94,7 +94,6 @@ function ReviewDialog(props: ReviewDialogProps) {
                   Review or take action on a token request.
                 </DialogContentText>
               </Box>
-
               {/* LEARNER NAME */}
               <Box display={"flex"} mt={1} mb={2} alignItems={"center"}>
                 <Box mr={2}>

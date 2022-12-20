@@ -27,6 +27,7 @@ export interface TokensSettings {
   categories: TokensCategory[];
   use_by_date: string;
   configuration_id?: string;
+  general_note?: string;
 }
 
 export interface TokensCategory {
@@ -36,6 +37,7 @@ export interface TokensCategory {
   sort_order: number;
   category_id?: string;
   dbAction?: "ADD" | "UPDATE" | "DELETE";
+  category_note?: string;
 }
 
 export interface BalancesTableRow {
